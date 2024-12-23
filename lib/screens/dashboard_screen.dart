@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class DasboardScreen extends StatefulWidget {
-  const DasboardScreen({super.key});
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
 
-  State<DasboardScreen> createState() => _DasboardScreen();
+  State<DashboardScreen> createState() => _DashboardScreen();
 
 }
 
-class _DasboardScreen extends State<DasboardScreen>{
+class _DashboardScreen extends State<DashboardScreen>{
   @override
   void initState() {
     super.initState();
