@@ -26,8 +26,6 @@ class _LoginScreen extends State<LoginScreen>{
   @override
   void initState() {
     super.initState();
-
-
   }
 
   @override
@@ -105,7 +103,7 @@ class _LoginScreen extends State<LoginScreen>{
                     }else if (password == ""){
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter password')),);
                     }else{
-                      doLogin();
+                      doLogin(username,password);
                       //makePostRequestOne();
                     }
                     /*ScaffoldMessenger.of(context).showSnackBar(
@@ -123,12 +121,12 @@ class _LoginScreen extends State<LoginScreen>{
   }
 
 
-  Future<void> doLogin() async {
+  Future<void> doLogin(username,password) async {
     try {
 
       final dio = Dio();
       final apiService = ApiService(dio);
-      final userRequest = LoginTypeReq(login_id: "8017845376",login_password: "123",app_version: "1.0.1",device_token: "hsdfhsgdfhsdff" );
+      final userRequest = LoginTypeReq(login_id: username,login_password: password,app_version: "1.0.1",device_token: "" );
       final userResponse = await apiService.doLogin(userRequest);
 
       print("User login response: ${userResponse.status}");
@@ -139,7 +137,7 @@ class _LoginScreen extends State<LoginScreen>{
   }
 
 
-  Future<void> makePostRequestOne() async {
+  Future<void> apiCall() async {
     try {
       /*  final database = await $FloorAppDatabase
           .databaseBuilder('app_database.db')
@@ -151,9 +149,14 @@ class _LoginScreen extends State<LoginScreen>{
       final dio = Dio(); // Provide a Dio instance
       final apiService = ApiService(dio);
       final userRequest = StoreTypeReq(user_id: "11707");
-      final userResponse = await apiService.getStoreType(userRequest);
+      final response = await apiService.getStoreType(userRequest);
 
-      print("User Created: ${userResponse.status}");
+      if(response.status == "200"){
+        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Dashboa()),);
+      }else{
+        print("User Created: ${response.status}");
+      }
+
 
     } catch (error) {
       print('Error: $error');
