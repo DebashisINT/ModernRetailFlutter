@@ -25,8 +25,6 @@ class _LoginScreen extends State<LoginScreen>{
   @override
   void initState() {
     super.initState();
-
-
   }
 
   @override
@@ -41,17 +39,26 @@ class _LoginScreen extends State<LoginScreen>{
             children: [
               Center(
                 child: Container(
-                  width: 100, // Set desired width for the image
-                  height: 100, // Set desired height for the image
+                  width: 60, // Set desired width for the image
+                  height: 60, // Set desired height for the image
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/icon_logo.png'), // Replace with your image path
-                      fit: BoxFit.cover, // This will cover the entire container
+                      image: AssetImage('assets/images/logo.jpg'), // Path to your image asset
+                      fit: BoxFit.cover, // This will cover the entire container, cropping if necessary
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 40), // Fixed height of 60 pixels from the top
+              SizedBox(height: 20), // Fixed height of 60 pixels from the top
+
+              Text(
+                'Login',
+                style: TextStyle(
+                  fontSize: 34.0,  // Custom font size
+                  fontWeight: FontWeight.bold,  // Bold font weight
+                ),
+              ),
+              SizedBox(height: 20),
 
               // Username TextField
               TextField(
@@ -112,9 +119,30 @@ class _LoginScreen extends State<LoginScreen>{
     );
   }
 
+  Future<void> callLoginApi() async {
+    try {
+      /*  final database = await $FloorAppDatabase
+          .databaseBuilder('app_database.db')
+          .build();*/
+      //final itemDao = database.storeTypeDao;
+      //final newItem = StoreTypeEntity(title: 'T1',desc: 'Desc t1');
+      //await itemDao.insertStoreType(newItem);
+
+      final dio = Dio(); // Provide a Dio instance
+      final apiService = ApiService(dio);
+      final userRequest = StoreTypeReq(user_id: "11707");
+      final userResponse = await apiService.getStoreType(userRequest);
+
+      print("User Created: ${userResponse.status}");
+
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
   Future<void> makePostRequestOne() async {
     try {
-    /*  final database = await $FloorAppDatabase
+      /*  final database = await $FloorAppDatabase
           .databaseBuilder('app_database.db')
           .build();*/
       //final itemDao = database.storeTypeDao;
