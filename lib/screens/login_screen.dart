@@ -152,7 +152,10 @@ class _LoginScreen extends State<LoginScreen>{
       final response = await apiService.getStoreType(userRequest);
 
       if(response.status == "200"){
-        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Dashboa()),);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardScreen()),
+        );
       }else{
         print("User Created: ${response.status}");
       }
