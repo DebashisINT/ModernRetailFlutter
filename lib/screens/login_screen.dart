@@ -131,6 +131,14 @@ class _LoginScreen extends State<LoginScreen>{
       final userResponse = await apiService.doLogin(userRequest);
 
       print("User login response: ${userResponse.status}");
+      if(userResponse.status == "200"){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardScreen()),
+        );
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(userResponse.message)),);
+      }
 
     } catch (error) {
       print('Error: $error');
@@ -153,6 +161,7 @@ class _LoginScreen extends State<LoginScreen>{
       final response = await apiService.getStoreType(userRequest);
 
       if(response.status == "200"){
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => DashboardScreen()),
