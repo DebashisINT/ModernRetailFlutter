@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo_one/api/login_type_req.dart';
 import 'package:flutter_demo_one/database/app_database.dart';
 import 'package:http/http.dart' as http;
 import '../api/api_service.dart';
@@ -25,6 +26,8 @@ class _LoginScreen extends State<LoginScreen>{
   @override
   void initState() {
     super.initState();
+
+
   }
 
   @override
@@ -102,8 +105,8 @@ class _LoginScreen extends State<LoginScreen>{
                     }else if (password == ""){
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter password')),);
                     }else{
-                      //makePostRequest();
-                      makePostRequestOne();
+                      doLogin();
+                      //makePostRequestOne();
                     }
                     /*ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Username: $username, Password: $password')),
@@ -119,26 +122,22 @@ class _LoginScreen extends State<LoginScreen>{
     );
   }
 
-  Future<void> callLoginApi() async {
+
+  Future<void> doLogin() async {
     try {
-      /*  final database = await $FloorAppDatabase
-          .databaseBuilder('app_database.db')
-          .build();*/
-      //final itemDao = database.storeTypeDao;
-      //final newItem = StoreTypeEntity(title: 'T1',desc: 'Desc t1');
-      //await itemDao.insertStoreType(newItem);
 
-      final dio = Dio(); // Provide a Dio instance
+      final dio = Dio();
       final apiService = ApiService(dio);
-      final userRequest = StoreTypeReq(user_id: "11707");
-      final userResponse = await apiService.getStoreType(userRequest);
+      final userRequest = LoginTypeReq(login_id: "8017845376",login_password: "123",app_version: "1.0.1",device_token: "hsdfhsgdfhsdff" );
+      final userResponse = await apiService.doLogin(userRequest);
 
-      print("User Created: ${userResponse.status}");
+      print("User login response: ${userResponse.status}");
 
     } catch (error) {
       print('Error: $error');
     }
   }
+
 
   Future<void> makePostRequestOne() async {
     try {
