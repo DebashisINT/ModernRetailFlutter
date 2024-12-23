@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'login_screen.dart';
 
@@ -27,6 +28,13 @@ class _SplashScreen extends State<SplashScreen>{
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent, // Set the status bar color
+        statusBarIconBrightness: Brightness.dark, // Use light or dark icons
+      ),
+    );
+
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,

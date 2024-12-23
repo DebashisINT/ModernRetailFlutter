@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo_one/database/app_database.dart';
 import 'package:flutter_demo_one/screens/login_screen.dart';
 import 'package:flutter_demo_one/screens/splash_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 late final AppDatabase appDatabase;
+late SharedPreferences pref;
 
 void main() async {
-  //appDatabase = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
+  WidgetsFlutterBinding.ensureInitialized();
+  initSharedPreferences();
+  appDatabase = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
   runApp(const MyApp());
 }
 
@@ -23,6 +27,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
+initSharedPreferences() async{
+  pref = await SharedPreferences.getInstance();
+}
+
+/*
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
@@ -109,4 +118,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-}
+}*/

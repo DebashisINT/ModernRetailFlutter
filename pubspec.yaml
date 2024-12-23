@@ -39,6 +39,7 @@ dependencies:
   retrofit: '>=4.0.0 <5.0.0'  # Retrofit version that works with dio 4.x
   json_serializable: ^6.0.0
   json_annotation: ^4.0.1
+  shared_preferences: ^2.3.4
 
 dev_dependencies:
   flutter_test:
