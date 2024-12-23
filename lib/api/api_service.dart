@@ -1,32 +1,14 @@
-import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:flutter_demo_one/api/api_response.dart';
+import 'package:retrofit/http.dart';
 
-import 'login_request.dart';
-import 'login_response.dart';
-import 'package:http/http.dart' as http;
+import 'store_type_req.dart';
+part 'api_service.g.dart';
 
-class ApiService {
-  final String apiUrl;
+@RestApi(baseUrl: "http://3.7.30.86:8075/API/")
+abstract class ApiService {
+  factory ApiService(Dio dio, {String? baseUrl}) = _ApiService;
 
-  ApiService(this.apiUrl);
-
-  Future<LoginResponse> postRequest(LoginRequest requestModel) async {
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(requestModel.toJson()),
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        return LoginResponse.fromJson(responseData);
-      } else {
-        throw Exception('Failed to post data: ${response.statusCode}');
-      }
-    } catch (error) {
-      throw Exception('Error occurred: $error');
-    }
-  }
+  @POST("ModernRetailInfoDetails/StoreTypeLists")
+  Future<ApiResponse> getStoreType(@Body() StoreTypeReq obj);
 }

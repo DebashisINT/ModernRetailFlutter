@@ -2,10 +2,15 @@ import 'package:floor/floor.dart';
 
 @Entity(tableName: 'store_type')
 class StoreTypeEntity{
-  @PrimaryKey(autoGenerate: true)
-  final int? id;
-  final String title;
-  final String desc;
+  @PrimaryKey(autoGenerate: false)
+  final int type_id;
+  final String type_name;
 
-  StoreTypeEntity({this.id,required this.title,required this.desc});
+  StoreTypeEntity({required this.type_id,required this.type_name});
+
+  factory StoreTypeEntity.fromJson(Map<String, dynamic> json) {
+    return StoreTypeEntity(
+        type_id: json['type_id'],type_name: json['type_name'],  // Map JSON properties to StoreTypeEntity fields
+    );
+  }
 }
