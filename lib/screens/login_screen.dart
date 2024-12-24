@@ -130,7 +130,7 @@ class _LoginScreen extends State<LoginScreen>{
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
                         child: Image.asset(
-                          'assets/images/iclock.png', // Your custom icon image
+                          'assets/images/ic_lock.png', // Your custom icon image
                           width: 14, // You can set width and height to fit
                           height: 14,
                           fit: BoxFit.contain,
