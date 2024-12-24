@@ -92,8 +92,8 @@ class _StoreAddScreen extends State<StoreAddScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 children: [
-                  buildInputField('assets/images/ic_store_color.png', 'Store type', storeTypeController,TextInputType.text,100, isDropdown: true),
-                  buildInputField('assets/images/ic_store_color.png',
+                  buildInputField('assets/images/ic_store_color.jpg', 'Store type', storeTypeController,TextInputType.text,100, isDropdown: true),
+                  buildInputField('assets/images/ic_store_color.jpg',
                       'Store Name', storeNameController,TextInputType.text,100),
                   buildInputField('assets/images/ic_location.png', 'Address',
                       storeAddressController,TextInputType.text,500),

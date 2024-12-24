@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo_one/database/app_database.dart';
 import 'package:flutter_demo_one/screens/login_screen.dart';
 import 'package:flutter_demo_one/screens/splash_screen.dart';
+import 'package:flutter_demo_one/screens/store_add_screen.dart';
 import 'package:flutter_demo_one/screens/store_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: SplashScreen(),
     );
   }
 }
