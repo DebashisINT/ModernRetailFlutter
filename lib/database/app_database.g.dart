@@ -254,7 +254,7 @@ class _$StoreDao extends StoreDao {
   }
 
   @override
-  Future<void> insertStoreType(StoreEntity obj) async {
+  Future<void> insertStore(StoreEntity obj) async {
     await _storeEntityInsertionAdapter.insert(obj, OnConflictStrategy.abort);
   }
 }

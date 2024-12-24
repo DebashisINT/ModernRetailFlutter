@@ -7,5 +7,5 @@ abstract class StoreDao{
   Future<List<StoreEntity>> getAll();
 
   @insert
-  Future<void> insertStoreType(StoreEntity obj);
+  Future<void> insertStore(StoreEntity obj);
 }

@@ -40,6 +40,7 @@ dependencies:
   json_serializable: ^6.0.0
   json_annotation: ^4.0.1
   shared_preferences: ^2.3.4
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:

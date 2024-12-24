@@ -22,7 +22,7 @@ class _StoreScreen extends State<StoreScreen> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         floatingActionButton: FloatingActionButton(onPressed: (){
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => StoreAddScreen()),
           );
