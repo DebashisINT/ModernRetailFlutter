@@ -65,6 +65,8 @@ class _$AppDatabase extends AppDatabase {
 
   ProductDao? _productDaoInstance;
 
+  StoreDao? _storeDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -89,6 +91,8 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `store_type` (`type_id` INTEGER NOT NULL, `type_name` TEXT NOT NULL, PRIMARY KEY (`type_id`))');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `store` (`store_id` TEXT NOT NULL, `store_name` TEXT NOT NULL, `store_address` TEXT NOT NULL, `store_pincode` TEXT NOT NULL, `store_lat` TEXT NOT NULL, `store_long` TEXT NOT NULL, `store_contact_name` TEXT NOT NULL, `store_contact_number` TEXT NOT NULL, `store_alternet_contact_number` TEXT NOT NULL, `store_whatsapp_number` TEXT NOT NULL, `store_email` TEXT NOT NULL, `store_type` TEXT NOT NULL, `store_size_area` TEXT NOT NULL, `store_state_id` TEXT NOT NULL, `remarks` TEXT NOT NULL, `create_date_time` TEXT NOT NULL, `store_pic_url` TEXT NOT NULL, `isUploaded` INTEGER NOT NULL, PRIMARY KEY (`store_id`))');
+        await database.execute(
             'CREATE TABLE IF NOT EXISTS `product` (`product_id` INTEGER NOT NULL, `state_id` INTEGER NOT NULL, `rate` REAL NOT NULL, PRIMARY KEY (`product_id`))');
 
         await callback?.onCreate?.call(database, version);
@@ -105,6 +109,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   ProductDao get productDao {
     return _productDaoInstance ??= _$ProductDao(database, changeListener);
+  }
+
+  @override
+  StoreDao get storeDao {
+    return _storeDaoInstance ??= _$StoreDao(database, changeListener);
   }
 }
 
@@ -178,5 +187,74 @@ class _$ProductDao extends ProductDao {
   @override
   Future<void> insertProduct(ProductEntity obj) async {
     await _productEntityInsertionAdapter.insert(obj, OnConflictStrategy.abort);
+  }
+}
+
+class _$StoreDao extends StoreDao {
+  _$StoreDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _storeEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'store',
+            (StoreEntity item) => <String, Object?>{
+                  'store_id': item.store_id,
+                  'store_name': item.store_name,
+                  'store_address': item.store_address,
+                  'store_pincode': item.store_pincode,
+                  'store_lat': item.store_lat,
+                  'store_long': item.store_long,
+                  'store_contact_name': item.store_contact_name,
+                  'store_contact_number': item.store_contact_number,
+                  'store_alternet_contact_number':
+                      item.store_alternet_contact_number,
+                  'store_whatsapp_number': item.store_whatsapp_number,
+                  'store_email': item.store_email,
+                  'store_type': item.store_type,
+                  'store_size_area': item.store_size_area,
+                  'store_state_id': item.store_state_id,
+                  'remarks': item.remarks,
+                  'create_date_time': item.create_date_time,
+                  'store_pic_url': item.store_pic_url,
+                  'isUploaded': item.isUploaded ? 1 : 0
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<StoreEntity> _storeEntityInsertionAdapter;
+
+  @override
+  Future<List<StoreEntity>> getAll() async {
+    return _queryAdapter.queryList('select * from store',
+        mapper: (Map<String, Object?> row) => StoreEntity(
+            store_id: row['store_id'] as String,
+            store_name: row['store_name'] as String,
+            store_address: row['store_address'] as String,
+            store_pincode: row['store_pincode'] as String,
+            store_lat: row['store_lat'] as String,
+            store_long: row['store_long'] as String,
+            store_contact_name: row['store_contact_name'] as String,
+            store_contact_number: row['store_contact_number'] as String,
+            store_alternet_contact_number:
+                row['store_alternet_contact_number'] as String,
+            store_whatsapp_number: row['store_whatsapp_number'] as String,
+            store_email: row['store_email'] as String,
+            store_type: row['store_type'] as String,
+            store_size_area: row['store_size_area'] as String,
+            store_state_id: row['store_state_id'] as String,
+            remarks: row['remarks'] as String,
+            create_date_time: row['create_date_time'] as String,
+            store_pic_url: row['store_pic_url'] as String,
+            isUploaded: (row['isUploaded'] as int) != 0));
+  }
+
+  @override
+  Future<void> insertStoreType(StoreEntity obj) async {
+    await _storeEntityInsertionAdapter.insert(obj, OnConflictStrategy.abort);
   }
 }
