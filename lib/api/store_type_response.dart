@@ -1,18 +1,18 @@
 
 
-class ApiResponse {
+class StoreTypeResponse {
   final String status;
   final String message;
   final List<StoreType> storeTypeList;
 
-  ApiResponse({
+  StoreTypeResponse({
     required this.status,
     required this.message,
     required this.storeTypeList,
   });
 
-  factory ApiResponse.fromJson(Map<String, dynamic> json) {
-    return ApiResponse(
+  factory StoreTypeResponse.fromJson(Map<String, dynamic> json) {
+    return StoreTypeResponse(
       status: json['status'] as String,
       message: json['message'] as String,
       storeTypeList: (json['store_type_list'] as List)

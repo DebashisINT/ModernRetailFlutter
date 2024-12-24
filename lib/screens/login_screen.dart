@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo_one/api/login_type_req.dart';
 import 'package:flutter_demo_one/database/app_database.dart';
+import 'package:flutter_demo_one/database/product_entity.dart';
 import 'package:flutter_demo_one/screens/dashboard_screen.dart';
 import 'package:http/http.dart' as http;
 import '../api/api_service.dart';
 //import '../api/login_request.dart';
-import '../api/store_type_req.dart';
+import '../api/user_id_req.dart';
 import '../app_color.dart';
 import '../database/store_type_entity.dart';
 import '../main.dart';
@@ -23,10 +24,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreen extends State<LoginScreen>{
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  late TextEditingController usernameController = TextEditingController();
+  late TextEditingController passwordController = TextEditingController();
 
   final dio = Dio();
+  bool _isPasswordVisible = false;
 
   bool _isChecked = false;
   void _toggleCheckbox(bool? value) {
@@ -38,6 +40,11 @@ class _LoginScreen extends State<LoginScreen>{
   @override
   void initState() {
     super.initState();
+    if(pref.getBool('isLoginRemember') ?? false){
+      usernameController = TextEditingController(text: pref.getString('userLoginID') ?? '');
+      passwordController = TextEditingController(text: pref.getString('userLoginPassword') ?? '');
+      _isChecked = true;
+    }
   }
 
   @override
@@ -92,8 +99,17 @@ class _LoginScreen extends State<LoginScreen>{
                   // Username TextField
                   TextField(
                     controller: usernameController,
-                    decoration: const InputDecoration(
+                    decoration:  InputDecoration(
                       labelText: 'Username',
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
+                        child: Image.asset(
+                          'assets/images/icuser.png', // Your custom icon image
+                          width: 14, // You can set width and height to fit
+                          height: 14,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                       border: OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.blue, width: 1.0), // Active (focused) color
@@ -108,14 +124,33 @@ class _LoginScreen extends State<LoginScreen>{
                   // Password TextField
                   TextField(
                     controller: passwordController,
-                    obscureText: true, // Hides the text for password input
-                    decoration: const InputDecoration(
+                    obscureText: !_isPasswordVisible, // Hides the text for password input
+                    decoration: InputDecoration(
                       labelText: 'Password',
-                      border: OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder(
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
+                        child: Image.asset(
+                          'assets/images/iclock.png', // Your custom icon image
+                          width: 14, // You can set width and height to fit
+                          height: 14,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible ? Icons.visibility : Icons.visibility_off, // Toggle icon
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible; // Change visibility
+                          });
+                        },
+                      ),
+                      border: const OutlineInputBorder(),
+                      focusedBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.blue, width: 1.0), // Active (focused) color
                       ),
-                      enabledBorder: OutlineInputBorder(
+                      enabledBorder: const OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey, width: 1.0), // Inactive (unfocused) color
                       ),
                     ),
@@ -162,9 +197,11 @@ class _LoginScreen extends State<LoginScreen>{
                           if(_isChecked){
                             await pref.setString('userLoginID', username);
                             await pref.setString('userLoginPassword', password);
+                            await pref.setBool('isLoginRemember', true);
                           }else{
                             await pref.setString('userLoginID', "");
                             await pref.setString('userLoginPassword', "");
+                            await pref.setBool('isLoginRemember', false);
                           }
                           doLogin(username, password);
                         }
@@ -193,8 +230,14 @@ class _LoginScreen extends State<LoginScreen>{
     );
   }
 
+
+
   Future<void> doLogin(username,password) async {
     try {
+      showDialog(context: context, builder: (context) {
+        return Center(child: CircularProgressIndicator());
+      },);
+
       final apiService = ApiService(dio);
       final userRequest = LoginTypeReq(login_id: username,login_password: password,app_version: "1.0.1",device_token: "" );
       final userResponse = await apiService.doLogin(userRequest);
@@ -202,49 +245,75 @@ class _LoginScreen extends State<LoginScreen>{
       if(userResponse.status == "200"){
         await pref.setString('user_id', userResponse.user_id);
         await pref.setString('user_name', userResponse.user_name);
-        apiCallShopType();
+        fetchData();
       }else{
+        Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(userResponse.message)),);
       }
     } catch (error) {
+      Navigator.of(context).pop();
       print('Error: $error');
     }
   }
 
-  Future<void> apiCallShopType() async {
+  void fetchData() async {
     try {
-      final apiService = ApiService(dio);
-      final userRequest = StoreTypeReq(user_id: pref.getString('user_id') ?? "");
-      final response = await apiService.getStoreType(userRequest);
+      Future<void> storeType = apiCallStoreType();
+      Future<void> product = apiCallProduct();
+      // Wait for all of them to complete
+      List<void> results = await Future.wait([storeType, product]);
+      Navigator.of(context).pop();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
+      );
+    } catch (e) {
+      print("Error occurred: $e");
+    }
+  }
 
-      if(response.status == "200"){
-        final itemDao = appDatabase.storeTypeDao;
-        for(int i = 0; i<response.storeTypeList.length;i++){
-          await itemDao.insertStoreType(StoreTypeEntity(type_id: response.storeTypeList[i].typeId,type_name: response.storeTypeList[i].typeName));
+  Future<void> apiCallStoreType() async {
+    try {
+      print("flow_chk apiCallStoreType begin");
+      final itemDao = appDatabase.storeTypeDao;
+      final storeTypeL = await itemDao.getAll();
+      if(storeTypeL.isEmpty) {
+        final apiService = ApiService(dio);
+        final userRequest = UserIdReq(user_id: pref.getString('user_id') ?? "");
+        final response = await apiService.getStoreType(userRequest);
+        if (response.status == "200") {
+          for (int i = 0; i < response.storeTypeList.length; i++) {
+            await itemDao.insertStoreType(StoreTypeEntity(
+                type_id: response.storeTypeList[i].typeId,
+                type_name: response.storeTypeList[i].typeName));
+          }
         }
-      }else{
-        print("User Created: ${response.status}");
       }
-
+      print("flow_chk apiCallStoreType end");
     } catch (error) {
       print('Error: $error');
     }
   }
+
   Future<void> apiCallProduct() async {
     try {
-      final apiService = ApiService(dio);
-      final userRequest = StoreTypeReq(user_id: pref.getString('user_id') ?? "");
-      final response = await apiService.getStoreType(userRequest);
-
-      if(response.status == "200"){
-        final itemDao = appDatabase.storeTypeDao;
-        for(int i = 0; i<response.storeTypeList.length;i++){
-          await itemDao.insertStoreType(StoreTypeEntity(type_id: response.storeTypeList[i].typeId,type_name: response.storeTypeList[i].typeName));
+      print("flow_chk apiCallProduct begin");
+      final itemDao = appDatabase.productDao;
+      final productL = await itemDao.getAll();
+      if(productL.isEmpty){
+        final apiService = ApiService(dio);
+        final userRequest = UserIdReq(user_id: pref.getString('user_id') ?? "");
+        final response = await apiService.getProduct(userRequest);
+        if(response.status == "200"){
+          for (int i = 0; i < response.productList.length; i++) {
+            await itemDao.insertProduct(ProductEntity(
+                product_id: response.productList[i].product_id,
+                state_id: response.productList[i].state_id,
+                rate: response.productList[i].rate));
+          }
         }
-      }else{
-        print("User Created: ${response.status}");
       }
-
+      print("flow_chk apiCallProduct end");
     } catch (error) {
       print('Error: $error');
     }

@@ -63,6 +63,8 @@ class _$AppDatabase extends AppDatabase {
 
   StoreTypeDao? _storeTypeDaoInstance;
 
+  ProductDao? _productDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -86,6 +88,8 @@ class _$AppDatabase extends AppDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `store_type` (`type_id` INTEGER NOT NULL, `type_name` TEXT NOT NULL, PRIMARY KEY (`type_id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `product` (`product_id` INTEGER NOT NULL, `state_id` INTEGER NOT NULL, `rate` REAL NOT NULL, PRIMARY KEY (`product_id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -96,6 +100,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   StoreTypeDao get storeTypeDao {
     return _storeTypeDaoInstance ??= _$StoreTypeDao(database, changeListener);
+  }
+
+  @override
+  ProductDao get productDao {
+    return _productDaoInstance ??= _$ProductDao(database, changeListener);
   }
 }
 
@@ -132,5 +141,42 @@ class _$StoreTypeDao extends StoreTypeDao {
   Future<void> insertStoreType(StoreTypeEntity obj) async {
     await _storeTypeEntityInsertionAdapter.insert(
         obj, OnConflictStrategy.abort);
+  }
+}
+
+class _$ProductDao extends ProductDao {
+  _$ProductDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _productEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'product',
+            (ProductEntity item) => <String, Object?>{
+                  'product_id': item.product_id,
+                  'state_id': item.state_id,
+                  'rate': item.rate
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<ProductEntity> _productEntityInsertionAdapter;
+
+  @override
+  Future<List<ProductEntity>> getAll() async {
+    return _queryAdapter.queryList('select * from product',
+        mapper: (Map<String, Object?> row) => ProductEntity(
+            product_id: row['product_id'] as int,
+            state_id: row['state_id'] as int,
+            rate: row['rate'] as double));
+  }
+
+  @override
+  Future<void> insertProduct(ProductEntity obj) async {
+    await _productEntityInsertionAdapter.insert(obj, OnConflictStrategy.abort);
   }
 }
