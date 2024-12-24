@@ -247,8 +247,9 @@ class _LoginScreen extends State<LoginScreen>{
         await pref.setString('user_name', userResponse.user_name);
         fetchData();
       }else{
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(userResponse.message)),);
+        fetchData();
+        //Navigator.of(context).pop();
+        //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(userResponse.message)),);
       }
     } catch (error) {
       Navigator.of(context).pop();
