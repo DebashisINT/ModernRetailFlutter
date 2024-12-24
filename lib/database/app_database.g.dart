@@ -63,7 +63,7 @@ class _$AppDatabase extends AppDatabase {
 
   StoreTypeDao? _storeTypeDaoInstance;
 
-  ProductDao? _productDaoInstance;
+  ProductRateDao? _productRateDaoInstance;
 
   StoreDao? _storeDaoInstance;
 
@@ -93,7 +93,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `store` (`store_id` TEXT NOT NULL, `store_name` TEXT NOT NULL, `store_address` TEXT NOT NULL, `store_pincode` TEXT NOT NULL, `store_lat` TEXT NOT NULL, `store_long` TEXT NOT NULL, `store_contact_name` TEXT NOT NULL, `store_contact_number` TEXT NOT NULL, `store_alternet_contact_number` TEXT NOT NULL, `store_whatsapp_number` TEXT NOT NULL, `store_email` TEXT NOT NULL, `store_type` TEXT NOT NULL, `store_size_area` TEXT NOT NULL, `store_state_id` TEXT NOT NULL, `remarks` TEXT NOT NULL, `create_date_time` TEXT NOT NULL, `store_pic_url` TEXT NOT NULL, `isUploaded` INTEGER NOT NULL, PRIMARY KEY (`store_id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `product` (`product_id` INTEGER NOT NULL, `state_id` INTEGER NOT NULL, `rate` REAL NOT NULL, PRIMARY KEY (`product_id`))');
+            'CREATE TABLE IF NOT EXISTS `product_rate` (`product_id` INTEGER NOT NULL, `state_id` INTEGER NOT NULL, `rate` REAL NOT NULL, PRIMARY KEY (`product_id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -107,8 +107,9 @@ class _$AppDatabase extends AppDatabase {
   }
 
   @override
-  ProductDao get productDao {
-    return _productDaoInstance ??= _$ProductDao(database, changeListener);
+  ProductRateDao get productRateDao {
+    return _productRateDaoInstance ??=
+        _$ProductRateDao(database, changeListener);
   }
 
   @override
@@ -153,15 +154,15 @@ class _$StoreTypeDao extends StoreTypeDao {
   }
 }
 
-class _$ProductDao extends ProductDao {
-  _$ProductDao(
+class _$ProductRateDao extends ProductRateDao {
+  _$ProductRateDao(
     this.database,
     this.changeListener,
   )   : _queryAdapter = QueryAdapter(database),
-        _productEntityInsertionAdapter = InsertionAdapter(
+        _productRateEntityInsertionAdapter = InsertionAdapter(
             database,
-            'product',
-            (ProductEntity item) => <String, Object?>{
+            'product_rate',
+            (ProductRateEntity item) => <String, Object?>{
                   'product_id': item.product_id,
                   'state_id': item.state_id,
                   'rate': item.rate
@@ -173,20 +174,21 @@ class _$ProductDao extends ProductDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<ProductEntity> _productEntityInsertionAdapter;
+  final InsertionAdapter<ProductRateEntity> _productRateEntityInsertionAdapter;
 
   @override
-  Future<List<ProductEntity>> getAll() async {
-    return _queryAdapter.queryList('select * from product',
-        mapper: (Map<String, Object?> row) => ProductEntity(
+  Future<List<ProductRateEntity>> getAll() async {
+    return _queryAdapter.queryList('select * from product_rate',
+        mapper: (Map<String, Object?> row) => ProductRateEntity(
             product_id: row['product_id'] as int,
             state_id: row['state_id'] as int,
             rate: row['rate'] as double));
   }
 
   @override
-  Future<void> insertProduct(ProductEntity obj) async {
-    await _productEntityInsertionAdapter.insert(obj, OnConflictStrategy.abort);
+  Future<void> insertProduct(ProductRateEntity obj) async {
+    await _productRateEntityInsertionAdapter.insert(
+        obj, OnConflictStrategy.abort);
   }
 }
 

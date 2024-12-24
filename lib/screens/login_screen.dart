@@ -299,7 +299,7 @@ class _LoginScreen extends State<LoginScreen>{
   Future<void> apiCallProduct() async {
     try {
       print("flow_chk apiCallProduct begin");
-      final itemDao = appDatabase.productDao;
+      final itemDao = appDatabase.productRateDao;
       final productL = await itemDao.getAll();
       if(productL.isEmpty){
         final apiService = ApiService(dio);
@@ -307,7 +307,7 @@ class _LoginScreen extends State<LoginScreen>{
         final response = await apiService.getProduct(userRequest);
         if(response.status == "200"){
           for (int i = 0; i < response.productList.length; i++) {
-            await itemDao.insertProduct(ProductEntity(
+            await itemDao.insertProduct(ProductRateEntity(
                 product_id: response.productList[i].product_id,
                 state_id: response.productList[i].state_id,
                 rate: response.productList[i].rate));

@@ -12,9 +12,9 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 import 'store_type_dao.dart';
 part 'app_database.g.dart';
 
-@Database(version: 1, entities: [StoreTypeEntity,StoreEntity,ProductEntity])
+@Database(version: 1, entities: [StoreTypeEntity,StoreEntity,ProductRateEntity])
 abstract class AppDatabase extends FloorDatabase{
   StoreTypeDao get storeTypeDao;
-  ProductDao get productDao;
+  ProductRateDao get productRateDao;
   StoreDao get storeDao;
 }
