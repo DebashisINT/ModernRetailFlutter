@@ -204,7 +204,7 @@ class _DashboardScreen extends State<DashboardScreen> {
       children: [
         // Background card with image
         Container(
-          width: 170,
+          width: MediaQuery.of(context).size.width * 0.45,
           height: 90,
           decoration: BoxDecoration(
             color: Colors.grey[200], // Fallback color in case image is not loaded
