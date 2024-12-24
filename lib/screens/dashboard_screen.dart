@@ -13,6 +13,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreen extends State<DashboardScreen> {
+
+
   @override
   void initState() {
     super.initState();
@@ -75,7 +77,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                         ),
                         child: Center( // This will center the image inside the circle
                           child: Image.asset(
-                            'assets/images/ic_store_color.png', // Your image file
+                            'assets/images/ic_store_color.jpg', // Your image file
                             width: 30, // You can set the size of the image (optional)
                             height: 30, // You can set the size of the image (optional)
                             fit: BoxFit.contain, // Keeps the aspect ratio intact and ensures the image fits within the circle
@@ -154,4 +156,5 @@ class _DashboardScreen extends State<DashboardScreen> {
     );
   }
 }
+
 
