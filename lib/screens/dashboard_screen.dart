@@ -21,6 +21,7 @@ class DashboardScreen extends StatelessWidget {
     );
     return Scaffold(
       drawer: Drawer(
+          clipBehavior: Clip.none, // Prevents clipping
         child: Container(  // Add a Container to wrap ListView
         color: Colors.white,
         child: ListView(
@@ -57,10 +58,42 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
-            buildCustomListTile(context, 'Home', 'assets/images/home.jpg'),
-            buildCustomListTile(context, 'Store', 'assets/images/store.jpg'),
-            buildCustomListTile(context, 'Stock', 'assets/images/stock.jpg'),
-            buildCustomListTile(context, 'Logout', 'assets/images/log_out.jpg'),
+            buildCustomListTile(
+              context,
+              'Home',
+              'assets/images/home.jpg',
+                  () {
+                    Navigator.pop(context);
+               /* Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );*/
+              },
+            ),
+            buildCustomListTile(context, 'Store', 'assets/images/store.jpg', () {
+              Navigator.pop(context);
+               Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => StoreScreen()),
+                );
+            },
+            ),
+            buildCustomListTile(context, 'Stock', 'assets/images/stock.jpg', () {
+              Navigator.pop(context);
+              /* Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );*/
+            },
+            ),
+            buildCustomListTile(context, 'Logout', 'assets/images/log_out.jpg', () {
+              Navigator.pop(context);
+              /* Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );*/
+            },
+            ),
           ],
         ),
         )
@@ -332,7 +365,8 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  ListTile buildCustomListTile(BuildContext context, String title, String iconPath) {
+  ListTile buildCustomListTile(
+      BuildContext context, String title, String iconPath, VoidCallback onTapAction) {
     return ListTile(
       contentPadding: EdgeInsets.zero, // Remove default padding from ListTile
       title: Container(
@@ -364,9 +398,7 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-      onTap: () {
-        Navigator.pop(context); // Close drawer or perform an action
-      },
+      onTap: onTapAction, // Perform the action passed as parameter
     );
   }
 }
