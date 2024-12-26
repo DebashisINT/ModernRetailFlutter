@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo_one/app_color.dart';
+import 'package:flutter_demo_one/screens/store_screen.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -77,28 +78,96 @@ class DashboardScreen extends StatelessWidget {
                   children: [
                     SizedBox(height: 35),
                     buildRow(context, [
-                      buildCustomCard(context, 'assets/images/ic_store_color.jpg', 'Stores', Color(0xff88bfff), 'assets/images/dashboard_img_1.jpg'),
-                      buildCustomCard(context, 'assets/images/ic_stock.jpg', 'Stock', Color(0xffe79bfe), 'assets/images/dashboard_img_2.jpg'),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => StoreScreen()),
+                          );
+                        },
+                        child: buildCustomCard(
+                          context,
+                          'assets/images/ic_store_color.jpg',
+                          'Stores',
+                          Color(0xff88bfff),
+                          'assets/images/dashboard_img_1.jpg',
+                        ),
+                      ),
+                      buildCustomCard(
+                        context,
+                        'assets/images/ic_stock.jpg',
+                        'Stock',
+                        Color(0xffe79bfe),
+                        'assets/images/dashboard_img_2.jpg',
+                      ),
                     ]),
                     SizedBox(height: 35),
                     buildRow(context, [
-                      buildCustomCard(context, 'assets/images/ic_planogram.jpg', 'Planogram', Color(0xffc1ea87), 'assets/images/dashboard_img_3.jpg'),
-                      buildCustomCard(context, 'assets/images/ic_complaint.jpg', 'Complaint & Feedback', Color(0xffe1d683), 'assets/images/dashboard_img_4.jpg'),
+                      buildCustomCard(
+                        context,
+                        'assets/images/ic_planogram.jpg',
+                        'Planogram',
+                        Color(0xffc1ea87),
+                        'assets/images/dashboard_img_3.jpg',
+                      ),
+                      buildCustomCard(
+                        context,
+                        'assets/images/ic_complaint.jpg',
+                        'Complaint & Feedback',
+                        Color(0xffe1d683),
+                        'assets/images/dashboard_img_4.jpg',
+                      ),
                     ]),
                     SizedBox(height: 35),
                     buildRow(context, [
-                      buildCustomCard(context, 'assets/images/ic_order_color.jpg', 'Order', Color(0xff79dbb5), 'assets/images/dashboard_img_5.jpg'),
-                      buildCustomCard(context, 'assets/images/ic_survey_color.jpg', 'Survey', Color(0xfffdccbc), 'assets/images/dashboard_img_6.jpg'),
+                      buildCustomCard(
+                        context,
+                        'assets/images/ic_order_color.jpg',
+                        'Order',
+                        Color(0xff79dbb5),
+                        'assets/images/dashboard_img_5.jpg',
+                      ),
+                      buildCustomCard(
+                        context,
+                        'assets/images/ic_survey_color.jpg',
+                        'Survey',
+                        Color(0xfffdccbc),
+                        'assets/images/dashboard_img_6.jpg',
+                      ),
                     ]),
                     SizedBox(height: 35),
                     buildRow(context, [
-                      buildCustomCard(context, 'assets/images/ic_merchandise.jpg', 'Merchandising Operations', Color(0xfffeda77), 'assets/images/dashboard_img_7.jpg'),
-                      buildCustomCard(context, 'assets/images/ic_calender.jpg', 'Daily Activity', Color(0xffd3b2fe), 'assets/images/dashboard_img_8.jpg'),
+                      buildCustomCard(
+                        context,
+                        'assets/images/ic_merchandise.jpg',
+                        'Merchandising Operations',
+                        Color(0xfffeda77),
+                        'assets/images/dashboard_img_7.jpg',
+                      ),
+                      buildCustomCard(
+                        context,
+                        'assets/images/ic_calender.jpg',
+                        'Daily Activity',
+                        Color(0xffd3b2fe),
+                        'assets/images/dashboard_img_8.jpg',
+                      ),
                     ]),
                     SizedBox(height: 35),
                     buildRow(context, [
-                      buildCustomCard(context, 'assets/images/ic_catalog.jpg', 'Product Catalog', Color(0xfff887d7), 'assets/images/dashboard_img_9.jpg'),
-                      buildCustomCard(context, 'assets/images/ic_sales_promotion.jpg', 'Sales Promotion/Offer/Scheme/Discount', Color(0xff93db75), 'assets/images/dashboard_img_10.jpg'),
+                      buildCustomCard(
+                        context,
+                        'assets/images/ic_catalog.jpg',
+                        'Product Catalog',
+                        Color(0xfff887d7),
+                        'assets/images/dashboard_img_9.jpg',
+                      ),
+                      buildCustomCard(
+                        context,
+                        'assets/images/ic_sales_promotion.jpg',
+                        'Sales Promotion/Offer/Scheme/Discount',
+                        Color(0xff93db75),
+                        'assets/images/dashboard_img_10.jpg',
+                      ),
                     ]),
                     SizedBox(height: 35),
                   ],
@@ -108,6 +177,7 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
+
     );
   }
 
