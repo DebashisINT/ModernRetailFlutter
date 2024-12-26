@@ -2,8 +2,11 @@ import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo_one/app_utils.dart';
 import 'package:flutter_demo_one/database/store_entity.dart';
 import 'package:flutter_demo_one/database/store_type_entity.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 
 import '../api/store_type_response.dart';
@@ -11,16 +14,27 @@ import '../app_color.dart';
 import '../main.dart';
 
 class StoreAddScreen extends StatefulWidget {
-  const StoreAddScreen({super.key});
+  //const StoreAddScreen({super.key});
+
+  final VoidCallback onDataChanged;
+  // Constructor to accept onDataChanged
+  const StoreAddScreen({super.key, required this.onDataChanged});
 
   State<StoreAddScreen> createState() => _StoreAddScreen();
 }
 
 class _StoreAddScreen extends State<StoreAddScreen> {
+
+
   String selectedStoreType = '';
   String selectedStoreTypeID = '';
   List<StoreTypeEntity> storeTypeL = [];
   List<DropdownMenuItem<String>>? dropdownItems;
+
+  double _latitude = 0;
+  double _longitude = 0;
+  String gpsAddress = "";
+  String gpsPincode = "";
 
   late TextEditingController storeTypeController = TextEditingController();
   late TextEditingController storeNameController = TextEditingController();
@@ -41,6 +55,16 @@ class _StoreAddScreen extends State<StoreAddScreen> {
   void initState() {
     super.initState();
     _loadStoreTypes();
+    _loadStoreLocation().then((data) {
+      // Handle the result here
+      setState(() {
+        _latitude = data.latitude;
+        _longitude = data.longitude;
+        // Update the UI if needed
+        storeAddressController = TextEditingController(text: gpsAddress);
+        storePinCodeController = TextEditingController(text: gpsPincode);
+      });
+    });
   }
 
   @override
@@ -92,29 +116,57 @@ class _StoreAddScreen extends State<StoreAddScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 children: [
-                  buildInputField('assets/images/ic_store_color.jpg', 'Store type', storeTypeController,TextInputType.text,100, isDropdown: true),
-                  buildInputField('assets/images/ic_store_color.jpg',
-                      'Store Name', storeNameController,TextInputType.text,100),
+                  buildInputField(
+                      'assets/images/ic_store_color.jpg',
+                      'Store type',
+                      storeTypeController,
+                      TextInputType.text,
+                      100,
+                      isDropdown: true),
+                  buildInputField(
+                      'assets/images/ic_store_color.jpg',
+                      'Store Name',
+                      storeNameController,
+                      TextInputType.text,
+                      100),
                   buildInputField('assets/images/ic_location.png', 'Address',
-                      storeAddressController,TextInputType.text,500),
+                      storeAddressController, TextInputType.text, 500),
                   buildInputField('assets/images/ic_location.png', 'Pincode',
-                      storePinCodeController,TextInputType.number,10),
-                  buildInputField('assets/images/ic_user_color.png',
-                      'Contact Name', contactNameController,TextInputType.text,100),
-                  buildInputField('assets/images/ic_phone.png',
-                      'Contact Number', contactNumberController,TextInputType.number,10),
+                      storePinCodeController, TextInputType.number, 10),
+                  buildInputField(
+                      'assets/images/ic_user_color.png',
+                      'Contact Name',
+                      contactNameController,
+                      TextInputType.text,
+                      100),
+                  buildInputField(
+                      'assets/images/ic_phone.png',
+                      'Contact Number',
+                      contactNumberController,
+                      TextInputType.number,
+                      10),
                   buildInputField(
                       'assets/images/ic_phone.png',
                       'Alternet Contact Number',
-                      contactAlternateNumberController,TextInputType.number,10),
-                  buildInputField('assets/images/ic_whatsapp.png',
-                      'Whatsapp Number', contactWhatsappNumberController,TextInputType.number,10),
+                      contactAlternateNumberController,
+                      TextInputType.number,
+                      10),
+                  buildInputField(
+                      'assets/images/ic_whatsapp.png',
+                      'Whatsapp Number',
+                      contactWhatsappNumberController,
+                      TextInputType.number,
+                      10),
                   buildInputField('assets/images/ic_mail.png', 'Email',
-                      contactEmailController,TextInputType.text,100),
-                  buildInputField('assets/images/ic_measurement.png',
-                      'Size/Area', contactSizeAreaController,TextInputType.text,100),
+                      contactEmailController, TextInputType.text, 100),
+                  buildInputField(
+                      'assets/images/ic_measurement.png',
+                      'Size/Area',
+                      contactSizeAreaController,
+                      TextInputType.text,
+                      100),
                   buildInputField('assets/images/ic_remarks.png', 'remarks',
-                      contactRemarksController,TextInputType.text,100),
+                      contactRemarksController, TextInputType.text, 100),
 
                   //  Button
                   SizedBox(height: 20.0),
@@ -135,7 +187,7 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                         FocusScope.of(context).unfocus();
                         validation();
                       },
-                      child: const Text('Login',
+                      child: const Text('Save',
                           style: TextStyle(color: AppColor.colorWhite)),
                     ),
                   ),
@@ -150,12 +202,18 @@ class _StoreAddScreen extends State<StoreAddScreen> {
   }
 
   Widget buildInputField(
-      String iconPath, String hint, TextEditingController controller,TextInputType textInputType,int maxLength,
+      String iconPath,
+      String hint,
+      TextEditingController controller,
+      TextInputType textInputType,
+      int maxLength,
       {bool isDropdown = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8.0),
       padding: EdgeInsets.symmetric(horizontal: 0),
-      height: 55.0,
+      constraints: BoxConstraints(
+        minHeight: 55.0, // Minimum height of the container
+      ),
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(8),
@@ -190,18 +248,22 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                       selectedStoreType.isNotEmpty ? selectedStoreType : hint,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
-                    items: dropdownItems,/*[
+                    items: dropdownItems,
+                    /*[
                       DropdownMenuItem(value: 'Typ0', child: Text('Type1')),
                       DropdownMenuItem(value: 'Typ1', child: Text('Type2')),
                     ],*/
                     onChanged: (value) {
                       setState(() {
                         try {
-                          StoreTypeEntity selectedStoreTypeEntity = storeTypeL.firstWhere(
-                                (storeType) => storeType.type_id.toString() == value,
+                          StoreTypeEntity selectedStoreTypeEntity =
+                              storeTypeL.firstWhere(
+                            (storeType) =>
+                                storeType.type_id.toString() == value,
                           );
                           controller.text = selectedStoreTypeEntity.type_name!;
-                          selectedStoreType = selectedStoreTypeEntity.type_name!;
+                          selectedStoreType =
+                              selectedStoreTypeEntity.type_name!;
                           selectedStoreTypeID = value!;
                         } catch (e) {
                           print(e);
@@ -211,7 +273,11 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                   )
                 : TextField(
                     controller: controller,
-                    keyboardType: textInputType, // Set keyboard type to number
+                    maxLines: null,
+                    // Allows TextField to grow vertically
+                    minLines: 1,
+                    keyboardType: textInputType,
+                    // Set keyboard type to number
                     maxLength: maxLength,
                     decoration: InputDecoration(
                       prefixIcon: Padding(
@@ -258,8 +324,26 @@ class _StoreAddScreen extends State<StoreAddScreen> {
     });
   }
 
+  Future<Position> _loadStoreLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    gpsAddress =
+        await AppUtils().getAddress(position.latitude, position.longitude);
+    gpsPincode =
+        await AppUtils().getPincode(position.latitude, position.longitude);
+    return position;
+  }
+
   Future<void> validation() async {
     try {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Center(child: CircularProgressIndicator());
+        },
+      );
+
       String storeName = storeNameController.text;
       String storeAddress = storeAddressController.text;
       String storePinCode = storePinCodeController.text;
@@ -271,33 +355,77 @@ class _StoreAddScreen extends State<StoreAddScreen> {
       String areaSize = contactSizeAreaController.text;
       String remarks = contactRemarksController.text;
 
-      if(selectedStoreType == ""){
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Store type')));
-          }else if(storeName == ""){
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Store Name')));
-          }else if(storeAddress == ""){
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Address')));
-          }else if(storePinCode == ""){
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Pincode')));
-          }else if(contactName == ""){
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
-          }else if(contactNumber == ""){
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Number')));
-          }else{
-            DateTime currentDateTime = DateTime.now();
-            String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
-            final storeID = pref.getString('user_id')!+formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
-            final storeObj = StoreEntity(
-                store_id: storeID, store_name: storeName, store_address: storeAddress, store_pincode: storePinCode, store_lat: "",
-                store_long: "", store_contact_name: contactName, store_contact_number: contactNumber, store_alternet_contact_number: contactNumberAlternate,
-                store_whatsapp_number: contactWhatsapp, store_email: contactEmail, store_type: selectedStoreTypeID, store_size_area: areaSize,
-                store_state_id: "", remarks: remarks, create_date_time: formattedDate, store_pic_url: "", isUploaded: false);
+      final statePinDao = appDatabase.statePinDao;
+      int? stateID = await statePinDao.getStateIDByPincode(storePinCode);
+      if (stateID == null) {
+        stateID = 0;
+      }
 
-            final storeDao = appDatabase.storeDao;
-            await storeDao.insertStore(storeObj);
-          }
+      if (selectedStoreType == "") {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Please select Store type')));
+      } else if (storeName == "") {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Please enter Store Name')));
+      } else if (storeAddress == "") {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Please enter Address')));
+      } else if (storePinCode == "") {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Please enter Pincode')));
+      } else if (contactName == "") {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
+      } else if (contactNumber == "") {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter Contact Number')));
+      } else {
+        DateTime currentDateTime = DateTime.now();
+        String formattedDate =
+            DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
+        final storeID = pref.getString('user_id')! +
+            formattedDate
+                .replaceAll(" ", "")
+                .replaceAll("-", "")
+                .replaceAll(":", "");
+        final storeObj = StoreEntity(
+            store_id: storeID,
+            store_name: storeName,
+            store_address: storeAddress,
+            store_pincode: storePinCode,
+            store_lat: _latitude.toString(),
+            store_long: _longitude.toString(),
+            store_contact_name: contactName,
+            store_contact_number: contactNumber,
+            store_alternet_contact_number: contactNumberAlternate,
+            store_whatsapp_number: contactWhatsapp,
+            store_email: contactEmail,
+            store_type: selectedStoreTypeID,
+            store_size_area: areaSize,
+            store_state_id: stateID.toString(),
+            remarks: remarks,
+            create_date_time: formattedDate,
+            store_pic_url: "",
+            isUploaded: false);
+
+        final storeDao = appDatabase.storeDao;
+        await storeDao.insertStore(storeObj);
+        Navigator.of(context).pop();
+        AppUtils().showCustomDialog(context,"Hi ${pref.getString('user_name') ?? ""}","Store saved successfully.",(){
+          widget.onDataChanged();
+          Navigator.of(context).pop();
+        });
+      }
     } catch (e) {
       print(e);
+      Navigator.of(context).pop();
     }
   }
+
 }

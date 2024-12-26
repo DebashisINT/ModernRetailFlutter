@@ -8,4 +8,7 @@ abstract class StoreDao{
 
   @insert
   Future<void> insertStore(StoreEntity obj);
+
+  @Query('SELECT * FROM store LIMIT :limit OFFSET :offset')
+  Future<List<StoreEntity>> getStorePagination(int limit, int offset);
 }

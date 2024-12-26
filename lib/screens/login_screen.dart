@@ -7,8 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_demo_one/api/login_type_req.dart';
 import 'package:flutter_demo_one/database/app_database.dart';
 import 'package:flutter_demo_one/database/product_entity.dart';
+import 'package:flutter_demo_one/database/state_pin_entity.dart';
 import 'package:flutter_demo_one/screens/dashboard_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
 import '../api/api_service.dart';
 //import '../api/login_request.dart';
 import '../api/user_id_req.dart';
@@ -45,6 +47,7 @@ class _LoginScreen extends State<LoginScreen>{
       passwordController = TextEditingController(text: pref.getString('userLoginPassword') ?? '');
       _isChecked = true;
     }
+    _requestPermissions();
   }
 
   @override
@@ -230,8 +233,6 @@ class _LoginScreen extends State<LoginScreen>{
     );
   }
 
-
-
   Future<void> doLogin(username,password) async {
     try {
       showDialog(context: context, builder: (context) {
@@ -261,8 +262,9 @@ class _LoginScreen extends State<LoginScreen>{
     try {
       Future<void> storeType = apiCallStoreType();
       Future<void> product = apiCallProduct();
+      Future<void> statePin = apiCallStatePin();
       // Wait for all of them to complete
-      List<void> results = await Future.wait([storeType, product]);
+      List<void> results = await Future.wait([storeType, product,statePin]);
       Navigator.of(context).pop();
       Navigator.pushReplacement(
         context,
@@ -317,6 +319,39 @@ class _LoginScreen extends State<LoginScreen>{
       print("flow_chk apiCallProduct end");
     } catch (error) {
       print('Error: $error');
+    }
+  }
+
+  Future<void> apiCallStatePin() async {
+    try {
+      print("flow_chk apiCallStatePin begin");
+      final itemDao = appDatabase.statePinDao;
+      final statePinL = await itemDao.getAll();
+      if(statePinL.isEmpty){
+        final apiService = ApiService(dio);
+        final userRequest = UserIdReq(user_id: pref.getString('user_id') ?? "");
+        final response = await apiService.getStatePin(userRequest);
+        if(response.status == "200"){
+          await itemDao.insertStatePinAll(response.statePinList.cast<StatePinEntity>());
+        }
+      }
+      print("flow_chk apiCallStatePin end");
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> _requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.location,
+    ].request();
+
+    if (statuses[Permission.camera]!.isGranted &&
+        statuses[Permission.location]!.isGranted) {
+      // Permissions granted, proceed with camera and location usage
+    } else {
+      // Handle permission denial
     }
   }
 }
