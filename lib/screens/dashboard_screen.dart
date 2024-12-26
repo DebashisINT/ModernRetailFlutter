@@ -20,6 +20,8 @@ class DashboardScreen extends StatelessWidget {
     );
     return Scaffold(
       drawer: Drawer(
+        child: Container(  // Add a Container to wrap ListView
+        color: Colors.white,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -60,6 +62,7 @@ class DashboardScreen extends StatelessWidget {
             buildCustomListTile(context, 'Logout', 'assets/images/log_out.jpg'),
           ],
         ),
+        )
       ),
       body: Column(
         children: [
