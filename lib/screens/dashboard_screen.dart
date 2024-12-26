@@ -37,7 +37,7 @@ class DashboardScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    "User Name",
+                    "Puja Basak",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -45,7 +45,7 @@ class DashboardScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "user@example.com",
+                    "puja.basak@indusnet.co.in",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white70,
@@ -54,30 +54,10 @@ class DashboardScreen extends StatelessWidget {
                 ],
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                // Navigate to home or perform actions
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                // Navigate to settings or perform actions
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () {
-                // Perform logout actions
-                Navigator.pop(context);
-              },
-            ),
+            buildCustomListTile(context, 'Home', 'assets/images/home.jpg'),
+            buildCustomListTile(context, 'Store', 'assets/images/store.jpg'),
+            buildCustomListTile(context, 'Stock', 'assets/images/stock.jpg'),
+            buildCustomListTile(context, 'Logout', 'assets/images/log_out.jpg'),
           ],
         ),
       ),
@@ -276,6 +256,44 @@ class DashboardScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  ListTile buildCustomListTile(BuildContext context, String title, String iconPath) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero, // Remove default padding from ListTile
+      title: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16.0), // Left and right margin
+        padding: EdgeInsets.all(10), // Padding around the content
+        decoration: BoxDecoration(
+          color: Colors.white, // White background
+          borderRadius: BorderRadius.circular(8), // Slight curved corners
+          border: Border.all(
+            color: Colors.grey[300]!, // Light gray border color
+            width: 1.5, // Border width
+          ),
+        ),
+        child: Row(
+          children: [
+            // Icon
+            Image.asset(
+              iconPath, // Path to the icon image
+              width: 30, // Icon width
+              height: 30, // Icon height
+              fit: BoxFit.cover, // Ensure the icon fits properly
+            ),
+            SizedBox(width: 15), // Space between the icon and title text
+            // Title text
+            Text(
+              title,
+              style: TextStyle(fontSize: 16), // Title style
+            ),
+          ],
+        ),
+      ),
+      onTap: () {
+        Navigator.pop(context); // Close drawer or perform an action
+      },
     );
   }
 }
