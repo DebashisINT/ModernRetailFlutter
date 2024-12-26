@@ -40,104 +40,45 @@ class _DashboardScreen extends State<DashboardScreen> {
           ),
         ],
       ),
+
       drawer: Drawer(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, // Removes curved corners
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         child: ListView(
           padding: EdgeInsets.zero,
-          children: <Widget>[
-            // User Account Drawer Header
+          children: [
             UserAccountsDrawerHeader(
               accountName: Text('Puja Basak'),
               accountEmail: Text('puja@indusnet.co.in'),
-              currentAccountPicture: Padding(
-                padding: const EdgeInsets.only(top: 0.0, left: 0.0), // Adjust margin for the Circle Avatar
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person, color: AppColor.colorToolbar, size: 50),
-                ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.person, color: AppColor.colorToolbar, size: 50),
               ),
-              decoration: BoxDecoration(
-                color: AppColor.colorToolbar, // Background color of the header
-              ),
+              decoration: BoxDecoration(color: AppColor.colorToolbar),
             ),
-            // Individual Rectangular Boxes
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Spacing around the rectangle
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.blue[100], // Background color for Home
-                borderRadius: BorderRadius.circular(8.0), // Rounded corners
-              ),
-              child: ListTile(
-                leading: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Image.asset('assets/images/home.jpg'), // Custom home icon
-                ),
-                title: Text('Home'),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
+            drawerMenuItem(
+              imagePath: 'assets/images/home.png',
+              title: 'Home',
+              onTap: () => Navigator.pop(context),
             ),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.green[100], // Background color for Store
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: ListTile(
-                leading: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Image.asset('assets/images/store.jpg'), // Custom home icon
-                ),
-                title: Text('Store'),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
+            drawerMenuItem(
+              imagePath: 'assets/images/store.png',
+              title: 'Store',
+              onTap: () => Navigator.pop(context),
             ),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                color: Colors.orange[100], // Background color for Stock
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: ListTile(
-                leading: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Image.asset('assets/images/stock.jpg'), // Custom home icon
-                ),
-                title: Text('Stock'),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),
-             /* child: ListTile(
-                leading: Icon(Icons.storage, color: Colors.orange[800]),
-                title: Text('Stock'),
-                onTap: () {
-                  Navigator.pop(context); // Close the drawer
-                },
-              ),*/
+            drawerMenuItem(
+              imagePath: 'assets/images/stock.png',
+              title: 'Stock',
+              onTap: () => Navigator.pop(context),
             ),
-            // Logout ListTile
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-              },
+            drawerMenuItem(
+              imagePath: 'assets/images/log_out.png',
+              title: 'Logout',
+              onTap: () => Navigator.pop(context),
             ),
           ],
         ),
       ),
+
       body: Container(
         margin: EdgeInsets.only(top: 10.0), // Add top margin here
         padding: const EdgeInsets.only(left: 16.0, right: 16.0), // Adding top margin and horizontal padding
@@ -249,6 +190,33 @@ class _DashboardScreen extends State<DashboardScreen> {
       ],
     );
   }
+
+  Widget drawerMenuItem({
+    required String imagePath,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey), // Border color for the rectangle
+        borderRadius: BorderRadius.circular(8.0), // Optional for slightly rounded corners
+      ),
+      child: ListTile(
+        leading: Image.asset(
+          imagePath,
+          width: 30,
+          height: 30,
+          fit: BoxFit.cover,
+        ),
+        title: Text(title),
+        visualDensity: VisualDensity.compact,
+        onTap: onTap,
+      ),
+    );
+  }
+
 }
 
 
