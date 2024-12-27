@@ -82,9 +82,40 @@ class _StoreAddScreen extends State<StoreAddScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Set the background color of the screen to white
       appBar: AppBar(
-        title: Text('Store Form'),
-        backgroundColor: Colors.teal,
+        backgroundColor: AppColor.colorToolbar, // Toolbar background color
+        foregroundColor: Colors.white, // Back button and icons color
+        centerTitle: true, // Ensures the title is centered
+        title: const Text(
+          'Add Store',
+          style: TextStyle(
+            color: Colors.white, // Title text color
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: const BackButton(), // Back button on the far left
+        actions: [
+          Row(
+            children: [
+              // Home icon
+              IconButton(
+                onPressed: () {
+                  // Action for home icon
+                },
+                icon: const Icon(Icons.home),
+              ),
+              // Notification icon
+              IconButton(
+                onPressed: () {
+                  // Action for notification icon
+                },
+                icon: const Icon(Icons.notifications),
+              ),
+            ],
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -120,7 +151,7 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                     },
                     child: CircleAvatar(
                       radius: 35,
-                      backgroundColor: Colors.teal,
+                      backgroundColor: AppColor.colorToolbar,
                       child: Icon(
                         Icons.camera_alt,
                         color: Colors.white,
