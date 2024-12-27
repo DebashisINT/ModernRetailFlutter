@@ -17,9 +17,15 @@ class StoreAddScreen extends StatefulWidget {
   //const StoreAddScreen({super.key});
 
   final VoidCallback onDataChanged;
+  //final StoreEntity? store;
+
   // Constructor to accept onDataChanged
   const StoreAddScreen({super.key, required this.onDataChanged});
-
+ /* const StoreAddScreen({
+    Key? key,
+    required this.onDataChanged,
+    this.store,
+  }) : super(key: key);*/
   State<StoreAddScreen> createState() => _StoreAddScreen();
 }
 

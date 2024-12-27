@@ -15,8 +15,8 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
-        //statusBarColor: Colors.white, // Set status bar color to white
-        statusBarIconBrightness: Brightness.light, // Set icons to dark (black)
+        statusBarIconBrightness: Brightness.light, // Set icons to white (light)
+        // statusBarColor is not specified, so it will use the default color
       ),
     );
     return Scaffold(
@@ -104,7 +104,7 @@ class DashboardScreen extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               child: Container(
-                margin: EdgeInsets.only(top: 10.0),
+                margin: EdgeInsets.only(top: 20.0),
                 padding: const EdgeInsets.only(left: 16.0, right: 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -217,7 +217,7 @@ class DashboardScreen extends StatelessWidget {
   Widget buildTopLayout() {
     return Container(
       width: double.infinity,
-      height: 180,
+      height: 155,
       decoration: BoxDecoration(
         color: AppColor.colorToolbar,
         borderRadius: BorderRadius.only(
@@ -243,17 +243,29 @@ class DashboardScreen extends StatelessWidget {
                     },
                   ),
                 ),
+                // Center Title (Dashboard)
+                Center(
+                  child: Text(
+                    'Home', // Title updated
+                    style: TextStyle(
+                      color: Colors.white, // Title text color
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 Icon(Icons.notifications, color: Colors.white, size: 28),
+
               ],
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             // Welcome Text and Username
             Row(
               children: [
                 Container(
                   margin: EdgeInsets.only(left: 35.0), // Adds left margin (20dp)
-                  width: 60, // Width of the rectangle
-                  height: 60, // Height of the rectangle
+                  width: 50, // Width of the rectangle
+                  height: 50, // Height of the rectangle
                   decoration: BoxDecoration(
                     color: Colors.white, // Background color of the rectangle
                     borderRadius: BorderRadius.circular(10), // Slightly rounded corners
