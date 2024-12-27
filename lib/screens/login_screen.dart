@@ -266,6 +266,7 @@ class _LoginScreen extends State<LoginScreen>{
       // Wait for all of them to complete
       List<void> results = await Future.wait([storeType, product,statePin]);
       Navigator.of(context).pop();
+      pref.setBool('isLoggedIn', true);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => DashboardScreen()),

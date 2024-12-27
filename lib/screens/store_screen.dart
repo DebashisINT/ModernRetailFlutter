@@ -44,9 +44,11 @@ class _StoreScreenState extends State<StoreScreen> {
 
     setState(() => _isLoading = true);
 
+    setState(() {
+      _isLoading = true;
+    });
     final offset = _currentPage * _pageSize;
     final stores = await _storeDao.getStorePagination(_pageSize, offset);
-
     setState(() {
       _storeList.addAll(stores);
       _isLoading = false;

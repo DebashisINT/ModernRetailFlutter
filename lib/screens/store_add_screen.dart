@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:flutter_demo_one/database/store_entity.dart';
 import 'package:flutter_demo_one/database/store_type_entity.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../api/store_type_response.dart';
@@ -41,6 +44,9 @@ class _StoreAddScreen extends State<StoreAddScreen> {
   double _longitude = 0;
   String gpsAddress = "";
   String gpsPincode = "";
+
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   late TextEditingController storeTypeController = TextEditingController();
   late TextEditingController storeNameController = TextEditingController();
@@ -90,26 +96,36 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                 // Banner Image
                 Container(
                   width: double.infinity,
-                  height: 100,
+                  height: 120,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/store_dummy.jpg'),
-                      // Replace with your image
+                      image: _imageFile != null
+                          ? FileImage(_imageFile!) // Use the captured image
+                          : AssetImage('assets/images/store_dummy.jpg') as ImageProvider,
                       fit: BoxFit.cover,
                     ),
                   ),
-                ),
+                )
+                ,
                 // Camera Icon
                 Positioned(
                   bottom: -35,
                   left: MediaQuery.of(context).size.width / 2 - 35,
-                  child: CircleAvatar(
-                    radius: 35,
-                    backgroundColor: Colors.teal,
-                    child: Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 30,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Handle camera click here
+                      // For example, navigate to camera screen or open image picker
+                      //_captureImage();
+                      _captureAndCropImage();
+                    },
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.teal,
+                      child: Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 45,
+                      ),
                     ),
                   ),
                 ),
@@ -431,6 +447,98 @@ class _StoreAddScreen extends State<StoreAddScreen> {
     } catch (e) {
       print(e);
       Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _captureImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+        print("Image Path: ${pickedFile.path}"); // Save or use the path as needed
+      }
+    } catch (e) {
+      print("Error capturing image: $e");
+    }
+  }
+
+  /*Future<void> _captureAndCropImage() async {
+    try {
+      // Capture image from camera
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        // Crop the captured image
+        File? croppedFile = (await ImageCropper().cropImage(
+          sourcePath: pickedFile.path,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio3x2,
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9,
+          ],
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarTitle: 'Crop Image',
+              toolbarColor: Colors.deepOrange,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false,
+            ),
+            IOSUiSettings(
+              title: 'Crop Image',
+            ),
+          ],
+        )) as File?;
+
+        if (croppedFile != null) {
+          setState(() {
+            _imageFile = croppedFile; // Update the state with the cropped image
+          });
+        }
+      }
+    } catch (e) {
+      print("Error capturing or cropping image: $e");
+    }
+  }*/
+
+  Future<void> _captureAndCropImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        final CroppedFile? croppedFile = await ImageCropper().cropImage(
+          sourcePath: pickedFile.path,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio3x2,
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9,
+          ],
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarTitle: 'Crop Image',
+              toolbarColor: Colors.deepOrange,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false,
+            ),
+            IOSUiSettings(
+              title: 'Crop Image',
+            ),
+          ],
+        );
+
+        if (croppedFile != null) {
+          setState(() {
+            _imageFile = File(croppedFile.path);
+          });
+        }
+      }
+    } catch (e) {
+      print("Error capturing or cropping image: $e");
     }
   }
 
