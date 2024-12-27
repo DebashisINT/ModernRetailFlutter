@@ -44,7 +44,8 @@ dependencies:
   permission_handler: ^10.2.0
   geolocator: ^9.0.2
   geocoding: ^2.1.0
-  image_picker: ^0.8.7+2
+  image_picker: ^1.0.7
+  image_cropper: ^5.0.1
 
 dev_dependencies:
   flutter_test:
@@ -58,7 +59,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   floor_generator: ^1.4.2
   build_runner: '>2.3.0 <4.0.0'
-  http: ^0.13.5
+  http: ^1.2.0
   get: ^4.6.6
   retrofit_generator: '>=4.0.1 <6.0.0'
 

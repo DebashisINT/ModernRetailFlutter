@@ -8,6 +8,7 @@ import 'package:flutter_demo_one/database/store_entity.dart';
 import 'package:flutter_demo_one/database/store_type_entity.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
@@ -89,15 +90,17 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                 // Banner Image
                 Container(
                   width: double.infinity,
-                  height: 100,
+                  height: 120,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/store_dummy.jpg'),
-                      // Replace with your image
+                      image: _imageFile != null
+                          ? FileImage(_imageFile!) // Use the captured image
+                          : AssetImage('assets/images/store_dummy.jpg') as ImageProvider,
                       fit: BoxFit.cover,
                     ),
                   ),
-                ),
+                )
+                ,
                 // Camera Icon
                 Positioned(
                   bottom: -35,
@@ -106,7 +109,8 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                     onTap: () {
                       // Handle camera click here
                       // For example, navigate to camera screen or open image picker
-                      _captureImage();
+                      //_captureImage();
+                      _captureAndCropImage();
                     },
                     child: CircleAvatar(
                       radius: 35,
@@ -451,6 +455,84 @@ class _StoreAddScreen extends State<StoreAddScreen> {
       }
     } catch (e) {
       print("Error capturing image: $e");
+    }
+  }
+
+  /*Future<void> _captureAndCropImage() async {
+    try {
+      // Capture image from camera
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        // Crop the captured image
+        File? croppedFile = (await ImageCropper().cropImage(
+          sourcePath: pickedFile.path,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio3x2,
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9,
+          ],
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarTitle: 'Crop Image',
+              toolbarColor: Colors.deepOrange,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false,
+            ),
+            IOSUiSettings(
+              title: 'Crop Image',
+            ),
+          ],
+        )) as File?;
+
+        if (croppedFile != null) {
+          setState(() {
+            _imageFile = croppedFile; // Update the state with the cropped image
+          });
+        }
+      }
+    } catch (e) {
+      print("Error capturing or cropping image: $e");
+    }
+  }*/
+
+  Future<void> _captureAndCropImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        final CroppedFile? croppedFile = await ImageCropper().cropImage(
+          sourcePath: pickedFile.path,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio3x2,
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9,
+          ],
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarTitle: 'Crop Image',
+              toolbarColor: Colors.deepOrange,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false,
+            ),
+            IOSUiSettings(
+              title: 'Crop Image',
+            ),
+          ],
+        );
+
+        if (croppedFile != null) {
+          setState(() {
+            _imageFile = File(croppedFile.path);
+          });
+        }
+      }
+    } catch (e) {
+      print("Error capturing or cropping image: $e");
     }
   }
 
