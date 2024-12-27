@@ -80,14 +80,11 @@ class _StoreScreen extends State<StoreScreen> {
 
   Future<void> _fetchData() async {
     if (_isLoading || !_hasMore) return;
-
     setState(() {
       _isLoading = true;
     });
-
     final offset = _currentPage * _pageSize;
     final stores = await _storeDao.getStorePagination(_pageSize, offset);
-
     setState(() {
       _storeL.addAll(stores);
       _isLoading = false;

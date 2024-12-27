@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_demo_one/database/store_entity.dart';
 import 'package:flutter_demo_one/database/store_type_entity.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../api/store_type_response.dart';
@@ -35,6 +37,9 @@ class _StoreAddScreen extends State<StoreAddScreen> {
   double _longitude = 0;
   String gpsAddress = "";
   String gpsPincode = "";
+
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   late TextEditingController storeTypeController = TextEditingController();
   late TextEditingController storeNameController = TextEditingController();
@@ -97,13 +102,20 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                 Positioned(
                   bottom: -35,
                   left: MediaQuery.of(context).size.width / 2 - 35,
-                  child: CircleAvatar(
-                    radius: 35,
-                    backgroundColor: Colors.teal,
-                    child: Icon(
-                      Icons.camera_alt,
-                      color: Colors.white,
-                      size: 30,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Handle camera click here
+                      // For example, navigate to camera screen or open image picker
+                      _captureImage();
+                    },
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundColor: Colors.teal,
+                      child: Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 45,
+                      ),
                     ),
                   ),
                 ),
@@ -425,6 +437,20 @@ class _StoreAddScreen extends State<StoreAddScreen> {
     } catch (e) {
       print(e);
       Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _captureImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        setState(() {
+          _imageFile = File(pickedFile.path);
+        });
+        print("Image Path: ${pickedFile.path}"); // Save or use the path as needed
+      }
+    } catch (e) {
+      print("Error capturing image: $e");
     }
   }
 
