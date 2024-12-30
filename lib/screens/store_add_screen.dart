@@ -1,42 +1,37 @@
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_one/app_utils.dart';
-import 'package:flutter_demo_one/database/store_entity.dart';
-import 'package:flutter_demo_one/database/store_type_entity.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-import '../api/store_type_response.dart';
 import '../app_color.dart';
+import '../app_utils.dart';
+import '../database/store_entity.dart';
+import '../database/store_type_dao.dart';
+import '../database/store_type_entity.dart';
 import '../main.dart';
 
 class StoreAddScreen extends StatefulWidget {
-  //const StoreAddScreen({super.key});
-
   final VoidCallback onDataChanged;
-  //final StoreEntity? store;
+  final StoreEntity? store; // Pass store for edit mode
 
-  // Constructor to accept onDataChanged
-  const StoreAddScreen({super.key, required this.onDataChanged});
- /* const StoreAddScreen({
-    Key? key,
+  const StoreAddScreen({
+    super.key,
     required this.onDataChanged,
     this.store,
-  }) : super(key: key);*/
+  });
+
+  @override
   State<StoreAddScreen> createState() => _StoreAddScreen();
 }
 
 class _StoreAddScreen extends State<StoreAddScreen> {
-
-
   String selectedStoreType = '';
   String selectedStoreTypeID = '';
+  String storeTypeName = '';
   List<StoreTypeEntity> storeTypeL = [];
   List<DropdownMenuItem<String>>? dropdownItems;
 
@@ -48,105 +43,134 @@ class _StoreAddScreen extends State<StoreAddScreen> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
-  late TextEditingController storeTypeController = TextEditingController();
-  late TextEditingController storeNameController = TextEditingController();
-  late TextEditingController storeAddressController = TextEditingController();
-  late TextEditingController storePinCodeController = TextEditingController();
-  late TextEditingController contactNameController = TextEditingController();
-  late TextEditingController contactNumberController = TextEditingController();
-  late TextEditingController contactAlternateNumberController =
-      TextEditingController();
-  late TextEditingController contactWhatsappNumberController =
-      TextEditingController();
-  late TextEditingController contactEmailController = TextEditingController();
-  late TextEditingController contactSizeAreaController =
-      TextEditingController();
-  late TextEditingController contactRemarksController = TextEditingController();
+  // Controllers for form fields
+  late TextEditingController storeTypeController;
+  late TextEditingController storeNameController;
+  late TextEditingController storeAddressController;
+  late TextEditingController storePinCodeController;
+  late TextEditingController contactNameController;
+  late TextEditingController contactNumberController;
+  late TextEditingController contactAlternateNumberController;
+  late TextEditingController contactWhatsappNumberController;
+  late TextEditingController contactEmailController;
+  late TextEditingController contactSizeAreaController;
+  late TextEditingController contactRemarksController;
+  late final StoreTypeDao _storeTypeDao;
 
   @override
   void initState() {
     super.initState();
-    _loadStoreTypes();
-    _loadStoreLocation().then((data) {
-      // Handle the result here
-      setState(() {
-        _latitude = data.latitude;
-        _longitude = data.longitude;
-        // Update the UI if needed
-        storeAddressController = TextEditingController(text: gpsAddress);
-        storePinCodeController = TextEditingController(text: gpsPincode);
+    _storeTypeDao = appDatabase.storeTypeDao;
+    // Initialize controllers
+    storeTypeController = TextEditingController(
+      text: widget.store?.store_type ?? '',
+    );
+    storeNameController = TextEditingController(
+      text: widget.store?.store_name ?? '',
+    );
+    storeAddressController = TextEditingController(
+      text: widget.store?.store_address ?? '',
+    );
+    storePinCodeController = TextEditingController(
+      text: widget.store?.store_pincode ?? '',
+    );
+    contactNameController = TextEditingController(
+      text: widget.store?.store_contact_name ?? '',
+    );
+    contactNumberController = TextEditingController(
+      text: widget.store?.store_contact_number ?? '',
+    );
+    contactAlternateNumberController = TextEditingController(
+      text: widget.store?.store_alternet_contact_number ?? '',
+    );
+    contactWhatsappNumberController = TextEditingController(
+      text: widget.store?.store_whatsapp_number ?? '',
+    );
+    contactEmailController = TextEditingController(
+      text: widget.store?.store_email ?? '',
+    );
+    contactSizeAreaController = TextEditingController(
+      text: widget.store?.store_size_area ?? '',
+    );
+    contactRemarksController = TextEditingController(
+      text: widget.store?.remarks ?? '',
+    );
+
+    if (widget.store != null) {
+      // Edit mode: load existing data
+      selectedStoreType = widget.store!.store_type!;
+      selectedStoreTypeID = widget.store!.store_type!;
+      _latitude = double.tryParse(widget.store!.store_lat ?? '0') ?? 0;
+      _longitude = double.tryParse(widget.store!.store_long ?? '0') ?? 0;
+      _fetchStoreTypeName(selectedStoreTypeID);
+    } else {
+      // Add mode: fetch current location
+      _loadStoreLocation().then((data) {
+        setState(() {
+          _latitude = data.latitude;
+          _longitude = data.longitude;
+          storeAddressController = TextEditingController(text: gpsAddress);
+          storePinCodeController = TextEditingController(text: gpsPincode);
+        });
       });
-    });
+    }
+
+    _loadStoreTypes();
+  }
+
+  Future<void> _fetchStoreTypeName(String storeTypeID) async {
+    storeTypeName = (await _storeTypeDao.getStoreTypeById(storeTypeID))!;
+    if (storeTypeName != null) {
+      setState(() {
+        storeTypeController.text = storeTypeName;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isEditMode = widget.store != null;
+    final store = widget.store;
+
     return Scaffold(
-      backgroundColor: Colors.white, // Set the background color of the screen to white
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppColor.colorToolbar, // Toolbar background color
-        foregroundColor: Colors.white, // Back button and icons color
-        centerTitle: true, // Ensures the title is centered
-        title: const Text(
-          'Add Store',
+        backgroundColor: AppColor.colorToolbar,
+        foregroundColor: Colors.white,
+        centerTitle: true,
+        title: Text(
+          isEditMode ? 'Edit Store' : 'Add Store',
           style: TextStyle(
-            color: Colors.white, // Title text color
+            color: Colors.white,
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: const BackButton(), // Back button on the far left
-        actions: [
-          Row(
-            children: [
-              // Home icon
-              IconButton(
-                onPressed: () {
-                  // Action for home icon
-                },
-                icon: const Icon(Icons.home),
-              ),
-              // Notification icon
-              IconButton(
-                onPressed: () {
-                  // Action for notification icon
-                },
-                icon: const Icon(Icons.notifications),
-              ),
-            ],
-          ),
-        ],
+        leading: const BackButton(),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Top banner with an image and a circular camera icon
             Stack(
               clipBehavior: Clip.none,
               children: [
-                // Banner Image
                 Container(
                   width: double.infinity,
                   height: 120,
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: _imageFile != null
-                          ? FileImage(_imageFile!) // Use the captured image
+                          ? FileImage(_imageFile!)
                           : AssetImage('assets/images/store_dummy.jpg') as ImageProvider,
                       fit: BoxFit.cover,
                     ),
                   ),
-                )
-                ,
-                // Camera Icon
+                ),
                 Positioned(
                   bottom: -35,
                   left: MediaQuery.of(context).size.width / 2 - 35,
                   child: GestureDetector(
                     onTap: () {
-                      // Handle camera click here
-                      // For example, navigate to camera screen or open image picker
-                      //_captureImage();
                       _captureAndCropImage();
                     },
                     child: CircleAvatar(
@@ -162,66 +186,23 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 50), // Space to avoid overlap
-
-            // Input Fields
+            SizedBox(height: 50),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 children: [
-                  buildInputField(
-                      'assets/images/ic_store_color.jpg',
-                      'Store type',
-                      storeTypeController,
-                      TextInputType.text,
-                      100,
-                      isDropdown: true),
-                  buildInputField(
-                      'assets/images/ic_store_color.jpg',
-                      'Store Name',
-                      storeNameController,
-                      TextInputType.text,
-                      100),
-                  buildInputField('assets/images/ic_location.png', 'Address',
-                      storeAddressController, TextInputType.text, 500),
-                  buildInputField('assets/images/ic_location.png', 'Pincode',
-                      storePinCodeController, TextInputType.number, 10),
-                  buildInputField(
-                      'assets/images/ic_user_color.png',
-                      'Contact Name',
-                      contactNameController,
-                      TextInputType.text,
-                      100),
-                  buildInputField(
-                      'assets/images/ic_phone.png',
-                      'Contact Number',
-                      contactNumberController,
-                      TextInputType.number,
-                      10),
-                  buildInputField(
-                      'assets/images/ic_phone.png',
-                      'Alternet Contact Number',
-                      contactAlternateNumberController,
-                      TextInputType.number,
-                      10),
-                  buildInputField(
-                      'assets/images/ic_whatsapp.png',
-                      'Whatsapp Number',
-                      contactWhatsappNumberController,
-                      TextInputType.number,
-                      10),
-                  buildInputField('assets/images/ic_mail.png', 'Email',
-                      contactEmailController, TextInputType.text, 100),
-                  buildInputField(
-                      'assets/images/ic_measurement.png',
-                      'Size/Area',
-                      contactSizeAreaController,
-                      TextInputType.text,
-                      100),
-                  buildInputField('assets/images/ic_remarks.png', 'remarks',
-                      contactRemarksController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_store_color.jpg', 'Store type', storeTypeController, TextInputType.text, 100, isDropdown: true),
+                  buildInputField('assets/images/ic_store_color.jpg', 'Store Name', storeNameController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_location.png', 'Address', storeAddressController, TextInputType.text, 500),
+                  buildInputField('assets/images/ic_location.png', 'Pincode', storePinCodeController, TextInputType.number, 10),
+                  buildInputField('assets/images/ic_user_color.png', 'Contact Name', contactNameController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_phone.png', 'Contact Number', contactNumberController, TextInputType.number, 10),
+                  buildInputField('assets/images/ic_phone.png', 'Alternet Contact Number', contactAlternateNumberController, TextInputType.number, 10),
+                  buildInputField('assets/images/ic_whatsapp.png', 'Whatsapp Number', contactWhatsappNumberController, TextInputType.number, 10),
+                  buildInputField('assets/images/ic_mail.png', 'Email', contactEmailController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_measurement.png', 'Size/Area', contactSizeAreaController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_remarks.png', 'Remarks', contactRemarksController, TextInputType.text, 100),
 
-                  //  Button
                   SizedBox(height: 20.0),
                   SizedBox(
                     width: 200,
@@ -232,16 +213,21 @@ class _StoreAddScreen extends State<StoreAddScreen> {
                         shadowColor: Colors.black87,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         side: const BorderSide(color: Colors.black26, width: 0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                         backgroundColor: AppColor.colorButton,
                       ),
                       onPressed: () async {
                         FocusScope.of(context).unfocus();
-                        validation();
+                        if (isEditMode) {
+                          await _updateStore();
+                        } else {
+                          await _saveNewStore();
+                        }
                       },
-                      child: const Text('Save',
-                          style: TextStyle(color: AppColor.colorWhite)),
+                      child: Text(
+                        isEditMode ? 'Update' : 'Save',
+                        style: TextStyle(color: AppColor.colorWhite),
+                      ),
                     ),
                   ),
                   SizedBox(height: 40.0),
@@ -253,6 +239,45 @@ class _StoreAddScreen extends State<StoreAddScreen> {
       ),
     );
   }
+
+  Future<void> _captureAndCropImage() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        final CroppedFile? croppedFile = await ImageCropper().cropImage(
+          sourcePath: pickedFile.path,
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio3x2,
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9,
+          ],
+          uiSettings: [
+            AndroidUiSettings(
+              toolbarTitle: 'Crop Image',
+              toolbarColor: Colors.deepOrange,
+              toolbarWidgetColor: Colors.white,
+              initAspectRatio: CropAspectRatioPreset.original,
+              lockAspectRatio: false,
+            ),
+            IOSUiSettings(
+              title: 'Crop Image',
+            ),
+          ],
+        );
+
+        if (croppedFile != null) {
+          setState(() {
+            _imageFile = File(croppedFile.path);
+          });
+        }
+      }
+    } catch (e) {
+      print("Error capturing or cropping image: $e");
+    }
+  }
+
 
   Widget buildInputField(
       String iconPath,
@@ -295,100 +320,69 @@ class _StoreAddScreen extends State<StoreAddScreen> {
           Expanded(
             child: isDropdown
                 ? DropdownButton<String>(
-                    isExpanded: true,
-                    underline: SizedBox(),
-                    hint: Text(
-                      selectedStoreType.isNotEmpty ? selectedStoreType : hint,
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    items: dropdownItems,
-                    /*[
+              isExpanded: true,
+              underline: SizedBox(),
+              hint: Text(
+                //selectedStoreType.isNotEmpty ? selectedStoreType : hint,
+                selectedStoreType.isNotEmpty ? storeTypeName : hint,
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+              items: dropdownItems,
+              /*[
                       DropdownMenuItem(value: 'Typ0', child: Text('Type1')),
                       DropdownMenuItem(value: 'Typ1', child: Text('Type2')),
                     ],*/
-                    onChanged: (value) {
-                      setState(() {
-                        try {
-                          StoreTypeEntity selectedStoreTypeEntity =
-                              storeTypeL.firstWhere(
-                            (storeType) =>
-                                storeType.type_id.toString() == value,
-                          );
-                          controller.text = selectedStoreTypeEntity.type_name!;
-                          selectedStoreType =
-                              selectedStoreTypeEntity.type_name!;
-                          selectedStoreTypeID = value!;
-                        } catch (e) {
-                          print(e);
-                        }
-                      });
-                    },
-                  )
+              onChanged: (value) {
+                setState(() {
+                  try {
+                    StoreTypeEntity selectedStoreTypeEntity =
+                    storeTypeL.firstWhere(
+                          (storeType) =>
+                      storeType.type_id.toString() == value,
+                    );
+                    controller.text = selectedStoreTypeEntity.type_name!;
+                    selectedStoreType =
+                    selectedStoreTypeEntity.type_name!;
+                    selectedStoreTypeID = value!;
+                  } catch (e) {
+                    print(e);
+                  }
+                });
+              },
+            )
                 : TextField(
-                    controller: controller,
-                    maxLines: null,
-                    // Allows TextField to grow vertically
-                    minLines: 1,
-                    keyboardType: textInputType,
-                    // Set keyboard type to number
-                    maxLength: maxLength,
-                    decoration: InputDecoration(
-                      prefixIcon: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        // Padding for the custom image
-                        child: Image.asset(
-                          iconPath, // Path to your custom icon image
-                          width: 24,
-                          height: 24,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      border: InputBorder.none,
-                      hintText: hint,
-                      hintStyle: TextStyle(color: Colors.grey[700]),
-                      contentPadding: EdgeInsets.symmetric(vertical: 15.0),
-                      counterText: "",
-                    ),
+              controller: controller,
+              maxLines: null,
+              // Allows TextField to grow vertically
+              minLines: 1,
+              keyboardType: textInputType,
+              // Set keyboard type to number
+              maxLength: maxLength,
+              decoration: InputDecoration(
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  // Padding for the custom image
+                  child: Image.asset(
+                    iconPath, // Path to your custom icon image
+                    width: 24,
+                    height: 24,
+                    fit: BoxFit.contain,
                   ),
+                ),
+                border: InputBorder.none,
+                hintText: hint,
+                hintStyle: TextStyle(color: Colors.grey[700]),
+                contentPadding: EdgeInsets.symmetric(vertical: 15.0),
+                counterText: "",
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Future<List<StoreTypeEntity>> getStoreTypes() async {
-    final storeTypeDao = appDatabase.storeTypeDao;
-    storeTypeL = await storeTypeDao.getAll();
-    return storeTypeL;
-  }
-
-  Future<void> _loadStoreTypes() async {
-    // Fetch data from the database
-    List<StoreTypeEntity> storeTypes = await getStoreTypes();
-
-    // Create dropdown items
-    setState(() {
-      dropdownItems = storeTypes.map((storeType) {
-        return DropdownMenuItem<String>(
-          value: storeType.type_id.toString(),
-          child: Text(storeType.type_name),
-        );
-      }).toList();
-    });
-  }
-
-  Future<Position> _loadStoreLocation() async {
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    gpsAddress =
-        await AppUtils().getAddress(position.latitude, position.longitude);
-    gpsPincode =
-        await AppUtils().getPincode(position.latitude, position.longitude);
-    return position;
-  }
-
-  Future<void> validation() async {
+  Future<void> _saveNewStore() async {
     try {
       showDialog(
         context: context,
@@ -441,7 +435,7 @@ class _StoreAddScreen extends State<StoreAddScreen> {
       } else {
         DateTime currentDateTime = DateTime.now();
         String formattedDate =
-            DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
+        DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
         final storeID = pref.getString('user_id')! +
             formattedDate
                 .replaceAll(" ", "")
@@ -480,97 +474,66 @@ class _StoreAddScreen extends State<StoreAddScreen> {
       Navigator.of(context).pop();
     }
   }
-
-  Future<void> _captureImage() async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        setState(() {
-          _imageFile = File(pickedFile.path);
-        });
-        print("Image Path: ${pickedFile.path}"); // Save or use the path as needed
-      }
-    } catch (e) {
-      print("Error capturing image: $e");
-    }
-  }
-
-  /*Future<void> _captureAndCropImage() async {
-    try {
-      // Capture image from camera
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        // Crop the captured image
-        File? croppedFile = (await ImageCropper().cropImage(
-          sourcePath: pickedFile.path,
-          aspectRatioPresets: [
-            CropAspectRatioPreset.square,
-            CropAspectRatioPreset.ratio3x2,
-            CropAspectRatioPreset.original,
-            CropAspectRatioPreset.ratio4x3,
-            CropAspectRatioPreset.ratio16x9,
-          ],
-          uiSettings: [
-            AndroidUiSettings(
-              toolbarTitle: 'Crop Image',
-              toolbarColor: Colors.deepOrange,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: false,
-            ),
-            IOSUiSettings(
-              title: 'Crop Image',
-            ),
-          ],
-        )) as File?;
-
-        if (croppedFile != null) {
-          setState(() {
-            _imageFile = croppedFile; // Update the state with the cropped image
-          });
-        }
-      }
-    } catch (e) {
-      print("Error capturing or cropping image: $e");
-    }
-  }*/
-
-  Future<void> _captureAndCropImage() async {
-    try {
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        final CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: pickedFile.path,
-          aspectRatioPresets: [
-            CropAspectRatioPreset.square,
-            CropAspectRatioPreset.ratio3x2,
-            CropAspectRatioPreset.original,
-            CropAspectRatioPreset.ratio4x3,
-            CropAspectRatioPreset.ratio16x9,
-          ],
-          uiSettings: [
-            AndroidUiSettings(
-              toolbarTitle: 'Crop Image',
-              toolbarColor: Colors.deepOrange,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: false,
-            ),
-            IOSUiSettings(
-              title: 'Crop Image',
-            ),
-          ],
+  Future<void> _loadStoreTypes() async {
+    // Fetch data from the database
+    List<StoreTypeEntity> storeTypes = await getStoreTypes();
+    // Create dropdown items
+    setState(() {
+      dropdownItems = storeTypes.map((storeType) {
+        return DropdownMenuItem<String>(
+          value: storeType.type_id.toString(),
+          child: Text(storeType.type_name),
         );
-
-        if (croppedFile != null) {
-          setState(() {
-            _imageFile = File(croppedFile.path);
-          });
-        }
-      }
-    } catch (e) {
-      print("Error capturing or cropping image: $e");
-    }
+      }).toList();
+    });
   }
 
+  Future<List<StoreTypeEntity>> getStoreTypes() async {
+    final storeTypeDao = appDatabase.storeTypeDao;
+    storeTypeL = await storeTypeDao.getAll();
+    return storeTypeL;
+  }
+
+  Future<Position> _loadStoreLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    gpsAddress =
+    await AppUtils().getAddress(position.latitude, position.longitude);
+    gpsPincode =
+    await AppUtils().getPincode(position.latitude, position.longitude);
+    return position;
+  }
+
+  Future<void> _updateStore() async {
+    try {
+      // Create the updated StoreEntity with the existing store_id
+      final updatedStore = StoreEntity(
+        store_id: widget.store!.store_id,  // Keep the same store_id for updating
+        store_name: storeNameController.text,
+        store_address: storeAddressController.text,
+        store_pincode: storePinCodeController.text,
+        store_lat: _latitude.toString(),
+        store_long: _longitude.toString(),
+        store_contact_name: contactNameController.text,
+        store_contact_number: contactNumberController.text,
+        store_alternet_contact_number: contactAlternateNumberController.text,
+        store_whatsapp_number: contactWhatsappNumberController.text,
+        store_email: contactEmailController.text,
+        store_type: selectedStoreTypeID,
+        store_size_area: contactSizeAreaController.text,
+        remarks: contactRemarksController.text,
+        create_date_time: widget.store!.create_date_time,
+        store_state_id: widget.store!.store_state_id,
+        store_pic_url: widget.store!.store_pic_url,
+        isUploaded: widget.store!.isUploaded,
+      );
+      // Call the updateStore method from StoreDao
+      await appDatabase.storeDao.updateStore(updatedStore);
+      widget.onDataChanged();  // Notify the parent widget of the update
+      Navigator.of(context).pop();  // Go back to the previous screen
+    } catch (e) {
+      print("Error while updating store: $e");
+    }
+  }
 }
