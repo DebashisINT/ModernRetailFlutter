@@ -166,6 +166,14 @@ class _$StoreTypeDao extends StoreTypeDao {
   }
 
   @override
+  Future<String?> getStoreTypeById(String type_id) async {
+    return _queryAdapter.query(
+        'SELECT type_name FROM store_type WHERE type_id = ?1',
+        mapper: (Map<String, Object?> row) => row.values.first as String,
+        arguments: [type_id]);
+  }
+
+  @override
   Future<void> insertStoreType(StoreTypeEntity obj) async {
     await _storeTypeEntityInsertionAdapter.insert(
         obj, OnConflictStrategy.abort);
@@ -319,6 +327,31 @@ class _$StoreDao extends StoreDao {
                   'create_date_time': item.create_date_time,
                   'store_pic_url': item.store_pic_url,
                   'isUploaded': item.isUploaded ? 1 : 0
+                }),
+        _storeEntityUpdateAdapter = UpdateAdapter(
+            database,
+            'store',
+            ['store_id'],
+            (StoreEntity item) => <String, Object?>{
+                  'store_id': item.store_id,
+                  'store_name': item.store_name,
+                  'store_address': item.store_address,
+                  'store_pincode': item.store_pincode,
+                  'store_lat': item.store_lat,
+                  'store_long': item.store_long,
+                  'store_contact_name': item.store_contact_name,
+                  'store_contact_number': item.store_contact_number,
+                  'store_alternet_contact_number':
+                      item.store_alternet_contact_number,
+                  'store_whatsapp_number': item.store_whatsapp_number,
+                  'store_email': item.store_email,
+                  'store_type': item.store_type,
+                  'store_size_area': item.store_size_area,
+                  'store_state_id': item.store_state_id,
+                  'remarks': item.remarks,
+                  'create_date_time': item.create_date_time,
+                  'store_pic_url': item.store_pic_url,
+                  'isUploaded': item.isUploaded ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -329,9 +362,11 @@ class _$StoreDao extends StoreDao {
 
   final InsertionAdapter<StoreEntity> _storeEntityInsertionAdapter;
 
+  final UpdateAdapter<StoreEntity> _storeEntityUpdateAdapter;
+
   @override
   Future<List<StoreEntity>> getAll() async {
-    return _queryAdapter.queryList('select * from store',
+    return _queryAdapter.queryList('SELECT * FROM store',
         mapper: (Map<String, Object?> row) => StoreEntity(
             store_id: row['store_id'] as String,
             store_name: row['store_name'] as String,
@@ -352,6 +387,32 @@ class _$StoreDao extends StoreDao {
             create_date_time: row['create_date_time'] as String,
             store_pic_url: row['store_pic_url'] as String,
             isUploaded: (row['isUploaded'] as int) != 0));
+  }
+
+  @override
+  Future<StoreEntity?> getStoreById(String store_id) async {
+    return _queryAdapter.query('SELECT * FROM store WHERE store_id = ?1',
+        mapper: (Map<String, Object?> row) => StoreEntity(
+            store_id: row['store_id'] as String,
+            store_name: row['store_name'] as String,
+            store_address: row['store_address'] as String,
+            store_pincode: row['store_pincode'] as String,
+            store_lat: row['store_lat'] as String,
+            store_long: row['store_long'] as String,
+            store_contact_name: row['store_contact_name'] as String,
+            store_contact_number: row['store_contact_number'] as String,
+            store_alternet_contact_number:
+                row['store_alternet_contact_number'] as String,
+            store_whatsapp_number: row['store_whatsapp_number'] as String,
+            store_email: row['store_email'] as String,
+            store_type: row['store_type'] as String,
+            store_size_area: row['store_size_area'] as String,
+            store_state_id: row['store_state_id'] as String,
+            remarks: row['remarks'] as String,
+            create_date_time: row['create_date_time'] as String,
+            store_pic_url: row['store_pic_url'] as String,
+            isUploaded: (row['isUploaded'] as int) != 0),
+        arguments: [store_id]);
   }
 
   @override
@@ -386,6 +447,12 @@ class _$StoreDao extends StoreDao {
   @override
   Future<void> insertStore(StoreEntity obj) async {
     await _storeEntityInsertionAdapter.insert(obj, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateStore(StoreEntity updatedStore) async {
+    await _storeEntityUpdateAdapter.update(
+        updatedStore, OnConflictStrategy.abort);
   }
 }
 

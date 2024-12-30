@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo_one/api/store_type_response.dart';
 import 'package:flutter_demo_one/app_color.dart';
 import 'package:flutter_demo_one/database/store_dao.dart';
 import 'package:flutter_demo_one/database/store_entity.dart';
+import 'package:flutter_demo_one/database/store_type_dao.dart';
 import 'package:flutter_demo_one/screens/store_add_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,12 +23,14 @@ class _StoreScreenState extends State<StoreScreen> {
   final int _pageSize = 20;
 
   late final StoreDao _storeDao;
+  late final StoreTypeDao _storeTypeDao;
   final List<StoreEntity> _storeList = [];
 
   @override
   void initState() {
     super.initState();
     _storeDao = appDatabase.storeDao;
+    _storeTypeDao = appDatabase.storeTypeDao;
     _fetchData();
   }
 
@@ -178,19 +182,33 @@ class _StoreScreenState extends State<StoreScreen> {
                       color: AppColor.colorStoreEditIcon, // Light grey color for the circle
                     ),
                     child: IconButton(
-                      icon: Image.asset(
-                        'assets/images/store_edit_icon.webp', // Path to your asset image
-                        width: 24.0,  // Set the width of the image
-                        height: 24.0, // Set the height of the image
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => StoreAddScreen(onDataChanged: _updateData),
-                          ),
-                        );
-                      },
+                        icon: Image.asset(
+                          'assets/images/store_edit_icon.webp', // Path to your asset image
+                          width: 24.0,  // Set the width of the image
+                          height: 24.0, // Set the height of the image
+                        ),
+                        onPressed: () async {
+                          String storeId = store.store_id; // Example storeId, replace with actual value
+
+                          // Fetch store details from the database
+                          StoreEntity? edtstoreDetails = await _storeDao.getStoreById(storeId);
+
+                          if (edtstoreDetails != null) {
+                            // Navigate to StoreAddScreen if the store exists
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StoreAddScreen(
+                                  onDataChanged: _updateData,
+                                  store: edtstoreDetails,  // Pass the store details to the next screen
+                                ),
+                              ),
+                            );
+                          } else {
+                            // Handle case where store is not found
+                            print("Store with ID $storeId not found");
+                          }
+                        }
                     ),
                   ),
                 ),
@@ -242,12 +260,30 @@ class _StoreScreenState extends State<StoreScreen> {
                     },
                   ),
                 ),
-                // Right side: Store Type
+                // Right side: Store Type (Now wrapped with FutureBuilder)
                 Expanded(
-                  child: _buildContactInfo(
-                      'assets/images/ic_store_color.jpg',
-                      "Store Type",
-                      store.store_name ?? "N/A"
+                  child: FutureBuilder<String?>(
+                    future: _storeTypeDao.getStoreTypeById(store.store_type), // Fetch store type by store_id
+                    builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Text("Loading..."); // Display while fetching data
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}'); // Handle error
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        String storeTypeName = snapshot.data!;
+                        return _buildContactInfo(
+                          'assets/images/ic_store_color.jpg',
+                          "Store Type",
+                          storeTypeName, // Display the store type name
+                        );
+                      } else {
+                        return _buildContactInfo(
+                          'assets/images/ic_store_color.jpg',
+                          "Store Type",
+                          "N/A", // Default if no data found
+                        );
+                      }
+                    },
                   ),
                 ),
               ],
@@ -328,6 +364,7 @@ class _StoreScreenState extends State<StoreScreen> {
       ),
     );
   }
+
 
   // Helper Method to Build Contact Info Section (Contact Name and Store Type)
   Widget _buildContactInfo(String iconPath, String label, String value, {VoidCallback? onTap}) {

@@ -8,4 +8,7 @@ abstract class StoreTypeDao{
 
   @insert
   Future<void> insertStoreType(StoreTypeEntity obj);
+
+  @Query('SELECT type_name FROM store_type WHERE type_id = :type_id')
+  Future<String?> getStoreTypeById(String type_id);
 }
