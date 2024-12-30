@@ -2,10 +2,14 @@ import 'package:floor/floor.dart';
 import 'package:flutter_demo_one/database/product_entity.dart';
 
 @dao
-abstract class ProductRateDao{
-  @Query('select * from product_rate')
-  Future<List<ProductRateEntity>> getAll();
+abstract class ProductDao{
+  @Query('select * from product')
+  Future<List<ProductEntity>> getAll();
 
-  @insert
-  Future<void> insertProduct(ProductRateEntity obj);
+  @Insert(onConflict: OnConflictStrategy.replace)
+  Future<void> insertProductAll(List<ProductEntity> obj);
+
+  @Query('SELECT * FROM product LIMIT :limit OFFSET :offset')
+  Future<List<ProductEntity>> getProductPagination(int limit, int offset);
+
 }

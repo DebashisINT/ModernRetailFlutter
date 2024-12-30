@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_demo_one/api/product_rate_response.dart';
 import 'package:flutter_demo_one/api/product_response.dart';
 import 'package:flutter_demo_one/api/state_pin_response.dart';
 import 'package:flutter_demo_one/api/store_type_response.dart';
@@ -19,8 +20,11 @@ abstract class ApiService {
   @POST("ModernRetailInfoDetails/StoreTypeLists")
   Future<StoreTypeResponse> getStoreType(@Body() UserIdReq obj);
 
-  @POST("ModernRetailInfoDetails/ProductRateLists")
+  @POST("ModernRetailInfoDetails/ProductDetailLists")
   Future<ProductResponse> getProduct(@Body() UserIdReq obj);
+
+  @POST("ModernRetailInfoDetails/ProductRateLists")
+  Future<ProductRateResponse> getProductRate(@Body() UserIdReq obj);
 
   @POST("ModernRetailInfoDetails/PinCityStateLists")
   Future<StatePinResponse> getStatePin(@Body() UserIdReq obj);

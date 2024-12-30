@@ -12,4 +12,5 @@ class AppColor{
   static const Color colorStoreEditIcon= Color(0xFFD3EBFF);
   static const Color colorStoreCircleBack= Color(0xFFEDEDED);
   static const Color colorStoreAddTxt= Color(0xFF595959);
+  static const Color colorGreyLight= Color(0xFFEEEEEE);
 }

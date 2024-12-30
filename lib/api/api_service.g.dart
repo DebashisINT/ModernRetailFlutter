@@ -83,12 +83,36 @@ class _ApiService implements ApiService {
     )
             .compose(
               _dio.options,
-              'ModernRetailInfoDetails/ProductRateLists',
+              'ModernRetailInfoDetails/ProductDetailLists',
               queryParameters: queryParameters,
               data: _data,
             )
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ProductResponse.fromJson(_result.data!);
+    return value;
+  }
+
+  @override
+  Future<ProductRateResponse> getProductRate(obj) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(obj.toJson());
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ProductRateResponse>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+            .compose(
+              _dio.options,
+              'ModernRetailInfoDetails/ProductRateLists',
+              queryParameters: queryParameters,
+              data: _data,
+            )
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ProductRateResponse.fromJson(_result.data!);
     return value;
   }
 

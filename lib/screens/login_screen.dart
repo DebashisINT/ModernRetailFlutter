@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_demo_one/api/login_type_req.dart';
 import 'package:flutter_demo_one/database/app_database.dart';
 import 'package:flutter_demo_one/database/product_entity.dart';
+import 'package:flutter_demo_one/database/product_rate_entity.dart';
 import 'package:flutter_demo_one/database/state_pin_entity.dart';
 import 'package:flutter_demo_one/screens/dashboard_screen.dart';
 import 'package:http/http.dart' as http;
@@ -262,9 +263,10 @@ class _LoginScreen extends State<LoginScreen>{
     try {
       Future<void> storeType = apiCallStoreType();
       Future<void> product = apiCallProduct();
+      Future<void> productRate = apiCallProductRate();
       Future<void> statePin = apiCallStatePin();
       // Wait for all of them to complete
-      List<void> results = await Future.wait([storeType, product,statePin]);
+      List<void> results = await Future.wait([storeType, product,productRate,statePin]);
       Navigator.of(context).pop();
       pref.setBool('isLoggedIn', true);
       Navigator.pushReplacement(
@@ -302,15 +304,34 @@ class _LoginScreen extends State<LoginScreen>{
   Future<void> apiCallProduct() async {
     try {
       print("flow_chk apiCallProduct begin");
-      final itemDao = appDatabase.productRateDao;
+      final itemDao = appDatabase.productDao;
       final productL = await itemDao.getAll();
       if(productL.isEmpty){
         final apiService = ApiService(dio);
         final userRequest = UserIdReq(user_id: pref.getString('user_id') ?? "");
         final response = await apiService.getProduct(userRequest);
         if(response.status == "200"){
+          await itemDao.insertProductAll(response.productList.cast<ProductEntity>());
+        }
+      }
+      print("flow_chk apiCallProduct end");
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> apiCallProductRate() async {
+    try {
+      print("flow_chk apiCallProduct begin");
+      final itemDao = appDatabase.productRateDao;
+      final productL = await itemDao.getAll();
+      if(productL.isEmpty){
+        final apiService = ApiService(dio);
+        final userRequest = UserIdReq(user_id: pref.getString('user_id') ?? "");
+        final response = await apiService.getProductRate(userRequest);
+        if(response.status == "200"){
           for (int i = 0; i < response.productList.length; i++) {
-            await itemDao.insertProduct(ProductRateEntity(
+            await itemDao.insertProductRate(ProductRateEntity(
                 product_id: response.productList[i].product_id,
                 state_id: response.productList[i].state_id,
                 rate: response.productList[i].rate));

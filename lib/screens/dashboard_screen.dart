@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo_one/app_color.dart';
+import 'package:flutter_demo_one/screens/stock_screen.dart';
 import 'package:flutter_demo_one/screens/store_screen.dart';
 
 void main() {
@@ -80,10 +81,10 @@ class DashboardScreen extends StatelessWidget {
             ),
             buildCustomListTile(context, 'Stock', 'assets/images/stock.jpg', () {
               Navigator.pop(context);
-              /* Navigator.push(
+               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );*/
+                  MaterialPageRoute(builder: (context) => StockScreen()),
+                );
             },
             ),
             buildCustomListTile(context, 'Logout', 'assets/images/log_out.jpg', () {
@@ -126,12 +127,20 @@ class DashboardScreen extends StatelessWidget {
                           'assets/images/dashboard_img_1.jpg',
                         ),
                       ),
-                      buildCustomCard(
-                        context,
-                        'assets/images/ic_stock.jpg',
-                        'Stock',
-                        Color(0xffe79bfe),
-                        'assets/images/dashboard_img_2.jpg',
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => StockScreen()),
+                          );
+                        },
+                        child: buildCustomCard(
+                          context,
+                          'assets/images/ic_stock.jpg',
+                          'Stock',
+                          Color(0xffe79bfe),
+                          'assets/images/dashboard_img_2.jpg',
+                        ),
                       ),
                     ]),
                     SizedBox(height: 35),

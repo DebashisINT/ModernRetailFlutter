@@ -63,6 +63,8 @@ class _$AppDatabase extends AppDatabase {
 
   StoreTypeDao? _storeTypeDaoInstance;
 
+  ProductDao? _productDaoInstance;
+
   ProductRateDao? _productRateDaoInstance;
 
   StoreDao? _storeDaoInstance;
@@ -95,6 +97,8 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `store` (`store_id` TEXT NOT NULL, `store_name` TEXT NOT NULL, `store_address` TEXT NOT NULL, `store_pincode` TEXT NOT NULL, `store_lat` TEXT NOT NULL, `store_long` TEXT NOT NULL, `store_contact_name` TEXT NOT NULL, `store_contact_number` TEXT NOT NULL, `store_alternet_contact_number` TEXT NOT NULL, `store_whatsapp_number` TEXT NOT NULL, `store_email` TEXT NOT NULL, `store_type` TEXT NOT NULL, `store_size_area` TEXT NOT NULL, `store_state_id` TEXT NOT NULL, `remarks` TEXT NOT NULL, `create_date_time` TEXT NOT NULL, `store_pic_url` TEXT NOT NULL, `isUploaded` INTEGER NOT NULL, PRIMARY KEY (`store_id`))');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `product` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL)');
+        await database.execute(
             'CREATE TABLE IF NOT EXISTS `product_rate` (`product_id` INTEGER NOT NULL, `state_id` INTEGER NOT NULL, `rate` REAL NOT NULL, PRIMARY KEY (`product_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `state_pin` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `pin_id` INTEGER NOT NULL, `pincode` TEXT NOT NULL, `city_id` INTEGER NOT NULL, `city_name` TEXT NOT NULL, `state_id` INTEGER NOT NULL, `state_name` TEXT NOT NULL)');
@@ -108,6 +112,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   StoreTypeDao get storeTypeDao {
     return _storeTypeDaoInstance ??= _$StoreTypeDao(database, changeListener);
+  }
+
+  @override
+  ProductDao get productDao {
+    return _productDaoInstance ??= _$ProductDao(database, changeListener);
   }
 
   @override
@@ -163,6 +172,87 @@ class _$StoreTypeDao extends StoreTypeDao {
   }
 }
 
+class _$ProductDao extends ProductDao {
+  _$ProductDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _productEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'product',
+            (ProductEntity item) => <String, Object?>{
+                  'sl_no': item.sl_no,
+                  'product_id': item.product_id,
+                  'product_name': item.product_name,
+                  'product_description': item.product_description,
+                  'brand_id': item.brand_id,
+                  'brand_name': item.brand_name,
+                  'category_id': item.category_id,
+                  'category_name': item.category_name,
+                  'watt_id': item.watt_id,
+                  'watt_name': item.watt_name,
+                  'product_mrp': item.product_mrp,
+                  'UOM': item.UOM,
+                  'product_pic_url': item.product_pic_url
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<ProductEntity> _productEntityInsertionAdapter;
+
+  @override
+  Future<List<ProductEntity>> getAll() async {
+    return _queryAdapter.queryList('select * from product',
+        mapper: (Map<String, Object?> row) => ProductEntity(
+            sl_no: row['sl_no'] as int?,
+            product_id: row['product_id'] as int,
+            product_name: row['product_name'] as String,
+            product_description: row['product_description'] as String,
+            brand_id: row['brand_id'] as int,
+            brand_name: row['brand_name'] as String,
+            category_id: row['category_id'] as int,
+            category_name: row['category_name'] as String,
+            watt_id: row['watt_id'] as int,
+            watt_name: row['watt_name'] as String,
+            product_mrp: row['product_mrp'] as double,
+            UOM: row['UOM'] as String,
+            product_pic_url: row['product_pic_url'] as String));
+  }
+
+  @override
+  Future<List<ProductEntity>> getProductPagination(
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList('SELECT * FROM product LIMIT ?1 OFFSET ?2',
+        mapper: (Map<String, Object?> row) => ProductEntity(
+            sl_no: row['sl_no'] as int?,
+            product_id: row['product_id'] as int,
+            product_name: row['product_name'] as String,
+            product_description: row['product_description'] as String,
+            brand_id: row['brand_id'] as int,
+            brand_name: row['brand_name'] as String,
+            category_id: row['category_id'] as int,
+            category_name: row['category_name'] as String,
+            watt_id: row['watt_id'] as int,
+            watt_name: row['watt_name'] as String,
+            product_mrp: row['product_mrp'] as double,
+            UOM: row['UOM'] as String,
+            product_pic_url: row['product_pic_url'] as String),
+        arguments: [limit, offset]);
+  }
+
+  @override
+  Future<void> insertProductAll(List<ProductEntity> obj) async {
+    await _productEntityInsertionAdapter.insertList(
+        obj, OnConflictStrategy.replace);
+  }
+}
+
 class _$ProductRateDao extends ProductRateDao {
   _$ProductRateDao(
     this.database,
@@ -195,7 +285,7 @@ class _$ProductRateDao extends ProductRateDao {
   }
 
   @override
-  Future<void> insertProduct(ProductRateEntity obj) async {
+  Future<void> insertProductRate(ProductRateEntity obj) async {
     await _productRateEntityInsertionAdapter.insert(
         obj, OnConflictStrategy.abort);
   }

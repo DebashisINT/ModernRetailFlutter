@@ -17,7 +17,7 @@ class StatePinEntity{
   factory StatePinEntity.fromJson(Map<String, dynamic> json) {
     return StatePinEntity(
         sl_no: json['sl_no'],pin_id: json['pin_id'],pincode: json['pincode'],city_id: json['city_id'] ,
-      city_name: json['city_name'],state_id: json['state_id'],state_name: json['state_name'] ,// Map JSON properties to StoreTypeEntity fields
+      city_name: json['city_name'],state_id: json['state_id'],state_name: json['state_name']
     );
   }
 
