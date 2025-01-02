@@ -1,12 +1,16 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo_one/api/store_info_save_req.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../api/api_service.dart';
+import '../api/login_type_req.dart';
 import '../app_color.dart';
 import '../app_utils.dart';
 import '../database/store_entity.dart';
@@ -29,6 +33,8 @@ class StoreAddScreen extends StatefulWidget {
 }
 
 class _StoreAddScreen extends State<StoreAddScreen> {
+  final dio = Dio();
+
   String selectedStoreType = '';
   String selectedStoreTypeID = '';
   String storeTypeName = '';
@@ -383,7 +389,8 @@ class _StoreAddScreen extends State<StoreAddScreen> {
   }
 
   Future<void> _saveNewStore() async {
-    try {
+
+    /*    try {
       showDialog(
         context: context,
         builder: (context) {
@@ -472,8 +479,60 @@ class _StoreAddScreen extends State<StoreAddScreen> {
     } catch (e) {
       print(e);
       Navigator.of(context).pop();
+    }*/
+
+    DateTime currentDateTime = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
+    final storeID = pref.getString('user_id')! +
+        formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
+
+    // Create StoreEntity object
+    final storeEntity = StoreEntity(
+      store_id: storeID,
+      store_name: storeNameController.text,
+      store_address: storeAddressController.text,
+      store_pincode: storePinCodeController.text,
+      store_lat: '', // Or provide relevant values
+      store_long: '',
+      store_contact_name: contactNameController.text,
+      store_contact_number: contactNumberController.text,
+      store_alternet_contact_number: contactAlternateNumberController.text,
+      store_whatsapp_number: contactWhatsappNumberController.text,
+      store_email: contactEmailController.text,
+      store_type: "1",
+      store_size_area: contactSizeAreaController.text,
+      store_state_id: '1', // Assuming this value
+      remarks: contactRemarksController.text,
+      create_date_time: DateTime.now().toString(),
+      /*store_pic_url: '', // If you have any image URL*/
+     /* isUploaded: false, // Assuming not uploaded yet*/
+    );
+
+    // Create StoreInfoSaveReq object
+    final storeData = StoreInfoSaveReq(
+      user_id: /*pref.getString('user_id')!*/ "11707",
+      store_list: [storeEntity], // Wrap in a list as `store_list` expects a list
+    );
+    print('storeData: $storeData');
+
+    // Call your API to save the store data
+    try {
+      final apiService = ApiService(dio);
+      final response = await apiService.saveStoreInfo(storeData);
+
+      if (response.status == "200") {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Store added successfully!")));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to save store")));
+
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      print('Erroraddstore: $e');
     }
   }
+
+
   Future<void> _loadStoreTypes() async {
     // Fetch data from the database
     List<StoreTypeEntity> storeTypes = await getStoreTypes();
@@ -525,8 +584,12 @@ class _StoreAddScreen extends State<StoreAddScreen> {
         remarks: contactRemarksController.text,
         create_date_time: widget.store!.create_date_time,
         store_state_id: widget.store!.store_state_id,
+/*
         store_pic_url: widget.store!.store_pic_url,
+*/
+/*
         isUploaded: widget.store!.isUploaded,
+*/
       );
       // Call the updateStore method from StoreDao
       await appDatabase.storeDao.updateStore(updatedStore);

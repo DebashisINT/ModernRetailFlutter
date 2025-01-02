@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_demo_one/api/product_rate_response.dart';
 import 'package:flutter_demo_one/api/product_response.dart';
 import 'package:flutter_demo_one/api/state_pin_response.dart';
+import 'package:flutter_demo_one/api/store_info_save_req.dart';
+import 'package:flutter_demo_one/api/store_info_save_response.dart';
 import 'package:flutter_demo_one/api/store_type_response.dart';
 import 'package:flutter_demo_one/api/login_api_response.dart';
 import 'package:flutter_demo_one/api/login_type_req.dart';
@@ -28,4 +30,7 @@ abstract class ApiService {
 
   @POST("ModernRetailInfoDetails/PinCityStateLists")
   Future<StatePinResponse> getStatePin(@Body() UserIdReq obj);
+
+  @POST("ModernRetailInfoDetails/StoreInfoSave")
+  Future<StoreInfoSaveResponse> saveStoreInfo(@Body() StoreInfoSaveReq input);
 }

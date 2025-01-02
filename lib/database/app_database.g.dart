@@ -95,7 +95,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `store_type` (`type_id` INTEGER NOT NULL, `type_name` TEXT NOT NULL, PRIMARY KEY (`type_id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `store` (`store_id` TEXT NOT NULL, `store_name` TEXT NOT NULL, `store_address` TEXT NOT NULL, `store_pincode` TEXT NOT NULL, `store_lat` TEXT NOT NULL, `store_long` TEXT NOT NULL, `store_contact_name` TEXT NOT NULL, `store_contact_number` TEXT NOT NULL, `store_alternet_contact_number` TEXT NOT NULL, `store_whatsapp_number` TEXT NOT NULL, `store_email` TEXT NOT NULL, `store_type` TEXT NOT NULL, `store_size_area` TEXT NOT NULL, `store_state_id` TEXT NOT NULL, `remarks` TEXT NOT NULL, `create_date_time` TEXT NOT NULL, `store_pic_url` TEXT NOT NULL, `isUploaded` INTEGER NOT NULL, PRIMARY KEY (`store_id`))');
+            'CREATE TABLE IF NOT EXISTS `store` (`store_id` TEXT NOT NULL, `store_name` TEXT NOT NULL, `store_address` TEXT NOT NULL, `store_pincode` TEXT NOT NULL, `store_lat` TEXT NOT NULL, `store_long` TEXT NOT NULL, `store_contact_name` TEXT NOT NULL, `store_contact_number` TEXT NOT NULL, `store_alternet_contact_number` TEXT NOT NULL, `store_whatsapp_number` TEXT NOT NULL, `store_email` TEXT NOT NULL, `store_type` TEXT NOT NULL, `store_size_area` TEXT NOT NULL, `store_state_id` TEXT NOT NULL, `remarks` TEXT NOT NULL, `create_date_time` TEXT NOT NULL, PRIMARY KEY (`store_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `product` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL)');
         await database.execute(
@@ -324,9 +324,7 @@ class _$StoreDao extends StoreDao {
                   'store_size_area': item.store_size_area,
                   'store_state_id': item.store_state_id,
                   'remarks': item.remarks,
-                  'create_date_time': item.create_date_time,
-                  'store_pic_url': item.store_pic_url,
-                  'isUploaded': item.isUploaded ? 1 : 0
+                  'create_date_time': item.create_date_time
                 }),
         _storeEntityUpdateAdapter = UpdateAdapter(
             database,
@@ -349,9 +347,7 @@ class _$StoreDao extends StoreDao {
                   'store_size_area': item.store_size_area,
                   'store_state_id': item.store_state_id,
                   'remarks': item.remarks,
-                  'create_date_time': item.create_date_time,
-                  'store_pic_url': item.store_pic_url,
-                  'isUploaded': item.isUploaded ? 1 : 0
+                  'create_date_time': item.create_date_time
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -384,9 +380,7 @@ class _$StoreDao extends StoreDao {
             store_size_area: row['store_size_area'] as String,
             store_state_id: row['store_state_id'] as String,
             remarks: row['remarks'] as String,
-            create_date_time: row['create_date_time'] as String,
-            store_pic_url: row['store_pic_url'] as String,
-            isUploaded: (row['isUploaded'] as int) != 0));
+            create_date_time: row['create_date_time'] as String));
   }
 
   @override
@@ -409,9 +403,7 @@ class _$StoreDao extends StoreDao {
             store_size_area: row['store_size_area'] as String,
             store_state_id: row['store_state_id'] as String,
             remarks: row['remarks'] as String,
-            create_date_time: row['create_date_time'] as String,
-            store_pic_url: row['store_pic_url'] as String,
-            isUploaded: (row['isUploaded'] as int) != 0),
+            create_date_time: row['create_date_time'] as String),
         arguments: [store_id]);
   }
 
@@ -438,9 +430,7 @@ class _$StoreDao extends StoreDao {
             store_size_area: row['store_size_area'] as String,
             store_state_id: row['store_state_id'] as String,
             remarks: row['remarks'] as String,
-            create_date_time: row['create_date_time'] as String,
-            store_pic_url: row['store_pic_url'] as String,
-            isUploaded: (row['isUploaded'] as int) != 0),
+            create_date_time: row['create_date_time'] as String),
         arguments: [limit, offset]);
   }
 
