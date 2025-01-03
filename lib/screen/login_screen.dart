@@ -81,6 +81,22 @@ class _LoginScreen extends State<LoginScreen> {
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
+          Align(
+            alignment: Alignment.bottomCenter, // Aligns this child at the bottom
+            child: Container(
+              color: Colors.transparent, // Example bottom widget
+              height: MediaQuery.of(context).size.width * 0.6,
+              width: double.infinity,
+              child: Center(
+                child: Image.asset(
+                  'assets/images/login_bottom.webp', // Path to the bottom image asset
+                  width: double.infinity, // Makes the image stretch across the width
+                  //height: MediaQuery.of(context).size.height *.15, // Set the height of the bottom image
+                  fit: BoxFit.fill, // You can adjust this as needed
+                ),
+              ),
+            ),
+          ),
           Center(
             child: Column(
               children: [
@@ -236,17 +252,6 @@ class _LoginScreen extends State<LoginScreen> {
                   ),
                 ),
               ],
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Image.asset(
-              'assets/images/login_bottom.webp', // Path to the bottom image asset
-              width: double.infinity, // Makes the image stretch across the width
-              height: MediaQuery.of(context).size.height *.15, // Set the height of the bottom image
-              fit: BoxFit.fill, // You can adjust this as needed
             ),
           ),
         ],
