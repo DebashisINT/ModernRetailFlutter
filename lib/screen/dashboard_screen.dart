@@ -66,7 +66,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                         height: 110,
                         clipBehavior: Clip.antiAlias,
                         decoration: const BoxDecoration(
-                          color: Colors.black26,
+                          color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                         child: Padding(
@@ -82,7 +82,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                     ),
                   ),
                   Text(pref.getString('user_name') ?? 'User',
-                    style: TextStyle(color: AppColor.colorWhite,fontSize: 18),),
+                    style: TextStyle(color: AppColor.colorWhite,fontSize: 18,fontWeight: FontWeight.bold,),),
 
                   SizedBox(height: 10,),
 

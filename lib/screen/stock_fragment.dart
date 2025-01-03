@@ -377,7 +377,7 @@ class _StockFragment extends State<StockFragment> {
                     SizedBox(width: 10),
                     _buildDetail(product,'Mfg. Date', _mfgDatecontrollers[index].text,TextInputType.text,context,true,_mfgDatecontrollers[index]),
                     SizedBox(width: 10),
-                    _buildDetail(product,'Expire Date', _expDatecontrollers[index].text,TextInputType.text,context,true, _expDatecontrollers[index]),
+                    _buildDetail(product,'Exp. Date', _expDatecontrollers[index].text,TextInputType.text,context,true, _expDatecontrollers[index]),
                     SizedBox(width: 10),
                   ],
                 )
