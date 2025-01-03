@@ -7,6 +7,7 @@ class AppColor{
   static const Color colorCharcoal = Color(0xFF36454F);
   static const Color colorGrey = Color(0xFF9E9E9E);
   static const Color colorGreyLight = Color(0xFFCDCCCC);
+  static const Color colorGreyIconBack = Color(0xFFEAE7E7);
   static const Color colorToolbar = Color(0xFF114978);
   static const Color colorRed = Color(0xFFB71C1C);
   static const Color colorTransparent = Color(0x00000000);
