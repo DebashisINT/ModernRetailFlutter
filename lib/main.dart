@@ -1,17 +1,16 @@
+import 'package:fl/screen/login_screen.dart';
+import 'package:fl/screen/splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo_one/database/app_database.dart';
-import 'package:flutter_demo_one/screens/login_screen.dart';
-import 'package:flutter_demo_one/screens/splash_screen.dart';
-import 'package:flutter_demo_one/screens/store_add_screen.dart';
-import 'package:flutter_demo_one/screens/store_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'database/app_database.dart';
 
 late final AppDatabase appDatabase;
 late SharedPreferences pref;
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  initSharedPreferences();
+  pref = await SharedPreferences.getInstance();
   appDatabase = await $FloorAppDatabase.databaseBuilder('app_database.db').build();
   runApp(const MyApp());
 }
@@ -28,8 +27,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-initSharedPreferences() async{
-  pref = await SharedPreferences.getInstance();
-}
-

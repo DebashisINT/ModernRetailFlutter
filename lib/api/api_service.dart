@@ -1,36 +1,41 @@
-import 'package:dio/dio.dart';
-import 'package:flutter_demo_one/api/product_rate_response.dart';
-import 'package:flutter_demo_one/api/product_response.dart';
-import 'package:flutter_demo_one/api/state_pin_response.dart';
-import 'package:flutter_demo_one/api/store_info_save_req.dart';
-import 'package:flutter_demo_one/api/store_info_save_response.dart';
-import 'package:flutter_demo_one/api/store_type_response.dart';
-import 'package:flutter_demo_one/api/login_api_response.dart';
-import 'package:flutter_demo_one/api/login_type_req.dart';
-import 'package:retrofit/http.dart';
+import 'dart:io';
 
-import 'user_id_req.dart';
+import 'package:dio/dio.dart';
+import 'package:fl/api/response/generic_response.dart';
+import 'package:fl/api/response/login_request.dart';
+import 'package:fl/api/response/login_response.dart';
+import 'package:fl/api/response/product_response.dart';
+import 'package:fl/api/response/state_pin_response.dart';
+import 'package:fl/api/response/store_response.dart';
+import 'package:fl/api/response/store_save_request.dart';
+import 'package:fl/api/response/store_type_response.dart';
+import 'package:fl/api/response/user_id_request.dart';
+import 'package:retrofit/error_logger.dart';
+import 'package:retrofit/http.dart';
 part 'api_service.g.dart';
 
 @RestApi(baseUrl: "http://3.7.30.86:8075/API/")
-abstract class ApiService {
+abstract class ApiService{
   factory ApiService(Dio dio, {String? baseUrl}) = _ApiService;
 
   @POST("UserLogin/Login")
-  Future<LoginApiResponse> doLogin(@Body() LoginTypeReq obj);
+  Future<LoginResponse> doLogin(@Body() LoginRequest obj);
 
   @POST("ModernRetailInfoDetails/StoreTypeLists")
-  Future<StoreTypeResponse> getStoreType(@Body() UserIdReq obj);
+  Future<StoreTypeResponse> getStoreType(@Body() UserIdRequest obj);
 
-  @POST("ModernRetailInfoDetails/ProductDetailLists")
-  Future<ProductResponse> getProduct(@Body() UserIdReq obj);
-
-  @POST("ModernRetailInfoDetails/ProductRateLists")
-  Future<ProductRateResponse> getProductRate(@Body() UserIdReq obj);
+  @POST("ModernRetailInfoDetails/StoreInfoFetchLists")
+  Future<StoreResponse> getStore(@Body() UserIdRequest obj);
 
   @POST("ModernRetailInfoDetails/PinCityStateLists")
-  Future<StatePinResponse> getStatePin(@Body() UserIdReq obj);
+  Future<StatePinResponse> getStatePin(@Body() UserIdRequest obj);
+
+  @POST("ModernRetailInfoDetails/ProductDetailLists")
+  Future<ProductResponse> getProduct(@Body() UserIdRequest obj);
 
   @POST("ModernRetailInfoDetails/StoreInfoSave")
-  Future<StoreInfoSaveResponse> saveStoreInfo(@Body() StoreInfoSaveReq input);
+  Future<GenericResponse> saveStoreInfo(@Body() StoreSaveRequest input);
+
+  @POST("ModernRetailInfoDetails/StoreInfoEdit")
+  Future<GenericResponse> editStoreInfo(@Body() StoreSaveRequest input);
 }
