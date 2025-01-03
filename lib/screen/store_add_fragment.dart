@@ -10,7 +10,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
 import '../api/api_service.dart';
 import '../database/store_entity.dart';
 import '../database/store_type_entity.dart';
@@ -103,10 +104,30 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         storeAddressController = TextEditingController(text: gpsAddress);
         storePinCodeController = TextEditingController(text: gpsPincode);
         if(widget.editStoreObj?.store_pic_url != ""){
-          _imageFile = File(widget.editStoreObj!.store_pic_url);
+          if(widget.editStoreObj!.store_pic_url.contains("http")){
+            createImgForUrl(widget.editStoreObj!.store_pic_url.toString());
+          }else{
+            _imageFile = File(widget.editStoreObj!.store_pic_url);
+          }
+
         }
       });
     });
+  }
+
+  Future<void> createImgForUrl(String imgUrl) async {
+    try {
+      final response = await http.get(Uri.parse(imgUrl));
+      final Directory tempDir = await getTemporaryDirectory();
+      final String filePath = '${tempDir.path}/downloaded_image.jpg';
+      final File file = File(filePath);
+      await file.writeAsBytes(response.bodyBytes);
+      setState(() {
+        _imageFile = file;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -126,15 +147,12 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
                   width: double.infinity,
                   height: 120,
                   decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: _imageFile != null
-                          ? FileImage(_imageFile!) // Use the captured image
-                          : AssetImage('assets/images/store_dummy.jpg') as ImageProvider,
-                      fit: BoxFit.cover,
-                    ),
+                      image: DecorationImage(
+                        image: _imageFile != null ? FileImage(_imageFile!) : AssetImage('assets/images/store_dummy.jpg') as ImageProvider,
+                        fit: BoxFit.cover,
+                      ),
                   ),
-                )
-                ,
+                ),
                 // Camera Icon
                 Positioned(
                   bottom: -35,
@@ -456,6 +474,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Please select Store type')));
       } else if (storeName == "") {
+        Navigator.of(context).pop();
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Please enter Store Name')));
