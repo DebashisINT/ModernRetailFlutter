@@ -305,8 +305,8 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
             decoration: BoxDecoration(
               color: AppColor.colorGreyIconBack, // Grey background color for icon area
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(8),
-                bottomLeft: Radius.circular(8),
+                topLeft: Radius.circular(18),
+                bottomLeft: Radius.circular(18),
               ),
             ),
             alignment: Alignment.center,
@@ -370,10 +370,10 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15.0),
-                    topRight: Radius.circular(15.0),
-                    bottomRight: Radius.circular(15.0),
-                    bottomLeft: Radius.circular(15.0),
+                    topLeft: Radius.circular(18.0),
+                    topRight: Radius.circular(18.0),
+                    bottomRight: Radius.circular(18.0),
+                    bottomLeft: Radius.circular(18.0),
                   ),
                 ),
                 child: DropdownButton<StoreTypeEntity>(
