@@ -336,9 +336,9 @@ class _StoreFragmentState extends State<StoreFragment> {
         boxShadow: [
           BoxShadow(
             color: AppColor.colorGrey, // Shadow color
-            spreadRadius: 2, // How far the shadow spreads
-            blurRadius: 3, // The blurriness of the shadow
-            offset: Offset(0, 3), // The position of the shadow (x, y)
+            spreadRadius: 1, // How far the shadow spreads
+            blurRadius: 1, // The blurriness of the shadow
+            offset: Offset(0, 1), // The position of the shadow (x, y)
           ),
         ],
       ),
@@ -376,9 +376,9 @@ class _StoreFragmentState extends State<StoreFragment> {
             boxShadow: [
               BoxShadow(
                 color: AppColor.colorGrey, // Shadow color
-                spreadRadius: 2, // How far the shadow spreads
-                blurRadius: 3, // The blurriness of the shadow
-                offset: Offset(0, 3),// Slight shadow at the bottom
+                spreadRadius: 1, // How far the shadow spreads
+                blurRadius: 1, // The blurriness of the shadow
+                offset: Offset(0, 1),// Slight shadow at the bottom
               ),
             ],
           ),

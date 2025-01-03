@@ -99,7 +99,7 @@ class _LoginScreen extends State<LoginScreen> {
                       Image.asset(
                         "assets/images/ic_logo.webp",
                         height: 55,
-                        width: 150,
+                        width: 135,
                         fit: BoxFit.fill,
                       ),
                       SizedBox(height:20),
@@ -245,7 +245,7 @@ class _LoginScreen extends State<LoginScreen> {
             child: Image.asset(
               'assets/images/login_bottom.webp', // Path to the bottom image asset
               width: double.infinity, // Makes the image stretch across the width
-              height: MediaQuery.of(context).size.height *.2, // Set the height of the bottom image
+              height: MediaQuery.of(context).size.height *.15, // Set the height of the bottom image
               fit: BoxFit.fill, // You can adjust this as needed
             ),
           ),
