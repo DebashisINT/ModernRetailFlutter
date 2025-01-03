@@ -238,7 +238,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
                   //  Button
                   SizedBox(height: 20.0),
                   SizedBox(
-                    width: 200,
+                    width: MediaQuery.of(context).size.width,
                     height: 50,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(

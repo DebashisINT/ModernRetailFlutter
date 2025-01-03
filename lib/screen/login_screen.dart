@@ -107,7 +107,7 @@ class _LoginScreen extends State<LoginScreen> {
                   fit: BoxFit.fill,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 35,vertical: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -201,7 +201,7 @@ class _LoginScreen extends State<LoginScreen> {
                       SizedBox(height: 5),
                       SizedBox(
                         height: 55, // 20% of screen height
-                        width: MediaQuery.of(context).size.width * 0.6, // 50% of screen width
+                        width: MediaQuery.of(context).size.width * 1, // 50% of screen width
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             elevation: 5,
