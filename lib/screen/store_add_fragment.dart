@@ -578,6 +578,11 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         stateID = 0;
       }
 
+      String imagePath = "";
+      if(_imageFile != null){
+        imagePath = _imageFile!.path;
+      }
+
       if (selectedStoreType == "") {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context)
@@ -622,7 +627,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
             store_state_id: stateID,
             remarks: remarks,
             create_date_time: formattedDate,
-            store_pic_url: "",
+            store_pic_url: imagePath,
             isUploaded: false);
 
         final storeDao = appDatabase.storeDao;
@@ -634,19 +639,9 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         try {
           final response = await apiService.editStoreInfo(storeSaveRequest);
           if (response.status == "200") {
-            //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Store added successfully!")));
-            Navigator.of(context).pop();
-            AppUtils().showCustomDialog(context,"Hi ${pref.getString('user_name') ?? ""}","Store edited successfully.",(){
-              widget.onDataChanged();
-              Navigator.of(context).pop();
-            });
+            showMsg("Store edited successfully.");
           } else {
-            //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to save store")));
-            Navigator.of(context).pop();
-            AppUtils().showCustomDialog(context,"Hi ${pref.getString('user_name') ?? ""}","Failed to edit store.",(){
-              widget.onDataChanged();
-              Navigator.of(context).pop();
-            });
+            showMsg("Failed to edit store.");
           }
         } catch (e) {
           Navigator.of(context).pop();

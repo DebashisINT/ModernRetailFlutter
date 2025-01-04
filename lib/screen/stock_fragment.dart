@@ -123,7 +123,7 @@ class _StockFragment extends State<StockFragment> {
                 ),
               ),
             ),
-            /*Padding(
+            Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 decoration: InputDecoration(
@@ -143,7 +143,7 @@ class _StockFragment extends State<StockFragment> {
                   viewModel.loadItems(refresh: true, query: query);
                 },
               ),
-            ),*/
+            ),
             Expanded(
               child: Consumer<ItemViewModel>(
                 builder: (context, viewModel, child) {
@@ -278,7 +278,7 @@ class _StockFragment extends State<StockFragment> {
       await appDatabase.stockSaveDtlsDao.insertAll(stockL);
       await Future.delayed(Duration(seconds: 5));
       Navigator.of(context).pop();
-      AppUtils().showCustomDialog(context,"Congrats1","Hi ${pref.getString('user_name') ?? ""}, Your Stock for ${selectedStore.store_name} has been updated successfully.",(){
+      AppUtils().showCustomDialog(context,"Congrats!","Hi ${pref.getString('user_name') ?? ""}, Your Stock for ${selectedStore.store_name} has been updated successfully.",(){
         Navigator.of(context).pop();
       });
     } catch (e) {
