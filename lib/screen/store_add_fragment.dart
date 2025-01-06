@@ -498,7 +498,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         DateTime currentDateTime = DateTime.now();
         String formattedDate =
         DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
-        final storeID = pref.getString('user_id')! +
+        final storeID = pref.getString('user_id')!+"_" +
             formattedDate
                 .replaceAll(" ", "")
                 .replaceAll("-", "")
