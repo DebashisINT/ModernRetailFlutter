@@ -210,7 +210,22 @@ class _StoreFragmentState extends State<StoreFragment> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () async {},
+                    onTap: () async {
+                      if (store.store_address != null && store.store_address!.isNotEmpty) {
+                        //openMap(store.store_address!);
+                        if (store.store_lat != null && store.store_long != null) {
+                          openMapWithLatLng(store.store_lat , store.store_long);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Location not available")),
+                          );
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Address not provided")),
+                        );
+                      }
+                    },
                     child: Text(
                       store.store_address ?? "No Address Provided",
                       style: TextStyle(color: AppColor.colorCharcoal),
@@ -335,7 +350,7 @@ class _StoreFragmentState extends State<StoreFragment> {
         color: color,
         boxShadow: [
           BoxShadow(
-            color: AppColor.colorGrey, // Shadow color
+            color: AppColor.colorGreyLight, // Shadow color
             spreadRadius: 1, // How far the shadow spreads
             blurRadius: 1, // The blurriness of the shadow
             offset: Offset(0, 1), // The position of the shadow (x, y)
@@ -375,7 +390,7 @@ class _StoreFragmentState extends State<StoreFragment> {
             borderRadius: BorderRadius.circular(8.0),
             boxShadow: [
               BoxShadow(
-                color: AppColor.colorGrey, // Shadow color
+                color: AppColor.colorGreyLight, // Shadow color
                 spreadRadius: 1, // How far the shadow spreads
                 blurRadius: 1, // The blurriness of the shadow
                 offset: Offset(0, 1),// Slight shadow at the bottom
@@ -451,6 +466,45 @@ class _StoreFragmentState extends State<StoreFragment> {
       await launchUrl(url);
     } else {
       throw 'Could not launch $url';
+    }
+  }
+
+
+  void openMap(String address) async {
+    String query = Uri.encodeComponent(address);
+    String googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=$query";
+
+    try {
+      if (await canLaunchUrl(Uri.parse(googleMapsUrl))) {
+        await launchUrl(Uri.parse(googleMapsUrl), mode: LaunchMode.externalApplication);
+      } else {
+        throw 'No app available to open the map.';
+      }
+    } catch (e) {
+      debugPrint("Error launching URL: $e");
+      // Provide fallback
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Unable to open map. Please install Google Maps or a compatible app.")),
+      );
+    }
+  }
+
+  void openMapWithLatLng(String? latitudeStr, String? longitudeStr) async {
+    double? latitude = double.tryParse(latitudeStr ?? '');
+    double? longitude = double.tryParse(longitudeStr ?? '');
+
+    if (latitude == null || longitude == null) {
+      throw 'Invalid latitude or longitude: $latitudeStr, $longitudeStr';
+    }
+    String googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude";
+    try {
+      if (await canLaunchUrl(Uri.parse(googleMapsUrl))) {
+        await launchUrl(Uri.parse(googleMapsUrl), mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not open Google Maps.';
+      }
+    } catch (e) {
+      debugPrint('Error opening map: $e');
     }
   }
 }
