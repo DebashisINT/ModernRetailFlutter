@@ -1,4 +1,6 @@
 import 'package:fl/database/store_entity.dart';
+import 'package:fl/screen/order_add_fragment.dart';
+import 'package:fl/screen/order_fragment.dart';
 import 'package:fl/screen/store_add_fragment.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -324,7 +326,11 @@ class _StoreFragmentState extends State<StoreFragment> {
                     SizedBox(width: 10),
                     _buildActionButton('assets/images/ic_operation.webp', "Operation"),
                     SizedBox(width: 10),
-                    _buildActionButton('assets/images/ic_order.webp', "Order"),
+                    _buildActionButton('assets/images/ic_order.webp', "Order",onTap: (){
+                      Navigator.push(context,
+                        MaterialPageRoute(
+                            builder: (context) => OrderFragment(storeObj: store,)),);
+                    }),
                     SizedBox(width: 10),
                     _buildActionButton('assets/images/ic_operation.webp', "Survey"),
                     SizedBox(width: 10),
@@ -369,11 +375,9 @@ class _StoreFragmentState extends State<StoreFragment> {
     );
   }
 
-  Widget _buildActionButton(String imagePath, String label) {
+  Widget _buildActionButton(String imagePath, String label, {VoidCallback? onTap}) {
     return GestureDetector(
-      onTap: () {
-        // Action for the button, if needed
-      },
+      onTap: onTap,
       child: IntrinsicWidth(
         child: Container(
           constraints: BoxConstraints(
@@ -468,7 +472,6 @@ class _StoreFragmentState extends State<StoreFragment> {
       throw 'Could not launch $url';
     }
   }
-
 
   void openMap(String address) async {
     String query = Uri.encodeComponent(address);

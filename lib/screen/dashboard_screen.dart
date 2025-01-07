@@ -281,7 +281,6 @@ class _DashboardScreen extends State<DashboardScreen> {
                             buildRow(context, [
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => OrderFragment()),);
                                 },
                                 child: buildCustomCard(
                                   context,
