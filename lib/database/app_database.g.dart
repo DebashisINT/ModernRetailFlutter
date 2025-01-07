@@ -67,6 +67,8 @@ class _$AppDatabase extends AppDatabase {
 
   ProductDao? _productDaoInstance;
 
+  ProductRateDao? _productRateDaoInstance;
+
   StockSaveDao? _stockSaveDaoInstance;
 
   StockSaveDtlsDao? _stockSaveDtlsDaoInstance;
@@ -74,6 +76,8 @@ class _$AppDatabase extends AppDatabase {
   StoreDao? _storeDaoInstance;
 
   StockProductDao? _stockProductDaoInstance;
+
+  OrderSaveDao? _orderSaveDaoInstance;
 
   Future<sqflite.Database> open(
     String path,
@@ -105,11 +109,15 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_product` (`product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, PRIMARY KEY (`product_id`))');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `mr_product_rate` (`product_id` INTEGER NOT NULL, `state_id` INTEGER NOT NULL, `rate` REAL NOT NULL, PRIMARY KEY (`product_id`))');
+        await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_save` (`stock_id` TEXT NOT NULL, `save_date_time` TEXT NOT NULL, `store_id` TEXT NOT NULL, PRIMARY KEY (`stock_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_dtls_save` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `stock_id` TEXT NOT NULL, `product_id` TEXT NOT NULL, `qty` TEXT NOT NULL, `uom` TEXT NOT NULL, `mfg_date` TEXT NOT NULL, `expire_date` TEXT NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `qty` TEXT NOT NULL, `mfgDate` TEXT NOT NULL, `expDate` TEXT NOT NULL, PRIMARY KEY (`sl_no`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `mr_order_save` (`order_id` TEXT NOT NULL, `store_id` TEXT NOT NULL, `order_date_time` TEXT NOT NULL, `order_amount` TEXT NOT NULL, `order_status` TEXT NOT NULL, PRIMARY KEY (`order_id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -133,6 +141,12 @@ class _$AppDatabase extends AppDatabase {
   }
 
   @override
+  ProductRateDao get productRateDao {
+    return _productRateDaoInstance ??=
+        _$ProductRateDao(database, changeListener);
+  }
+
+  @override
   StockSaveDao get stockSaveDao {
     return _stockSaveDaoInstance ??= _$StockSaveDao(database, changeListener);
   }
@@ -152,6 +166,11 @@ class _$AppDatabase extends AppDatabase {
   StockProductDao get stockProductDao {
     return _stockProductDaoInstance ??=
         _$StockProductDao(database, changeListener);
+  }
+
+  @override
+  OrderSaveDao get orderSaveDao {
+    return _orderSaveDaoInstance ??= _$OrderSaveDao(database, changeListener);
   }
 }
 
@@ -362,6 +381,49 @@ class _$ProductDao extends ProductDao {
   @override
   Future<void> insertAll(List<ProductEntity> list) async {
     await _productEntityInsertionAdapter.insertList(
+        list, OnConflictStrategy.replace);
+  }
+}
+
+class _$ProductRateDao extends ProductRateDao {
+  _$ProductRateDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _productRateEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'mr_product_rate',
+            (ProductRateEntity item) => <String, Object?>{
+                  'product_id': item.product_id,
+                  'state_id': item.state_id,
+                  'rate': item.rate
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<ProductRateEntity> _productRateEntityInsertionAdapter;
+
+  @override
+  Future<List<ProductRateEntity>> getAll() async {
+    return _queryAdapter.queryList('select * from mr_product_rate',
+        mapper: (Map<String, Object?> row) => ProductRateEntity(
+            product_id: row['product_id'] as int,
+            state_id: row['state_id'] as int,
+            rate: row['rate'] as double));
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('delete from mr_product_rate');
+  }
+
+  @override
+  Future<void> insertAll(List<ProductRateEntity> list) async {
+    await _productRateEntityInsertionAdapter.insertList(
         list, OnConflictStrategy.replace);
   }
 }
@@ -697,6 +759,70 @@ class _$StockProductDao extends StockProductDao {
   @override
   Future<void> insertAll(List<StockProductEntity> list) async {
     await _stockProductEntityInsertionAdapter.insertList(
+        list, OnConflictStrategy.replace);
+  }
+}
+
+class _$OrderSaveDao extends OrderSaveDao {
+  _$OrderSaveDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _orderSaveEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'mr_order_save',
+            (OrderSaveEntity item) => <String, Object?>{
+                  'order_id': item.order_id,
+                  'store_id': item.store_id,
+                  'order_date_time': item.order_date_time,
+                  'order_amount': item.order_amount,
+                  'order_status': item.order_status
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<OrderSaveEntity> _orderSaveEntityInsertionAdapter;
+
+  @override
+  Future<List<OrderSaveEntity>> getAll() async {
+    return _queryAdapter.queryList('select * from mr_order_save',
+        mapper: (Map<String, Object?> row) => OrderSaveEntity(
+            order_id: row['order_id'] as String,
+            store_id: row['store_id'] as String,
+            order_date_time: row['order_date_time'] as String,
+            order_amount: row['order_amount'] as String,
+            order_status: row['order_status'] as String));
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('delete from mr_order_save');
+  }
+
+  @override
+  Future<List<OrderSaveEntity>> fetchPaginatedItems(
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM mr_order_save ORDER BY order_date_time ASC LIMIT ?1 OFFSET ?2',
+        mapper: (Map<String, Object?> row) => OrderSaveEntity(order_id: row['order_id'] as String, store_id: row['store_id'] as String, order_date_time: row['order_date_time'] as String, order_amount: row['order_amount'] as String, order_status: row['order_status'] as String),
+        arguments: [limit, offset]);
+  }
+
+  @override
+  Future<void> insert(OrderSaveEntity obj) async {
+    await _orderSaveEntityInsertionAdapter.insert(
+        obj, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> insertAll(List<OrderSaveEntity> list) async {
+    await _orderSaveEntityInsertionAdapter.insertList(
         list, OnConflictStrategy.replace);
   }
 }

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:fl/api/response/login_request.dart';
 import 'package:fl/api/response/user_id_request.dart';
+import 'package:fl/database/order_save_entity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -287,8 +288,10 @@ class _LoginScreen extends State<LoginScreen> {
       Future<void> store = apiCallStore();
       Future<void> statePin = apiCallStatePin();
       Future<void> product = apiCallProduct();
+      Future<void> productRate = apiCallProductRate();
+      Future<void> dummy = dummyOrder();
       // Wait for all of them to complete
-      List<void> results = await Future.wait([storeType,store,statePin,product]);
+      List<void> results = await Future.wait([storeType,store,statePin,product,productRate,dummy]);
       Navigator.of(context).pop();
       pref.setBool('isLoggedIn', true);
       Navigator.pushReplacement(
@@ -363,6 +366,48 @@ class _LoginScreen extends State<LoginScreen> {
           await itemDao.deleteAll();
           await itemDao.insertAll(response.productList);
         }
+      }
+      print("flow_chk apiCallStatePin end");
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> apiCallProductRate() async {
+    try {
+      final itemDao = appDatabase.productRateDao;
+      final productL = await itemDao.getAll();
+      if(productL.isEmpty){
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final response = await apiService.getProductRate(userRequest);
+        if(response.status == "200"){
+          await itemDao.deleteAll();
+          await itemDao.insertAll(response.productList);
+        }
+      }
+      print("flow_chk apiCallStatePin end");
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> dummyOrder() async {
+    try {
+      final itemDao = appDatabase.orderSaveDao;
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty){
+        await itemDao.deleteAll();
+        final obj1 = OrderSaveEntity(order_id: "ord_11223344",
+        store_id: "3_20250107111347",order_date_time: "2025-01-07 10:22:23",
+        order_amount: "2000",order_status: "Pending");
+        final obj2 = OrderSaveEntity(order_id: "ord_11223345",
+            store_id: "3_20250107111347",order_date_time: "2025-01-07 10:22:24",
+            order_amount: "200000",order_status: "Approved");
+
+        var dataList = List<OrderSaveEntity>.empty(growable: true);
+        dataList.add(obj1);
+        dataList.add(obj2);
+        await itemDao.insertAll(dataList);
       }
       print("flow_chk apiCallStatePin end");
     } catch (error) {
