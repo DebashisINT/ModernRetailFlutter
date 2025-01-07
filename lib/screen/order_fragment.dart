@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../database/store_entity.dart';
+import '../main.dart';
 import '../utils/app_color.dart';
 
 class OrderFragment extends StatefulWidget {
@@ -14,6 +15,16 @@ class OrderFragment extends StatefulWidget {
 }
 
 class _OrderFragment extends State<OrderFragment> {
+
+  final viewModel = ItemViewModel(appDatabase.storeDao);
+
+  void _updateData() {
+    setState(() {
+      viewModel.loadItems(refresh: true);
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,4 +199,69 @@ class _OrderFragment extends State<OrderFragment> {
     );
   }
 }
+
+enum LoadingState { idle, loading, error }
+class ItemViewModel extends ChangeNotifier {
+  final StoreDao _itemDao;
+  List<StoreEntity> _items = [];
+  List<StoreEntity> _filteredItems = [];
+  bool _hasMoreData = true;
+  LoadingState _loadingState = LoadingState.idle;
+  int _page = 0;
+  final int _pageSize = 20;
+
+  ItemViewModel(this._itemDao);
+
+  List<StoreEntity> get items => _filteredItems.isEmpty ? _items : _filteredItems;
+  bool get hasMoreData => _hasMoreData;
+  LoadingState get loadingState => _loadingState;
+
+  Future<void> loadItems({bool refresh = false, String query = ""}) async {
+    if (_loadingState == LoadingState.loading) return;
+
+    if (refresh) {
+      _items.clear();
+      _page = 0;
+      _hasMoreData = true;
+      _filteredItems.clear();
+    }
+
+    _loadingState = LoadingState.loading;
+    notifyListeners();
+
+    try {
+      final offset = _page * _pageSize;
+      final newItems = await _itemDao.fetchPaginatedItemsSearch("%$query%",_pageSize, offset);
+
+      if (newItems.isEmpty) {
+        _hasMoreData = false;
+      } else {
+        _items.addAll(newItems);
+        _page++;
+      }
+
+      // Apply search filter if query is provided
+      if (query.isNotEmpty) {
+        _filteredItems = _items
+            .where((item) =>
+            item.store_name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      } else {
+        _filteredItems.clear();
+      }
+
+    } catch (e) {
+      _loadingState = LoadingState.error;
+    } finally {
+      _loadingState = LoadingState.idle;
+      notifyListeners();
+    }
+  }
+
+  void clearSearch() {
+    _filteredItems.clear();
+    notifyListeners();
+  }
+}
+
 
