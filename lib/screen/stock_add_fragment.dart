@@ -17,12 +17,12 @@ import '../database/app_database.dart';
 import '../utils/app_color.dart';
 import '../utils/app_utils.dart';
 
-class StockFragment extends StatefulWidget {
+class StockAddFragment extends StatefulWidget {
   @override
-  _StockFragment createState() => _StockFragment();
+  _StockAddFragment createState() => _StockAddFragment();
 }
 
-class _StockFragment extends State<StockFragment> {
+class _StockAddFragment extends State<StockAddFragment> {
   StoreEntity selectedStore = StoreEntity();
   List<DropdownMenuItem<StoreEntity>>? dropdownStores;
 
@@ -49,8 +49,9 @@ class _StockFragment extends State<StockFragment> {
   }
 
   Future<void> loadStockProduct() async {
-    List<ProductEntity> productL = await appDatabase.productDao.getAll();
-    stockProductL = productL.asMap().entries.map((item) {
+
+
+    /*stockProductL = productL.asMap().entries.map((item) {
       return StockProductEntity(
           sl_no: item.key,
           product_id: item.value.product_id,
@@ -69,9 +70,14 @@ class _StockFragment extends State<StockFragment> {
           mfgDate: "",
           expDate: "");
     }).toList();
+    appDatabase.stockProductDao.insertAll(stockProductL);*/
 
-    appDatabase.stockProductDao.insertAll(stockProductL);
-    for (var value in productL) {
+    appDatabase.stockProductDao.deleteAll();
+    appDatabase.stockProductDao.setData();
+    appDatabase.stockProductDao.setSlNo();
+    stockProductL = await appDatabase.stockProductDao.getAll();
+
+    for (var value in stockProductL) {
       _qtyControllers.add(TextEditingController());
       _uomControllers.add(TextEditingController(text: value.UOM));
       _mfgDatecontrollers.add(TextEditingController());

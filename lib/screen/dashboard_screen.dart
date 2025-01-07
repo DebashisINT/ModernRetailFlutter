@@ -1,5 +1,6 @@
 import 'package:fl/screen/login_screen.dart';
-import 'package:fl/screen/stock_fragment.dart';
+import 'package:fl/screen/order_fragment.dart';
+import 'package:fl/screen/stock_add_fragment.dart';
 import 'package:fl/screen/store_fragment.dart';
 import 'package:fl/utils/app_color.dart';
 import 'package:flutter/cupertino.dart';
@@ -97,7 +98,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                   ),
                   buildCustomMenu(context,'assets/images/ic_stock.png',"Stock", () {
                     _drawerController.hideDrawer();
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => StockFragment()),);
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => StockAddFragment()),);
                     },
                   ),
                   buildCustomMenu(context,'assets/images/ic_logout.png',"Logout", () {
@@ -238,7 +239,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => StockFragment()),);
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => StockAddFragment()),);
                                 },
                                 child: buildCustomCard(
                                   context,
@@ -280,7 +281,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                             buildRow(context, [
                               GestureDetector(
                                 onTap: () {
-
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => OrderFragment()),);
                                 },
                                 child: buildCustomCard(
                                   context,

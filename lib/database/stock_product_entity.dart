@@ -37,6 +37,18 @@ abstract class StockProductDao{
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertAll(List<StockProductEntity> list);
 
+  @Query(''' insert into mr_stock_product (sl_no,product_id,product_name,product_description,
+    brand_id,brand_name,category_id,category_name,watt_id,watt_name,product_mrp,UOM,
+    product_pic_url,qty,mfgDate,expDate)
+select (SELECT COUNT(*) + 1 + ROWID FROM mr_stock_product) AS sl_no,PR.product_id,PR.product_name,
+PR.product_description,PR.brand_id,PR.brand_name,PR.category_id,PR.category_name,PR.watt_id,
+PR.watt_name,PR.product_mrp,PR.uom,PR.product_pic_url,'' as qty,'' as mfgDate,'' as expDate
+from mr_product as PR ''')
+  Future<void> setData();
+
+  @Query('update mr_stock_product set sl_no = sl_no - 1')
+  Future<void> setSlNo();
+
 
   @Query('SELECT * FROM mr_stock_product WHERE product_name LIKE :query LIMIT :limit OFFSET :offset')
   Future<List<StockProductEntity>> fetchPaginatedItemsSearch(String query, int limit, int offset,);
