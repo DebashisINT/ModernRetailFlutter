@@ -1,4 +1,6 @@
-import 'package:fl/database/state_pin_entity.dart';
+
+
+import '../../database/state_pin_entity.dart';
 
 class StatePinResponse{
   final String status;

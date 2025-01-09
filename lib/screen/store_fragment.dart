@@ -1,14 +1,14 @@
-import 'package:fl/database/store_entity.dart';
-import 'package:fl/screen/order_add_fragment.dart';
-import 'package:fl/screen/order_fragment.dart';
-import 'package:fl/screen/store_add_fragment.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:modern_retail/screen/store_add_fragment.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import 'order_fragment.dart';
 
 class StoreFragment extends StatefulWidget {
   @override

@@ -1,10 +1,10 @@
-import 'package:fl/screen/order_add_fragment.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import 'order_add_fragment.dart';
 
 class OrderFragment extends StatefulWidget {
   final StoreEntity storeObj;

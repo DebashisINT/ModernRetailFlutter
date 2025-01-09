@@ -1,14 +1,13 @@
-import 'package:fl/screen/login_screen.dart';
-import 'package:fl/screen/order_fragment.dart';
-import 'package:fl/screen/stock_add_fragment.dart';
-import 'package:fl/screen/store_fragment.dart';
-import 'package:fl/utils/app_color.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:modern_retail/screen/stock_add_fragment.dart';
+import 'package:modern_retail/screen/store_fragment.dart';
 
 import '../main.dart';
+import '../utils/app_color.dart';
+import 'login_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

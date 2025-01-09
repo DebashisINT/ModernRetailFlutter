@@ -1,6 +1,5 @@
-import 'package:fl/screen/login_screen.dart';
-import 'package:fl/screen/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:modern_retail/screen/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'database/app_database.dart';

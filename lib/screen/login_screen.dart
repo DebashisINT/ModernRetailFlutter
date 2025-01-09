@@ -1,7 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:fl/api/response/login_request.dart';
-import 'package:fl/api/response/user_id_request.dart';
-import 'package:fl/database/order_save_entity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +6,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../api/api_service.dart';
+import '../api/response/login_request.dart';
+import '../api/response/user_id_request.dart';
+import '../database/order_save_entity.dart';
 import '../database/state_pin_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';

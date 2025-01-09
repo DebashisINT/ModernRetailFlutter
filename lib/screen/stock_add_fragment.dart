@@ -1,12 +1,5 @@
 import 'dart:async';
 
-import 'package:fl/database/product_entity.dart';
-import 'package:fl/database/stock_product_entity.dart';
-import 'package:fl/database/stock_save_dtls_entity.dart';
-import 'package:fl/database/stock_save_entity.dart';
-import 'package:fl/database/store_entity.dart';
-import 'package:fl/database/store_type_entity.dart';
-import 'package:fl/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../database/app_database.dart';
+import '../database/stock_product_entity.dart';
+import '../database/stock_save_dtls_entity.dart';
+import '../database/stock_save_entity.dart';
+import '../database/store_entity.dart';
+import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_utils.dart';
 

@@ -1,9 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:fl/api/api_service_multipart.dart';
-import 'package:fl/api/response/store_save_request.dart';
-import 'package:fl/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,8 +10,11 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import '../api/api_service.dart';
+import '../api/api_service_multipart.dart';
+import '../api/response/store_save_request.dart';
 import '../database/store_entity.dart';
 import '../database/store_type_entity.dart';
+import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_utils.dart';
 

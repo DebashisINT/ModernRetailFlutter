@@ -1,5 +1,6 @@
 
-import 'package:fl/database/product_rate_entity.dart';
+
+import '../../database/product_rate_entity.dart';
 
 class ProductRateResponse{
   final String status;

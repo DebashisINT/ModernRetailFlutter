@@ -1,12 +1,13 @@
-import 'package:fl/database/product_entity.dart';
-import 'package:fl/database/product_rate_entity.dart';
-import 'package:fl/database/state_pin_entity.dart';
-import 'package:fl/database/stock_product_entity.dart';
-import 'package:fl/database/stock_save_dtls_entity.dart';
-import 'package:fl/database/stock_save_entity.dart';
-import 'package:fl/database/store_entity.dart';
-import 'package:fl/database/store_type_entity.dart';
+
 import 'package:floor/floor.dart';
+import 'package:modern_retail/database/product_entity.dart';
+import 'package:modern_retail/database/product_rate_entity.dart';
+import 'package:modern_retail/database/state_pin_entity.dart';
+import 'package:modern_retail/database/stock_product_entity.dart';
+import 'package:modern_retail/database/stock_save_dtls_entity.dart';
+import 'package:modern_retail/database/stock_save_entity.dart';
+import 'package:modern_retail/database/store_entity.dart';
+import 'package:modern_retail/database/store_type_entity.dart';
 import 'dart:async';
 import 'package:sqflite/sqflite.dart' as sqflite;
 

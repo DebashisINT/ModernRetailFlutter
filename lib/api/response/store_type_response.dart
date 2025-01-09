@@ -1,4 +1,6 @@
-import 'package:fl/database/store_type_entity.dart';
+
+
+import '../../database/store_type_entity.dart';
 
 class StoreTypeResponse {
   final String status;

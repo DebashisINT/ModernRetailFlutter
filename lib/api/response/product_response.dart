@@ -1,4 +1,5 @@
-import 'package:fl/database/product_entity.dart';
+
+import '../../database/product_entity.dart';
 
 class ProductResponse{
   final String status;
