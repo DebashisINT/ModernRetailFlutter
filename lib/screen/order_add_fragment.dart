@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:modern_retail/database/order_product_entity.dart';
 import 'package:provider/provider.dart';
 
 import '../main.dart';
@@ -11,7 +13,13 @@ class OrderAddFragment extends StatefulWidget {
 }
 
 class _OrderAddFragment extends State<OrderAddFragment> {
-  //final viewModel = ItemViewModel(appDatabase.stockProductDao);
+  final viewModel = ItemViewModel(appDatabase.orderProductDao);
+  final List<TextEditingController> _qtyControllers = [];
+  final List<TextEditingController> _rateControllers = [];
+  final List<FocusNode> _qtyFocusNode = [];
+  final List<FocusNode> _rateFocusNode = [];
+
+  List<OrderProductEntity> orderProductL = [];
 
   @override
   void initState() {
@@ -20,22 +28,22 @@ class _OrderAddFragment extends State<OrderAddFragment> {
   }
 
   Future<void> loadData() async {
-    Future<void> stockProduct = loadStockProduct();
-    List<void> results = await Future.wait([stockProduct]);
+    Future<void> product = loadProduct();
+    List<void> results = await Future.wait([product]);
     viewModel.loadItems();
   }
 
   Future<void> loadProduct() async {
-    appDatabase.stockProductDao.deleteAll();
-    appDatabase.stockProductDao.setData();
-    appDatabase.stockProductDao.setSlNo();
-    stockProductL = await appDatabase.stockProductDao.getAll();
+    appDatabase.orderProductDao.deleteAll();
+    appDatabase.orderProductDao.setData();
+    appDatabase.orderProductDao.setSlNo();
 
-    for (var value in stockProductL) {
+    orderProductL = await appDatabase.orderProductDao.getAll();
+    for (var value in orderProductL) {
       _qtyControllers.add(TextEditingController());
-      _uomControllers.add(TextEditingController(text: value.UOM));
-      _mfgDatecontrollers.add(TextEditingController());
-      _expDatecontrollers.add(TextEditingController());
+      _rateControllers.add(TextEditingController());
+      _qtyFocusNode.add(FocusNode());
+      _rateFocusNode.add(FocusNode());
     }
   }
 
@@ -43,28 +51,346 @@ class _OrderAddFragment extends State<OrderAddFragment> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          decoration: InputDecoration(
-              hintText: "Search Product",
-              prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
+      body: ChangeNotifierProvider<ItemViewModel>(
+        create: (_) => viewModel,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                decoration: InputDecoration(
+                    hintText: "Search Product",
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    filled: true,
+                    // Enable filling the background color
+                    fillColor: AppColor.colorWhite,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: blue border when focused
+                    )),
+                onChanged: (query) {
+                  viewModel.loadItems(refresh: true, query: query);
+                },
               ),
-              filled: true,
-              // Enable filling the background color
-              fillColor: AppColor.colorWhite,
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: blue border when focused
-              )),
-          onChanged: (query) {
-            //viewModel.loadItems(refresh: true, query: query);
-          },
+            ),
+            Expanded(
+              child: Consumer<ItemViewModel>(
+                builder: (context, viewModel, child) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      await viewModel.loadItems(refresh: true);
+                    },
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
+                          return false;
+                        }
+                        if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                          viewModel.loadItems();
+                        }
+                        return true;
+                      },
+                      child: ListView.builder(
+                        padding: EdgeInsets.only(bottom: 150.0),
+                        itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == viewModel.items.length) {
+                            if (viewModel.loadingState == LoadingState.error) {
+                              return Center(
+                                child: ElevatedButton(
+                                  onPressed: () => viewModel.loadItems(),
+                                  child: Text('Retry'),
+                                ),
+                              );
+                            } else if (viewModel.loadingState == LoadingState.loading) {
+                              return Center(child: CircularProgressIndicator()); // Show loader while loading
+                            } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
+                              // When idle and no items, show a message
+                              //return Center(child: Text("No items available"));
+                              return SizedBox.shrink();
+                            } else if (viewModel.loadingState == LoadingState.idle) {
+                              // Idle state but items are loaded, just return an empty container or nothing
+                              return SizedBox.shrink(); // No loader, no retry button
+                            }
+                            //return Center(child: CircularProgressIndicator());
+                          }
+
+                          var item = viewModel.items[index];
+                          return _buildProductCard(item, item.sl_no);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
-        backgroundColor: AppColor.colorSmokeWhite,
+      backgroundColor: AppColor.colorSmokeWhite,
+    );
+  }
+
+  Widget _buildProductCard(OrderProductEntity product, int index) {
+    return Card(
+      color: AppColor.colorWhite,
+      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+      elevation: 5.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0, bottom: 5.0),
+        // Set left padding to 5dp
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      chipTheme: ChipThemeData(
+                        side: BorderSide.none, // Remove borders globally for this Chip
+                      ),
+                    ),
+                    child: Chip(
+                      label: Text(product.brand_name),
+                      backgroundColor: AppColor.color1,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18), // Adjust radius as needed
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      chipTheme: ChipThemeData(
+                        side: BorderSide.none, // Remove borders globally for this Chip
+                      ),
+                    ),
+                    child: Chip(
+                      label: Text(product.category_name),
+                      backgroundColor: AppColor.color2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18), // Adjust radius as needed
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      chipTheme: ChipThemeData(
+                        side: BorderSide.none, // Remove borders globally for this Chip
+                      ),
+                    ),
+                    child: Chip(
+                      label: Text(product.watt_name),
+                      backgroundColor: AppColor.color3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18), // Adjust radius as needed
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.only(left: 5.0), // Add 16 pixels of left margin
+              child: Text(
+                product.product_name,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColor.colorButton,
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                Container(
+                  width: 30, // Increase container width to accommodate padding
+                  height: 30, // Increase container height to accommodate padding
+                  decoration: BoxDecoration(
+                    color: AppColor.colorGreyLight, // Background color
+                    borderRadius: BorderRadius.circular(200), // Rounded corners
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(1), // Shadow color
+                        blurRadius: 1, // Blur radius
+                        spreadRadius: 1, // Spread radius
+                        offset: Offset(1, 1), // Shadow offset
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(5.0), // Padding inside the container
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(200),
+                      child: Image.asset(
+                        "assets/images/ic_mrp.png", // Replace with your image path
+                        fit: BoxFit.fill, // Adjust image scaling
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
+                    mainAxisAlignment: MainAxisAlignment.start, // Ensure text starts from the top
+                    children: [
+                      Text(
+                        "MRP",
+                        style: TextStyle(color: AppColor.colorGrey, fontSize: 15.0),
+                      ),
+                      Text(
+                        product.product_mrp.toString(),
+                        style: TextStyle(color: AppColor.colorBlue, fontSize: 15.0),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 1),
+            Padding(
+                padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [_buildEntryDetails(product,_qtyControllers[index],_rateControllers[index],
+                  _qtyFocusNode[index],_rateFocusNode[index])],
+                )),
+            SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEntryDetails(OrderProductEntity product,TextEditingController qtyController,TextEditingController rateController,
+      FocusNode qtyFocusNode,FocusNode rateFocusNode) {
+    return Flexible(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          SizedBox(width: 5,),
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  height: 30,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Quantity',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: AppColor.colorGrey,
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 40, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: TextFormField(
+                    controller: qtyController,
+                    focusNode: qtyFocusNode,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Quantity',
+                      border: UnderlineInputBorder(),
+                    ),
+                    textAlign: TextAlign.center,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 15,),
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  height: 30,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Rate',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: AppColor.colorGrey,
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 40, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: TextFormField(
+                    controller: rateController,
+                    focusNode: rateFocusNode,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Rate',
+                      border: UnderlineInputBorder(),
+                    ),
+                    textAlign: TextAlign.center,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 5,),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              elevation: 5,
+              shadowColor: Colors.black87,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              side: const BorderSide(color: Colors.black26, width: 0),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              backgroundColor: product.isAdded ? AppColor.colorGreenMoss : AppColor.colorButton,
+            ),
+            onPressed: () async {
+              final q = _qtyControllers[product.sl_no].text;
+              final r = _rateControllers[product.sl_no].text;
+              _qtyFocusNode[product.sl_no].unfocus();
+              _rateFocusNode[product.sl_no].unfocus();
+              if(q == ""){
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter quantity')));
+              }else if(r==""){
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter rate')));
+              }else{
+                appDatabase.orderProductDao.updateAdded(int.parse(q), double.parse(r), true,product.product_id);
+                setState(() {
+                  product.isAdded=true;
+                });
+              }
+            },
+            child: Text(product.isAdded ? 'Added' :'Add', style: TextStyle(color: AppColor.colorWhite)),
+          ),
+          SizedBox(width: 5,),
+        ],
+      ),
     );
   }
 
@@ -94,16 +420,14 @@ class _OrderAddFragment extends State<OrderAddFragment> {
       ],
     );
   }
-  
 }
 
-/*
 enum LoadingState { idle, loading, error }
 
 class ItemViewModel extends ChangeNotifier {
-  final StockProductDao _itemDao;
-  List<StockProductEntity> _items = [];
-  List<StockProductEntity> _filteredItems = [];
+  final OrderProductDao _itemDao;
+  List<OrderProductEntity> _items = [];
+  List<OrderProductEntity> _filteredItems = [];
   bool _hasMoreData = true;
   LoadingState _loadingState = LoadingState.idle;
   int _page = 0;
@@ -111,7 +435,7 @@ class ItemViewModel extends ChangeNotifier {
 
   ItemViewModel(this._itemDao);
 
-  List<StockProductEntity> get items => _filteredItems.isEmpty ? _items : _filteredItems;
+  List<OrderProductEntity> get items => _filteredItems.isEmpty ? _items : _filteredItems;
 
   bool get hasMoreData => _hasMoreData;
 
@@ -159,4 +483,4 @@ class ItemViewModel extends ChangeNotifier {
     _filteredItems.clear();
     notifyListeners();
   }
-}*/
+}
