@@ -55,6 +55,9 @@ abstract class OrderProductDao {
   @Query('update mr_order_product set qty =:qty ,rate=:rate ,isAdded=:isAdded where product_id=:product_id')
   Future<void> updateAdded(int qty,double rate,bool isAdded,int product_id);
 
+  @Query('select COALESCE(sum(qty * rate), 0.0) as totalAmt from mr_order_product where isAdded = 1')
+  Future<double?> getTotalAmt();
+
   @Query('SELECT * FROM mr_order_product WHERE product_name LIKE :query LIMIT :limit OFFSET :offset')
   Future<List<OrderProductEntity>> fetchPaginatedItemsSearch(String query, int limit, int offset);
 }

@@ -887,6 +887,13 @@ class _$OrderProductDao extends OrderProductDao {
   }
 
   @override
+  Future<double?> getTotalAmt() async {
+    return _queryAdapter.query(
+        'select COALESCE(sum(qty * rate), 0.0) as totalAmt from mr_order_product where isAdded = 1',
+        mapper: (Map<String, Object?> row) => row.values.first as double);
+  }
+
+  @override
   Future<List<OrderProductEntity>> fetchPaginatedItemsSearch(
     String query,
     int limit,

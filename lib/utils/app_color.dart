@@ -12,8 +12,8 @@ class AppColor{
   static const Color colorRed = Color(0xFFB71C1C);
   static const Color colorTransparent = Color(0x00000000);
 
-  static const Color color1= Color(0xFF98D1EC);
-  static const Color color2= Color(0xFFBEEBDD);
+  static const Color color1= Color(0xFF95B9C7);
+  static const Color color2= Color(0xFF98D1EC);
   static const Color color3= Color(0xFFB0C8DE);
 
   static const Color colorTealLight= Color(0xFFB2DFDB);
@@ -23,7 +23,7 @@ class AppColor{
   static const Color colorGreenPastel= Color(0xFFC1E1C1);
   static const Color colorBrownPastel= Color(0xFFB1907F);
   static const Color colorGreenMoss= Color(0xFF8A9A5B);
-  static const Color colorGreenLight= Color(0xFFF1F8E9);
+  static const Color colorGreenLight= Color(0xFFC8E6C9);
   static const Color colorBluePeacock= Color(0xFF005F69);
   static const Color colorBlueBaby= Color(0xFF95B9C7);
   static const Color colorBlueSteel= Color(0xFF4682B4);

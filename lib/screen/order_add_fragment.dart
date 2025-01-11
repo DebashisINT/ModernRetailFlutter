@@ -21,6 +21,8 @@ class _OrderAddFragment extends State<OrderAddFragment> {
 
   List<OrderProductEntity> orderProductL = [];
 
+  String _amount = "";
+
   @override
   void initState() {
     super.initState();
@@ -34,9 +36,9 @@ class _OrderAddFragment extends State<OrderAddFragment> {
   }
 
   Future<void> loadProduct() async {
-    appDatabase.orderProductDao.deleteAll();
-    appDatabase.orderProductDao.setData();
-    appDatabase.orderProductDao.setSlNo();
+    await appDatabase.orderProductDao.deleteAll();
+    await appDatabase.orderProductDao.setData();
+    await appDatabase.orderProductDao.setSlNo();
 
     orderProductL = await appDatabase.orderProductDao.getAll();
     for (var value in orderProductL) {
@@ -127,6 +129,45 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                 },
               ),
             ),
+            Container(
+              color: Colors.white, // Example bottom widget
+              height: 50,
+              width: double.infinity,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      color: AppColor.colorButton,
+                      child: Center(
+                        child: Text(_amount=="" ? "Amount" : _amount, style: TextStyle(color: AppColor.colorWhite)),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      color: AppColor.colorBluePeacock,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center, // Centers horizontally
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text("View Cart",style: TextStyle(color: AppColor.colorWhite)),
+                            SizedBox(width: 5,),
+                            Image.asset(
+                              "assets/images/ic_arrow.png",
+                              height: 20,
+                              width: 30,
+                              fit: BoxFit.fill,
+                              color: AppColor.colorWhite,
+                            )
+                          ],
+                        )
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -136,7 +177,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
 
   Widget _buildProductCard(OrderProductEntity product, int index) {
     return Card(
-      color: product.isAdded ? AppColor.colorGreenLight :AppColor.colorWhite,
+      color: product.isAdded ? AppColor.colorGreenLight : AppColor.colorWhite,
       margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
       elevation: 5.0,
       shape: RoundedRectangleBorder(
@@ -270,8 +311,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                 padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [_buildEntryDetails(product,_qtyControllers[index],_rateControllers[index],
-                  _qtyFocusNode[index],_rateFocusNode[index])],
+                  children: [_buildEntryDetails(product, _qtyControllers[index], _rateControllers[index], _qtyFocusNode[index], _rateFocusNode[index])],
                 )),
             SizedBox(height: 10),
           ],
@@ -280,13 +320,14 @@ class _OrderAddFragment extends State<OrderAddFragment> {
     );
   }
 
-  Widget _buildEntryDetails(OrderProductEntity product,TextEditingController qtyController,TextEditingController rateController,
-      FocusNode qtyFocusNode,FocusNode rateFocusNode) {
+  Widget _buildEntryDetails(OrderProductEntity product, TextEditingController qtyController, TextEditingController rateController, FocusNode qtyFocusNode, FocusNode rateFocusNode) {
     return Flexible(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          SizedBox(width: 5,),
+          SizedBox(
+            width: 5,
+          ),
           Expanded(
             child: Column(
               children: [
@@ -304,14 +345,14 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                   ),
                 ),
                 Container(
-                  height: 40, // Fixed height for text box
+                  height: 30, // Fixed height for text box
                   alignment: Alignment.center,
                   child: TextFormField(
                     controller: qtyController,
                     focusNode: qtyFocusNode,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      hintText: 'Quantity',
+                      hintText: '',
                       border: UnderlineInputBorder(),
                     ),
                     textAlign: TextAlign.center,
@@ -323,7 +364,9 @@ class _OrderAddFragment extends State<OrderAddFragment> {
               ],
             ),
           ),
-          SizedBox(width: 15,),
+          SizedBox(
+            width: 15,
+          ),
           Expanded(
             child: Column(
               children: [
@@ -341,14 +384,14 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                   ),
                 ),
                 Container(
-                  height: 40, // Fixed height for text box
+                  height: 30, // Fixed height for text box
                   alignment: Alignment.center,
                   child: TextFormField(
                     controller: rateController,
                     focusNode: rateFocusNode,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      hintText: 'Rate',
+                      hintText: '',
                       border: UnderlineInputBorder(),
                     ),
                     textAlign: TextAlign.center,
@@ -360,7 +403,9 @@ class _OrderAddFragment extends State<OrderAddFragment> {
               ],
             ),
           ),
-          SizedBox(width: 5,),
+          SizedBox(
+            width: 5,
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               elevation: 5,
@@ -375,20 +420,24 @@ class _OrderAddFragment extends State<OrderAddFragment> {
               final r = _rateControllers[product.sl_no].text;
               _qtyFocusNode[product.sl_no].unfocus();
               _rateFocusNode[product.sl_no].unfocus();
-              if(q == ""){
+              if (q == "") {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter quantity')));
-              }else if(r==""){
+              } else if (r == "") {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter rate')));
-              }else{
-                appDatabase.orderProductDao.updateAdded(int.parse(q), double.parse(r), true,product.product_id);
+              } else {
+                await appDatabase.orderProductDao.updateAdded(int.parse(q), double.parse(r), true, product.product_id);
+                final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
                 setState(() {
-                  product.isAdded=true;
+                  product.isAdded = true;
+                 _amount = (ordAmt == null) ? "Amount" : "Amt:  " + ordAmt.toString();
                 });
               }
             },
-            child: Text(product.isAdded ? 'Added' :'Add', style: TextStyle(color: AppColor.colorWhite)),
+            child: Text(product.isAdded ? 'Added' : 'Add', style: TextStyle(color: AppColor.colorWhite)),
           ),
-          SizedBox(width: 5,),
+          SizedBox(
+            width: 5,
+          ),
         ],
       ),
     );
