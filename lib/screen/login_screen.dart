@@ -289,9 +289,10 @@ class _LoginScreen extends State<LoginScreen> {
       Future<void> statePin = apiCallStatePin();
       Future<void> product = apiCallProduct();
       Future<void> productRate = apiCallProductRate();
+      Future<void> branch = apiCallBranch();
       Future<void> dummy = dummyOrder();
       // Wait for all of them to complete
-      List<void> results = await Future.wait([storeType,store,statePin,product,productRate,dummy]);
+      List<void> results = await Future.wait([storeType,store,statePin,product,productRate,branch,dummy]);
       Navigator.of(context).pop();
       pref.setBool('isLoggedIn', true);
       Navigator.pushReplacement(
@@ -306,8 +307,8 @@ class _LoginScreen extends State<LoginScreen> {
   Future<void> apiCallStoreType() async {
     try {
       final itemDao = appDatabase.storeTypeDao;
-      final storeTypeL = await itemDao.getAll();
-      if(storeTypeL.isEmpty) {
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty) {
         final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
         final response = await apiService.getStoreType(userRequest);
         if (response.status == "200") {
@@ -323,8 +324,8 @@ class _LoginScreen extends State<LoginScreen> {
   Future<void> apiCallStore() async {
     try {
       final itemDao = appDatabase.storeDao;
-      final storeTypeL = await itemDao.getAll();
-      if(storeTypeL.isEmpty) {
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty) {
         final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
         final response = await apiService.getStore(userRequest);
         if (response.status == "200") {
@@ -340,8 +341,8 @@ class _LoginScreen extends State<LoginScreen> {
   Future<void> apiCallStatePin() async {
     try {
       final itemDao = appDatabase.statePinDao;
-      final statePinL = await itemDao.getAll();
-      if(statePinL.isEmpty){
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty){
         final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
         final response = await apiService.getStatePin(userRequest);
         if(response.status == "200"){
@@ -358,8 +359,8 @@ class _LoginScreen extends State<LoginScreen> {
   Future<void> apiCallProduct() async {
     try {
       final itemDao = appDatabase.productDao;
-      final productL = await itemDao.getAll();
-      if(productL.isEmpty){
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty){
         final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
         final response = await apiService.getProduct(userRequest);
         if(response.status == "200"){
@@ -376,13 +377,31 @@ class _LoginScreen extends State<LoginScreen> {
   Future<void> apiCallProductRate() async {
     try {
       final itemDao = appDatabase.productRateDao;
-      final productL = await itemDao.getAll();
-      if(productL.isEmpty){
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty){
         final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
         final response = await apiService.getProductRate(userRequest);
         if(response.status == "200"){
           await itemDao.deleteAll();
           await itemDao.insertAll(response.productList);
+        }
+      }
+      print("flow_chk apiCallStatePin end");
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> apiCallBranch() async {
+    try {
+      final itemDao = appDatabase.branchDao;
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty){
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final response = await apiService.getBranch(userRequest);
+        if(response.status == "200"){
+          await itemDao.deleteAll();
+          await itemDao.insertAll(response.branchList);
         }
       }
       print("flow_chk apiCallStatePin end");

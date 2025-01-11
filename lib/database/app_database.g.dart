@@ -90,6 +90,8 @@ class _$AppDatabase extends AppDatabase {
 
   OrderSaveDao? _orderSaveDaoInstance;
 
+  BranchDao? _branchDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -114,13 +116,15 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_store_type` (`type_id` INTEGER NOT NULL, `type_name` TEXT NOT NULL, PRIMARY KEY (`type_id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_store` (`store_id` TEXT NOT NULL, `store_name` TEXT NOT NULL, `store_address` TEXT NOT NULL, `store_pincode` TEXT NOT NULL, `store_lat` TEXT, `store_long` TEXT, `store_contact_name` TEXT NOT NULL, `store_contact_number` TEXT NOT NULL, `store_alternet_contact_number` TEXT, `store_whatsapp_number` TEXT, `store_email` TEXT, `store_type` INTEGER NOT NULL, `store_size_area` TEXT, `store_state_id` INTEGER NOT NULL, `remarks` TEXT, `create_date_time` TEXT, `store_pic_url` TEXT NOT NULL, `isUploaded` INTEGER NOT NULL, PRIMARY KEY (`store_id`))');
+            'CREATE TABLE IF NOT EXISTS `mr_store` (`store_id` TEXT NOT NULL, `branch_id` INTEGER NOT NULL, `store_name` TEXT NOT NULL, `store_address` TEXT NOT NULL, `store_pincode` TEXT NOT NULL, `store_lat` TEXT, `store_long` TEXT, `store_contact_name` TEXT NOT NULL, `store_contact_number` TEXT NOT NULL, `store_alternet_contact_number` TEXT, `store_whatsapp_number` TEXT, `store_email` TEXT, `store_type` INTEGER NOT NULL, `store_size_area` TEXT, `store_state_id` INTEGER NOT NULL, `remarks` TEXT, `create_date_time` TEXT, `store_pic_url` TEXT NOT NULL, `isUploaded` INTEGER NOT NULL, PRIMARY KEY (`store_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_state_pin` (`pin_id` INTEGER NOT NULL, `pincode` TEXT NOT NULL, `city_id` INTEGER NOT NULL, `city_name` TEXT NOT NULL, `state_id` INTEGER NOT NULL, `state_name` TEXT NOT NULL, PRIMARY KEY (`pin_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_product` (`product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, PRIMARY KEY (`product_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_product_rate` (`product_id` INTEGER NOT NULL, `state_id` INTEGER NOT NULL, `rate` REAL NOT NULL, PRIMARY KEY (`product_id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `mr_branch` (`branch_id` INTEGER NOT NULL, `branch_name` TEXT NOT NULL, PRIMARY KEY (`branch_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_save` (`stock_id` TEXT NOT NULL, `save_date_time` TEXT NOT NULL, `store_id` TEXT NOT NULL, PRIMARY KEY (`stock_id`))');
         await database.execute(
@@ -182,6 +186,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   OrderSaveDao get orderSaveDao {
     return _orderSaveDaoInstance ??= _$OrderSaveDao(database, changeListener);
+  }
+
+  @override
+  BranchDao get branchDao {
+    return _branchDaoInstance ??= _$BranchDao(database, changeListener);
   }
 }
 
@@ -550,6 +559,7 @@ class _$StoreDao extends StoreDao {
             'mr_store',
             (StoreEntity item) => <String, Object?>{
                   'store_id': item.store_id,
+                  'branch_id': item.branch_id,
                   'store_name': item.store_name,
                   'store_address': item.store_address,
                   'store_pincode': item.store_pincode,
@@ -583,6 +593,7 @@ class _$StoreDao extends StoreDao {
     return _queryAdapter.queryList('select * from mr_store',
         mapper: (Map<String, Object?> row) => StoreEntity(
             store_id: row['store_id'] as String,
+            branch_id: row['branch_id'] as int,
             store_name: row['store_name'] as String,
             store_address: row['store_address'] as String,
             store_pincode: row['store_pincode'] as String,
@@ -616,6 +627,7 @@ class _$StoreDao extends StoreDao {
     return _queryAdapter.queryList('SELECT * FROM mr_store LIMIT ?1 OFFSET ?2',
         mapper: (Map<String, Object?> row) => StoreEntity(
             store_id: row['store_id'] as String,
+            branch_id: row['branch_id'] as int,
             store_name: row['store_name'] as String,
             store_address: row['store_address'] as String,
             store_pincode: row['store_pincode'] as String,
@@ -647,6 +659,7 @@ class _$StoreDao extends StoreDao {
         'SELECT * FROM mr_store WHERE store_name LIKE ?1 LIMIT ?2 OFFSET ?3',
         mapper: (Map<String, Object?> row) => StoreEntity(
             store_id: row['store_id'] as String,
+            branch_id: row['branch_id'] as int,
             store_name: row['store_name'] as String,
             store_address: row['store_address'] as String,
             store_pincode: row['store_pincode'] as String,
@@ -834,6 +847,56 @@ class _$OrderSaveDao extends OrderSaveDao {
   @override
   Future<void> insertAll(List<OrderSaveEntity> list) async {
     await _orderSaveEntityInsertionAdapter.insertList(
+        list, OnConflictStrategy.replace);
+  }
+}
+
+class _$BranchDao extends BranchDao {
+  _$BranchDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _branchEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'mr_branch',
+            (BranchEntity item) => <String, Object?>{
+                  'branch_id': item.branch_id,
+                  'branch_name': item.branch_name
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<BranchEntity> _branchEntityInsertionAdapter;
+
+  @override
+  Future<List<BranchEntity>> getAll() async {
+    return _queryAdapter.queryList('select * from mr_branch',
+        mapper: (Map<String, Object?> row) => BranchEntity(
+            branch_id: row['branch_id'] as int,
+            branch_name: row['branch_name'] as String));
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('delete from mr_branch');
+  }
+
+  @override
+  Future<BranchEntity?> getBranchDtls(String branch_id) async {
+    return _queryAdapter.query('SELECT * FROM mr_branch WHERE branch_id = ?1',
+        mapper: (Map<String, Object?> row) => BranchEntity(
+            branch_id: row['branch_id'] as int,
+            branch_name: row['branch_name'] as String),
+        arguments: [branch_id]);
+  }
+
+  @override
+  Future<void> insertAll(List<BranchEntity> list) async {
+    await _branchEntityInsertionAdapter.insertList(
         list, OnConflictStrategy.replace);
   }
 }

@@ -14,6 +14,32 @@ class _OrderAddFragment extends State<OrderAddFragment> {
   //final viewModel = ItemViewModel(appDatabase.stockProductDao);
 
   @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    Future<void> stockProduct = loadStockProduct();
+    List<void> results = await Future.wait([stockProduct]);
+    viewModel.loadItems();
+  }
+
+  Future<void> loadProduct() async {
+    appDatabase.stockProductDao.deleteAll();
+    appDatabase.stockProductDao.setData();
+    appDatabase.stockProductDao.setSlNo();
+    stockProductL = await appDatabase.stockProductDao.getAll();
+
+    for (var value in stockProductL) {
+      _qtyControllers.add(TextEditingController());
+      _uomControllers.add(TextEditingController(text: value.UOM));
+      _mfgDatecontrollers.add(TextEditingController());
+      _expDatecontrollers.add(TextEditingController());
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),

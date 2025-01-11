@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:modern_retail/api/response/ProductRateResponse.dart';
+import 'package:modern_retail/api/response/branch_response.dart';
 import 'package:modern_retail/api/response/generic_response.dart';
 import 'package:modern_retail/api/response/login_request.dart';
 import 'package:modern_retail/api/response/login_response.dart';
@@ -36,6 +37,9 @@ abstract class ApiService{
 
   @POST("ModernRetailInfoDetails/ProductRateLists")
   Future<ProductRateResponse> getProductRate(@Body() UserIdRequest obj);
+
+  @POST("ModernRetailInfoDetails/UserBranchLists")
+  Future<BranchResponse> getBranch(@Body() UserIdRequest obj);
 
   @POST("ModernRetailInfoDetails/StoreInfoSave")
   Future<GenericResponse> saveStoreInfo(@Body() StoreSaveRequest input);

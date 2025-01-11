@@ -4,6 +4,7 @@ import 'package:floor/floor.dart';
 class StoreEntity{
   @PrimaryKey(autoGenerate: false)
   final String store_id;
+  final int branch_id;
   final String store_name;
   final String store_address;
   final String store_pincode;
@@ -22,7 +23,7 @@ class StoreEntity{
   final String store_pic_url;
   final bool isUploaded;
 
-  StoreEntity({this.store_id="", this.store_name="",this.store_address="", this.store_pincode="",
+  StoreEntity({this.store_id="",this.branch_id=0, this.store_name="",this.store_address="", this.store_pincode="",
     this.store_lat="", this.store_long="",this.store_contact_name="", this.store_contact_number="",
     this.store_alternet_contact_number="", this.store_whatsapp_number="",this.store_email="", this.store_type=0,
     this.store_size_area="", this.store_state_id=0,this.remarks="", this.create_date_time="",this.store_pic_url="",
@@ -31,7 +32,7 @@ class StoreEntity{
 
   factory StoreEntity.fromJson(Map<String,dynamic> json){
     return StoreEntity(
-        store_id: json['store_id'],store_name: json['store_name'],store_address: json['store_address'],
+        store_id: json['store_id'],branch_id: json['branch_id'],store_name: json['store_name'],store_address: json['store_address'],
       store_pincode: json['store_pincode'],store_lat: json['store_lat'],store_long: json['store_long'],
       store_contact_name: json['store_contact_name'],store_contact_number: json['store_contact_number'],
       store_alternet_contact_number: json['store_alternet_contact_number'], store_whatsapp_number: json['store_whatsapp_number'],
@@ -43,6 +44,7 @@ class StoreEntity{
   Map<String,dynamic> toJson(){
     return{
       'store_id':store_id,
+      'branch_id':branch_id,
       'store_name':store_name,
       'store_address':store_address,
       'store_pincode':store_pincode,
