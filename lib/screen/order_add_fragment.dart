@@ -136,7 +136,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
 
   Widget _buildProductCard(OrderProductEntity product, int index) {
     return Card(
-      color: AppColor.colorWhite,
+      color: product.isAdded ? AppColor.colorGreenLight :AppColor.colorWhite,
       margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
       elevation: 5.0,
       shape: RoundedRectangleBorder(

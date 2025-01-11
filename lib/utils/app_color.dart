@@ -23,6 +23,7 @@ class AppColor{
   static const Color colorGreenPastel= Color(0xFFC1E1C1);
   static const Color colorBrownPastel= Color(0xFFB1907F);
   static const Color colorGreenMoss= Color(0xFF8A9A5B);
+  static const Color colorGreenLight= Color(0xFFF1F8E9);
   static const Color colorBluePeacock= Color(0xFF005F69);
   static const Color colorBlueBaby= Color(0xFF95B9C7);
   static const Color colorBlueSteel= Color(0xFF4682B4);
