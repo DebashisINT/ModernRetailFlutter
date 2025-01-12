@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:modern_retail/utils/app_utils.dart';
+import 'package:modern_retail/utils/snackbar_utils.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -232,7 +234,12 @@ class _LoginScreen extends State<LoginScreen> {
                                 await pref.setBool('isLoginRemember', false);
                               }
                               FocusScope.of(context).unfocus();
-                              doLogin(loginID,password);
+                              bool isOnline = await AppUtils().checkConnectivity();
+                              if(isOnline){
+                                doLogin(loginID,password);
+                              }else{
+                                SnackBarUtils().showSnackBar(context,'Please connect to internet.',imagePath: "assets/images/ic_no_internet.png");
+                              }
                             }
                           },
                           child: const Text('Login', style: TextStyle(color: AppColor.colorWhite)),

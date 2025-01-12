@@ -18,6 +18,7 @@ import '../database/store_type_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_utils.dart';
+import '../utils/snackbar_utils.dart';
 
 class StoreAddFragment extends StatefulWidget {
   final VoidCallback onDataChanged;
@@ -538,7 +539,8 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
 
       if (selectedStoreType.type_name == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Store type')));
+        //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Store type')));
+        SnackBarUtils().showSnackBar(context,'Please select Store type');
       } else if (selectedBranch.branch_name == "") {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Branch')));
