@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -106,4 +107,21 @@ class AppUtils {
       },
     );
   }
+
+  Future<bool> checkConnectivity() async {
+    final ConnectivityResult result = await Connectivity().checkConnectivity();
+
+    if (result == ConnectivityResult.mobile) {
+      return true;
+    } else if (result == ConnectivityResult.wifi) {
+      return true;
+    } else if (result == ConnectivityResult.ethernet) {
+      return true;
+    } else if (result == ConnectivityResult.none) {
+      return false;
+    }else{
+      return false;
+    }
+  }
+
 }

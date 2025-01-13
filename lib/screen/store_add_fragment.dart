@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:modern_retail/database/branch_entity.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
 import '../api/api_service.dart';
@@ -17,11 +18,13 @@ import '../database/store_type_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_utils.dart';
+import '../utils/snackbar_utils.dart';
 
 class StoreAddFragment extends StatefulWidget {
   final VoidCallback onDataChanged;
   final StoreEntity? editStoreObj;
-  const StoreAddFragment({super.key, required this.onDataChanged,this.editStoreObj});
+
+  const StoreAddFragment({super.key, required this.onDataChanged, this.editStoreObj});
 
   @override
   _StoreAddFragmentState createState() => _StoreAddFragmentState();
@@ -32,8 +35,9 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
   final apiServiceMultipart = ApiServiceMultipart(Dio());
 
   StoreTypeEntity selectedStoreType = StoreTypeEntity();
-  List<StoreTypeEntity> storeTypeL = [];
+  BranchEntity selectedBranch = BranchEntity();
   List<DropdownMenuItem<StoreTypeEntity>>? dropdownStoreType;
+  List<DropdownMenuItem<BranchEntity>>? dropdownBranch;
 
   double _latitude = 0;
   double _longitude = 0;
@@ -44,28 +48,27 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
   final ImagePicker _picker = ImagePicker();
 
   late TextEditingController storeTypeController = TextEditingController();
+  late TextEditingController branchController = TextEditingController();
   late TextEditingController storeNameController = TextEditingController();
   late TextEditingController storeAddressController = TextEditingController();
   late TextEditingController storePinCodeController = TextEditingController();
   late TextEditingController contactNameController = TextEditingController();
   late TextEditingController contactNumberController = TextEditingController();
-  late TextEditingController contactAlternateNumberController =
-  TextEditingController();
-  late TextEditingController contactWhatsappNumberController =
-  TextEditingController();
+  late TextEditingController contactAlternateNumberController = TextEditingController();
+  late TextEditingController contactWhatsappNumberController = TextEditingController();
   late TextEditingController contactEmailController = TextEditingController();
-  late TextEditingController contactSizeAreaController =
-  TextEditingController();
+  late TextEditingController contactSizeAreaController = TextEditingController();
   late TextEditingController contactRemarksController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
-    if(widget.editStoreObj != null){
+    if (widget.editStoreObj != null) {
       loadEditData();
-    }else{
+    } else {
       _loadStoreTypes();
+      _loadBranch();
       _loadStoreLocation().then((data) {
         // Handle the result here
         setState(() {
@@ -81,19 +84,43 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
 
   Future<void> loadEditData() async {
     final typeDtls = await appDatabase.storeTypeDao.getStoreTypeDtls(widget.editStoreObj!.store_type.toString());
-    if(typeDtls!=null){
+    if (typeDtls != null) {
       _loadStoreTypes(defaultTypeId: typeDtls.type_id);
     }
-    storeNameController = TextEditingController(text: widget.editStoreObj?.store_name ?? '',);
-    storeAddressController = TextEditingController(text: widget.editStoreObj?.store_address ?? '',);
-    storePinCodeController = TextEditingController(text: widget.editStoreObj?.store_pincode ?? '',);
-    contactNameController = TextEditingController(text: widget.editStoreObj?.store_contact_name ?? '',);
-    contactNumberController = TextEditingController(text: widget.editStoreObj?.store_contact_number ?? '',);
-    contactAlternateNumberController = TextEditingController(text: widget.editStoreObj?.store_alternet_contact_number ?? '',);
-    contactWhatsappNumberController = TextEditingController(text: widget.editStoreObj?.store_whatsapp_number ?? '',);
-    contactEmailController = TextEditingController(text: widget.editStoreObj?.store_email ?? '',);
-    contactSizeAreaController = TextEditingController(text: widget.editStoreObj?.store_size_area ?? '',);
-    contactRemarksController = TextEditingController(text: widget.editStoreObj?.remarks ?? '',);
+    final branchDtls = await appDatabase.branchDao.getBranchDtls(widget.editStoreObj!.branch_id.toString());
+    if (branchDtls != null) {
+      _loadBranch(defaultBranchId: branchDtls.branch_id);
+    }
+    storeNameController = TextEditingController(
+      text: widget.editStoreObj?.store_name ?? '',
+    );
+    storeAddressController = TextEditingController(
+      text: widget.editStoreObj?.store_address ?? '',
+    );
+    storePinCodeController = TextEditingController(
+      text: widget.editStoreObj?.store_pincode ?? '',
+    );
+    contactNameController = TextEditingController(
+      text: widget.editStoreObj?.store_contact_name ?? '',
+    );
+    contactNumberController = TextEditingController(
+      text: widget.editStoreObj?.store_contact_number ?? '',
+    );
+    contactAlternateNumberController = TextEditingController(
+      text: widget.editStoreObj?.store_alternet_contact_number ?? '',
+    );
+    contactWhatsappNumberController = TextEditingController(
+      text: widget.editStoreObj?.store_whatsapp_number ?? '',
+    );
+    contactEmailController = TextEditingController(
+      text: widget.editStoreObj?.store_email ?? '',
+    );
+    contactSizeAreaController = TextEditingController(
+      text: widget.editStoreObj?.store_size_area ?? '',
+    );
+    contactRemarksController = TextEditingController(
+      text: widget.editStoreObj?.remarks ?? '',
+    );
 
     _loadStoreLocation().then((data) {
       // Handle the result here
@@ -103,13 +130,12 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         // Update the UI if needed
         storeAddressController = TextEditingController(text: gpsAddress);
         storePinCodeController = TextEditingController(text: gpsPincode);
-        if(widget.editStoreObj?.store_pic_url != ""){
-          if(widget.editStoreObj!.store_pic_url.contains("http")){
+        if (widget.editStoreObj?.store_pic_url != "") {
+          if (widget.editStoreObj!.store_pic_url.contains("http")) {
             createImgForUrl(widget.editStoreObj!.store_pic_url.toString());
-          }else{
+          } else {
             _imageFile = File(widget.editStoreObj!.store_pic_url);
           }
-
         }
       });
     });
@@ -147,10 +173,10 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
                   width: double.infinity,
                   height: 120,
                   decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: _imageFile != null ? FileImage(_imageFile!) : AssetImage('assets/images/store_dummy.jpg') as ImageProvider,
-                        fit: BoxFit.cover,
-                      ),
+                    image: DecorationImage(
+                      image: _imageFile != null ? FileImage(_imageFile!) : AssetImage('assets/images/store_dummy.jpg') as ImageProvider,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
                 // Camera Icon
@@ -183,57 +209,18 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 children: [
-                  buildInputField(
-                      'assets/images/ic_store_color.jpg',
-                      'Store type',
-                      storeTypeController,
-                      TextInputType.text,
-                      100,
-                      isDropdown: true),
-                  buildInputField(
-                      'assets/images/ic_store_color.jpg',
-                      'Store Name',
-                      storeNameController,
-                      TextInputType.text,
-                      100),
-                  buildInputField('assets/images/ic_location.png', 'Address',
-                      storeAddressController, TextInputType.text, 500),
-                  buildInputField('assets/images/ic_location.png', 'Pincode',
-                      storePinCodeController, TextInputType.number, 10),
-                  buildInputField(
-                      'assets/images/ic_user_color.png',
-                      'Contact Name',
-                      contactNameController,
-                      TextInputType.text,
-                      100),
-                  buildInputField(
-                      'assets/images/ic_phone.png',
-                      'Contact Number',
-                      contactNumberController,
-                      TextInputType.number,
-                      10),
-                  buildInputField(
-                      'assets/images/ic_phone.png',
-                      'Alternate Contact Number',
-                      contactAlternateNumberController,
-                      TextInputType.number,
-                      10),
-                  buildInputField(
-                      'assets/images/ic_whatsapp.png',
-                      'Whatsapp Number',
-                      contactWhatsappNumberController,
-                      TextInputType.number,
-                      10),
-                  buildInputField('assets/images/ic_mail.png', 'Email',
-                      contactEmailController, TextInputType.text, 100),
-                  buildInputField(
-                      'assets/images/ic_measurement.png',
-                      'Size/Area',
-                      contactSizeAreaController,
-                      TextInputType.text,
-                      100),
-                  buildInputField('assets/images/ic_remarks.png', 'remarks',
-                      contactRemarksController, TextInputType.text, 100),
+                  buildInputFieldDropdownStoreType('assets/images/ic_store_color.jpg', 'Store type', storeTypeController, TextInputType.text, 100),
+                  buildInputFieldDropdownBranch('assets/images/ic_store_color.jpg', 'Branch', branchController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_store_color.jpg', 'Store Name', storeNameController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_location.png', 'Address', storeAddressController, TextInputType.text, 500),
+                  buildInputField('assets/images/ic_location.png', 'Pincode', storePinCodeController, TextInputType.number, 10),
+                  buildInputField('assets/images/ic_user_color.png', 'Contact Name', contactNameController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_phone.png', 'Contact Number', contactNumberController, TextInputType.number, 10),
+                  buildInputField('assets/images/ic_phone.png', 'Alternate Contact Number', contactAlternateNumberController, TextInputType.number, 10),
+                  buildInputField('assets/images/ic_whatsapp.png', 'Whatsapp Number', contactWhatsappNumberController, TextInputType.number, 10),
+                  buildInputField('assets/images/ic_mail.png', 'Email', contactEmailController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_measurement.png', 'Size/Area', contactSizeAreaController, TextInputType.text, 100),
+                  buildInputField('assets/images/ic_remarks.png', 'remarks', contactRemarksController, TextInputType.text, 100),
 
                   //  Button
                   SizedBox(height: 20.0),
@@ -246,21 +233,18 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
                         shadowColor: Colors.black87,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         side: const BorderSide(color: Colors.black26, width: 0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                         backgroundColor: AppColor.colorButton,
                       ),
                       onPressed: () async {
                         FocusScope.of(context).unfocus();
-                        if(widget.editStoreObj == null){
+                        if (widget.editStoreObj == null) {
                           validation();
-                        }else{
+                        } else {
                           validationEdit();
                         }
                       },
-                      child: Text(
-                          widget.editStoreObj != null ? "Edit" : "Add",
-                          style: const TextStyle(color: AppColor.colorWhite)),
+                      child: Text(widget.editStoreObj != null ? "Edit" : "Add", style: const TextStyle(color: AppColor.colorWhite)),
                     ),
                   ),
                   SizedBox(height: 40.0),
@@ -274,13 +258,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
     );
   }
 
-  Widget buildInputField(
-      String iconPath,
-      String hint,
-      TextEditingController controller,
-      TextInputType textInputType,
-      int maxLength,
-      {bool isDropdown = false}) {
+  Widget buildInputField(String iconPath, String hint, TextEditingController controller, TextInputType textInputType, int maxLength, {bool isDropdown = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8.0),
       padding: EdgeInsets.symmetric(horizontal: 0),
@@ -301,38 +279,8 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
       ),
       child: Row(
         children: [
-          // Custom image for dropdown block
-          if (isDropdown)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              child: Image.asset(
-                iconPath, // Path to your custom image
-                width: 24, // Adjust width
-                height: 24, // Adjust height
-                fit: BoxFit.contain,
-              ),
-            ),
           Expanded(
-            child: isDropdown ? DropdownButton<StoreTypeEntity>(
-              isExpanded: true,
-              underline: SizedBox(),
-              value: selectedStoreType.type_name.isEmpty ? null : selectedStoreType, // Default value
-              hint: Text(
-                selectedStoreType.type_name.isEmpty ? "Select Store Type" : selectedStoreType.type_name,
-                style: TextStyle(color: Colors.grey[700]),
-              ),
-              items: dropdownStoreType,
-              onChanged: (value) {
-                setState(() {
-                  try {
-                    selectedStoreType = value!;
-                  } catch (e) {
-                    print(e);
-                  }
-                });
-              },
-            )
-                : TextField(
+            child: TextField(
               controller: controller,
               maxLines: null,
               // Allows TextField to grow vertically
@@ -364,10 +312,122 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
     );
   }
 
+  Widget buildInputFieldDropdownStoreType(String iconPath, String hint, TextEditingController controller, TextInputType textInputType, int maxLength) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 0),
+      constraints: BoxConstraints(
+        minHeight: 55.0, // Minimum height of the container
+      ),
+      decoration: BoxDecoration(
+        color: AppColor.colorWhite,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2), // Shadow color with opacity
+            spreadRadius: 1, // Spread the shadow
+            blurRadius: 2, // Blur effect for the shadow
+            offset: Offset(0, 3), // Shadow position (x, y)
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Image.asset(
+              iconPath, // Path to your custom image
+              width: 24, // Adjust width
+              height: 24, // Adjust height
+              fit: BoxFit.contain,
+            ),
+          ),
+          Expanded(
+              child: DropdownButton<StoreTypeEntity>(
+            isExpanded: true,
+            underline: SizedBox(),
+            value: selectedStoreType.type_name.isEmpty ? null : selectedStoreType,
+            // Default value
+            hint: Text(
+              selectedStoreType.type_name.isEmpty ? "Select $hint" : selectedStoreType.type_name,
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+            items: dropdownStoreType,
+            onChanged: (value) {
+              setState(() {
+                try {
+                  selectedStoreType = value!;
+                } catch (e) {
+                  print(e);
+                }
+              });
+            },
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget buildInputFieldDropdownBranch(String iconPath, String hint, TextEditingController controller, TextInputType textInputType, int maxLength) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 0),
+      constraints: BoxConstraints(
+        minHeight: 55.0, // Minimum height of the container
+      ),
+      decoration: BoxDecoration(
+        color: AppColor.colorWhite,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2), // Shadow color with opacity
+            spreadRadius: 1, // Spread the shadow
+            blurRadius: 2, // Blur effect for the shadow
+            offset: Offset(0, 3), // Shadow position (x, y)
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Image.asset(
+              iconPath, // Path to your custom image
+              width: 24, // Adjust width
+              height: 24, // Adjust height
+              fit: BoxFit.contain,
+            ),
+          ),
+          Expanded(
+            child: DropdownButton<BranchEntity>(
+              isExpanded: true,
+              underline: SizedBox(),
+              value: selectedBranch.branch_name.isEmpty ? null : selectedBranch,
+              // Default value
+              hint: Text(
+                selectedBranch.branch_name.isEmpty ? "Select $hint" : selectedBranch.branch_name,
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+              items: dropdownBranch,
+              onChanged: (value) {
+                setState(() {
+                  try {
+                    selectedBranch = value!;
+                  } catch (e) {
+                    print(e);
+                  }
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _captureAndCropImage() async {
     try {
-      final XFile? pickedFile =
-      await _picker.pickImage(source: ImageSource.camera);
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
       if (pickedFile != null) {
         final CroppedFile? croppedFile = await ImageCropper().cropImage(
           sourcePath: pickedFile.path,
@@ -403,14 +463,9 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
     }
   }
 
-  Future<List<StoreTypeEntity>> getStoreTypes() async {
-    final storeTypeDao = appDatabase.storeTypeDao;
-    storeTypeL = await storeTypeDao.getAll();
-    return storeTypeL;
-  }
-
   Future<void> _loadStoreTypes({int? defaultTypeId}) async {
-    List<StoreTypeEntity> storeTypes = await getStoreTypes();
+    final storeTypeDao = appDatabase.storeTypeDao;
+    List<StoreTypeEntity> storeTypes = await storeTypeDao.getAll(); //await getStoreTypes();
     setState(() {
       dropdownStoreType = storeTypes.map((storeType) {
         return DropdownMenuItem<StoreTypeEntity>(
@@ -420,8 +475,24 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
       }).toList();
       // Set the default selection if `defaultTypeId` is provided
       if (defaultTypeId != null) {
-        selectedStoreType = storeTypes.firstWhere((storeType) => storeType.type_id == defaultTypeId
+        selectedStoreType = storeTypes.firstWhere((storeType) => storeType.type_id == defaultTypeId);
+      }
+    });
+  }
+
+  Future<void> _loadBranch({int? defaultBranchId}) async {
+    final branchDao = appDatabase.branchDao;
+    List<BranchEntity> branchL = await branchDao.getAll(); //await getStoreTypes();
+    setState(() {
+      dropdownBranch = branchL.map((item) {
+        return DropdownMenuItem<BranchEntity>(
+          value: item,
+          child: Text(item.branch_name),
         );
+      }).toList();
+      // Set the default selection if `defaultTypeId` is provided
+      if (defaultBranchId != null) {
+        selectedBranch = branchL.firstWhere((item) => item.branch_id == defaultBranchId);
       }
     });
   }
@@ -430,10 +501,8 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
-    gpsAddress =
-    await AppUtils().getAddress(position.latitude, position.longitude);
-    gpsPincode =
-    await AppUtils().getPincode(position.latitude, position.longitude);
+    gpsAddress = await AppUtils().getAddress(position.latitude, position.longitude);
+    gpsPincode = await AppUtils().getPincode(position.latitude, position.longitude);
     return position;
   }
 
@@ -458,10 +527,9 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
       String remarks = contactRemarksController.text;
 
       String imagePath = "";
-      if(_imageFile != null){
+      if (_imageFile != null) {
         imagePath = _imageFile!.path;
       }
-
 
       final statePinDao = appDatabase.statePinDao;
       int? stateID = await statePinDao.getStateIDByPincode(storePinCode);
@@ -469,42 +537,36 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         stateID = 0;
       }
 
-      if (selectedStoreType == "") {
+      if (selectedStoreType.type_name == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please select Store type')));
+        //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Store type')));
+        SnackBarUtils().showSnackBar(context,'Please select Store type');
+      } else if (selectedBranch.branch_name == "") {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Branch')));
       } else if (storeName == "") {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please enter Store Name')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Store Name')));
       } else if (storeAddress == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please enter Address')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Address')));
       } else if (storePinCode == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please enter Pincode')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Pincode')));
       } else if (contactName == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
       } else if (contactNumber == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter Contact Number')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Number')));
       } else {
         DateTime currentDateTime = DateTime.now();
-        String formattedDate =
-        DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
-        final storeID = pref.getString('user_id')!+"_" +
-            formattedDate
-                .replaceAll(" ", "")
-                .replaceAll("-", "")
-                .replaceAll(":", "");
+        String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
+        final storeID = pref.getString('user_id')! + "_" + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
         final storeObj = StoreEntity(
             store_id: storeID,
+            branch_id: selectedBranch.branch_id,
             store_name: storeName,
             store_address: storeAddress,
             store_pincode: storePinCode,
@@ -527,15 +589,14 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         await storeDao.insertStore(storeObj);
 
         //api call
-        final storeSaveRequest = StoreSaveRequest(user_id: pref.getString('user_id')!,
-        store_list: [storeObj]);
+        final storeSaveRequest = StoreSaveRequest(user_id: pref.getString('user_id')!, store_list: [storeObj]);
         try {
           final response = await apiService.saveStoreInfo(storeSaveRequest);
           if (response.status == "200") {
-            if(_imageFile == null){
+            if (_imageFile == null) {
               showMsg("Store saved successfully.");
-            }else{
-             uploadImageApi(storeObj.store_id.toString());
+            } else {
+              uploadImageApi(storeObj.store_id.toString());
             }
           } else {
             showMsg("Failed to save store.");
@@ -579,39 +640,37 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
       }
 
       String imagePath = "";
-      if(_imageFile != null){
+      if (_imageFile != null) {
         imagePath = _imageFile!.path;
       }
 
       if (selectedStoreType == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please select Store type')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Store type')));
+      } else if (selectedBranch.branch_name == "") {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Branch')));
       } else if (storeName == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please enter Store Name')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Store Name')));
       } else if (storeAddress == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please enter Address')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Address')));
       } else if (storePinCode == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please enter Pincode')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Pincode')));
       } else if (contactName == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
       } else if (contactNumber == "") {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter Contact Number')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Number')));
       } else {
         DateTime currentDateTime = DateTime.now();
         String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
         final storeObj = StoreEntity(
             store_id: widget.editStoreObj!.store_id,
+            branch_id: selectedBranch.branch_id,
             store_name: storeName,
             store_address: storeAddress,
             store_pincode: storePinCode,
@@ -634,8 +693,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         await storeDao.insertStore(storeObj);
 
         //api call
-        final storeSaveRequest = StoreSaveRequest(user_id: pref.getString('user_id')!,
-            store_list: [storeObj]);
+        final storeSaveRequest = StoreSaveRequest(user_id: pref.getString('user_id')!, store_list: [storeObj]);
         try {
           final response = await apiService.editStoreInfo(storeSaveRequest);
           if (response.status == "200") {
@@ -659,10 +717,10 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
     try {
       final jsonData = '{"store_id":"$storeID","user_id":"${pref.getString('user_id')!}"}';
       final imageFile = _imageFile;
-      final response = await apiServiceMultipart.uploadImage(jsonData,imageFile!);
-      if(response.status == "200"){
+      final response = await apiServiceMultipart.uploadImage(jsonData, imageFile!);
+      if (response.status == "200") {
         showMsg("Store saved successfully.");
-          }
+      }
     } catch (e) {
       print(e);
       Navigator.of(context).pop();
@@ -670,9 +728,9 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
     }
   }
 
-  void showMsg(String msg){
+  void showMsg(String msg) {
     Navigator.of(context).pop();
-    AppUtils().showCustomDialog(context,"Hi ${pref.getString('user_name') ?? ""}",msg,(){
+    AppUtils().showCustomDialog(context, "Hi ${pref.getString('user_name') ?? ""}", msg, () {
       widget.onDataChanged();
       Navigator.of(context).pop();
     });
@@ -704,5 +762,4 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
       ],
     );
   }
-
 }
