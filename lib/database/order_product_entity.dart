@@ -31,6 +31,9 @@ abstract class OrderProductDao {
   @Query('select * from mr_order_product')
   Future<List<OrderProductEntity>> getAll();
 
+  @Query('select * from mr_order_product where isAdded=1')
+  Future<List<OrderProductEntity>> getAllAdded();
+
   @Query('delete from mr_order_product')
   Future<void> deleteAll();
 
@@ -60,4 +63,10 @@ abstract class OrderProductDao {
 
   @Query('SELECT * FROM mr_order_product WHERE product_name LIKE :query LIMIT :limit OFFSET :offset')
   Future<List<OrderProductEntity>> fetchPaginatedItemsSearch(String query, int limit, int offset);
+
+  @Query('SELECT * FROM mr_order_product LIMIT :limit OFFSET :offset')
+  Future<List<OrderProductEntity>> fetchPaginatedItems(int limit, int offset);
+
+  @Query('SELECT * FROM mr_order_product where isAdded=1 LIMIT :limit OFFSET :offset')
+  Future<List<OrderProductEntity>> fetchPaginatedItemsAdded(int limit, int offset);
 }

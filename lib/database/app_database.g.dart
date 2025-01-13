@@ -858,6 +858,30 @@ class _$OrderProductDao extends OrderProductDao {
   }
 
   @override
+  Future<List<OrderProductEntity>> getAllAdded() async {
+    return _queryAdapter.queryList(
+        'select * from mr_order_product where isAdded=1',
+        mapper: (Map<String, Object?> row) => OrderProductEntity(
+            sl_no: row['sl_no'] as int,
+            product_id: row['product_id'] as int,
+            product_name: row['product_name'] as String,
+            product_description: row['product_description'] as String,
+            brand_id: row['brand_id'] as int,
+            brand_name: row['brand_name'] as String,
+            category_id: row['category_id'] as int,
+            category_name: row['category_name'] as String,
+            watt_id: row['watt_id'] as int,
+            watt_name: row['watt_name'] as String,
+            product_mrp: row['product_mrp'] as double,
+            UOM: row['UOM'] as String,
+            product_pic_url: row['product_pic_url'] as String,
+            state_id: row['state_id'] as int,
+            qty: row['qty'] as int,
+            rate: row['rate'] as double,
+            isAdded: (row['isAdded'] as int) != 0));
+  }
+
+  @override
   Future<void> deleteAll() async {
     await _queryAdapter.queryNoReturn('delete from mr_order_product');
   }
@@ -903,6 +927,62 @@ class _$OrderProductDao extends OrderProductDao {
         'SELECT * FROM mr_order_product WHERE product_name LIKE ?1 LIMIT ?2 OFFSET ?3',
         mapper: (Map<String, Object?> row) => OrderProductEntity(sl_no: row['sl_no'] as int, product_id: row['product_id'] as int, product_name: row['product_name'] as String, product_description: row['product_description'] as String, brand_id: row['brand_id'] as int, brand_name: row['brand_name'] as String, category_id: row['category_id'] as int, category_name: row['category_name'] as String, watt_id: row['watt_id'] as int, watt_name: row['watt_name'] as String, product_mrp: row['product_mrp'] as double, UOM: row['UOM'] as String, product_pic_url: row['product_pic_url'] as String, state_id: row['state_id'] as int, qty: row['qty'] as int, rate: row['rate'] as double, isAdded: (row['isAdded'] as int) != 0),
         arguments: [query, limit, offset]);
+  }
+
+  @override
+  Future<List<OrderProductEntity>> fetchPaginatedItems(
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM mr_order_product LIMIT ?1 OFFSET ?2',
+        mapper: (Map<String, Object?> row) => OrderProductEntity(
+            sl_no: row['sl_no'] as int,
+            product_id: row['product_id'] as int,
+            product_name: row['product_name'] as String,
+            product_description: row['product_description'] as String,
+            brand_id: row['brand_id'] as int,
+            brand_name: row['brand_name'] as String,
+            category_id: row['category_id'] as int,
+            category_name: row['category_name'] as String,
+            watt_id: row['watt_id'] as int,
+            watt_name: row['watt_name'] as String,
+            product_mrp: row['product_mrp'] as double,
+            UOM: row['UOM'] as String,
+            product_pic_url: row['product_pic_url'] as String,
+            state_id: row['state_id'] as int,
+            qty: row['qty'] as int,
+            rate: row['rate'] as double,
+            isAdded: (row['isAdded'] as int) != 0),
+        arguments: [limit, offset]);
+  }
+
+  @override
+  Future<List<OrderProductEntity>> fetchPaginatedItemsAdded(
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM mr_order_product where isAdded=1 LIMIT ?1 OFFSET ?2',
+        mapper: (Map<String, Object?> row) => OrderProductEntity(
+            sl_no: row['sl_no'] as int,
+            product_id: row['product_id'] as int,
+            product_name: row['product_name'] as String,
+            product_description: row['product_description'] as String,
+            brand_id: row['brand_id'] as int,
+            brand_name: row['brand_name'] as String,
+            category_id: row['category_id'] as int,
+            category_name: row['category_name'] as String,
+            watt_id: row['watt_id'] as int,
+            watt_name: row['watt_name'] as String,
+            product_mrp: row['product_mrp'] as double,
+            UOM: row['UOM'] as String,
+            product_pic_url: row['product_pic_url'] as String,
+            state_id: row['state_id'] as int,
+            qty: row['qty'] as int,
+            rate: row['rate'] as double,
+            isAdded: (row['isAdded'] as int) != 0),
+        arguments: [limit, offset]);
   }
 
   @override

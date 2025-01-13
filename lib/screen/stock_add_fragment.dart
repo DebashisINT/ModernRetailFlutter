@@ -14,6 +14,7 @@ import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_utils.dart';
+import '../utils/snackbar_utils.dart';
 
 class StockAddFragment extends StatefulWidget {
   @override
@@ -239,18 +240,14 @@ class _StockAddFragment extends State<StockAddFragment> {
                 ),
                 onPressed: () async {
                   if (selectedStore.store_id == "") {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Select Store")),
-                    );
+                    SnackBarUtils().showSnackBar(context,'Select Store');
                   } else {
                     final qtyList = getNonEmptyControllersWithIndices(_qtyControllers);
                     //final uomList =getNonEmptyControllersWithIndices(_uomControllers);
                     //final mfgList =getNonEmptyControllersWithIndices(_mfgDatecontrollers);
                     //final expList =getNonEmptyControllersWithIndices(_expDatecontrollers);
                     if (qtyList.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Select a product")),
-                      );
+                      SnackBarUtils().showSnackBar(context,'Select a product');
                     } else {
                       submitData(qtyList);
                     }
