@@ -397,11 +397,11 @@ class _LoginScreen extends State<LoginScreen> {
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty){
         await itemDao.deleteAll();
-        final obj1 = OrderSaveEntity(order_id: "ord_11223344",
-        store_id: "3_20250107111347",order_date_time: "2025-01-07 10:22:23",
+        final obj1 = OrderSaveEntity(order_id: "#11223344",
+        store_id: "3_20250107111347",order_date_time: "2025-01-07",
         order_amount: "2000",order_status: "Pending");
-        final obj2 = OrderSaveEntity(order_id: "ord_11223345",
-            store_id: "3_20250107111347",order_date_time: "2025-01-07 10:22:24",
+        final obj2 = OrderSaveEntity(order_id: "#11223345",
+            store_id: "3_20250107111347",order_date_time: "2025-01-07",
             order_amount: "200000",order_status: "Approved");
 
         var dataList = List<OrderSaveEntity>.empty(growable: true);

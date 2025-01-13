@@ -473,25 +473,6 @@ class _StoreFragmentState extends State<StoreFragment> {
     }
   }
 
-  void openMap(String address) async {
-    String query = Uri.encodeComponent(address);
-    String googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=$query";
-
-    try {
-      if (await canLaunchUrl(Uri.parse(googleMapsUrl))) {
-        await launchUrl(Uri.parse(googleMapsUrl), mode: LaunchMode.externalApplication);
-      } else {
-        throw 'No app available to open the map.';
-      }
-    } catch (e) {
-      debugPrint("Error launching URL: $e");
-      // Provide fallback
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Unable to open map. Please install Google Maps or a compatible app.")),
-      );
-    }
-  }
-
   void openMapWithLatLng(String? latitudeStr, String? longitudeStr) async {
     double? latitude = double.tryParse(latitudeStr ?? '');
     double? longitude = double.tryParse(longitudeStr ?? '');
