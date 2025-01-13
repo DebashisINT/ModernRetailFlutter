@@ -153,7 +153,7 @@ class _OrderFragment extends State<OrderFragment> {
                         text: "${item.order_id}",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: AppColor.color_order_id, // Your desired color for order ID value
+                          color: AppColor.colorYellow, // Your desired color for order ID value
                         ),
                       ),
                     ],
@@ -206,7 +206,7 @@ class _OrderFragment extends State<OrderFragment> {
                     Text(
                       item.order_status,
                       style: TextStyle(
-                        color: item.order_status == "Delivered" ? Colors.green : AppColor.colorStatus,
+                        color: item.order_status == "Delivered" ? Colors.green : AppColor.colorYellow,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -226,8 +226,8 @@ class _OrderFragment extends State<OrderFragment> {
                       icon: Icon(Icons.info, color: Colors.white),
                       label: Text("View", style: TextStyle(color: Colors.white)),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColor.color_order_blue, // Set the background color to blue
-                        side: BorderSide(color: AppColor.color_order_blue),
+                        backgroundColor: AppColor.colorBlue, // Set the background color to blue
+                        side: BorderSide(color: AppColor.colorBlue),
                         padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0), // Reduced top and bottom padding
                         minimumSize: Size(0, 28), // Minimum height for the button
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Shrink button tap area
@@ -238,7 +238,7 @@ class _OrderFragment extends State<OrderFragment> {
                     // Smaller delete circle size
                     CircleAvatar(
                       radius: 18, // Smaller size for the delete circle
-                      backgroundColor: AppColor.colorDeleteRed, // Circular red background for delete button
+                      backgroundColor: AppColor.colorRed, // Circular red background for delete button
                       child: IconButton(
                         onPressed: () {
                           // Add action for Delete button

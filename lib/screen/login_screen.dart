@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modern_retail/utils/app_utils.dart';
+import 'package:modern_retail/utils/loader_utils.dart';
 import 'package:modern_retail/utils/snackbar_utils.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -269,9 +270,12 @@ class _LoginScreen extends State<LoginScreen> {
 
   Future<void> doLogin(loginID,password) async {
     try {
-      showDialog(context: context, builder: (context) {
+      /*showDialog(context: context, builder: (context) {
         return Center(child: CircularProgressIndicator());
-      },);
+      },);*/
+
+      LoaderUtils().showLoader(context);
+
       final loginRequest = LoginRequest(login_id: loginID,login_password: password,app_version: "1.0.1",device_token: "");
       final loginResponse = await apiService.doLogin(loginRequest);
       if(loginResponse.status == "200"){
@@ -279,12 +283,14 @@ class _LoginScreen extends State<LoginScreen> {
         await pref.setString('user_name', loginResponse.user_name);
         fetchData();
       }else{
-        Navigator.of(context).pop();
+        //Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loginResponse.message)),);
       }
 
     } catch (error) {
-      Navigator.of(context).pop();
+      //Navigator.of(context).pop();
+      LoaderUtils().dismissLoader(context);
       print('Error: $error');
     }
   }
@@ -300,7 +306,8 @@ class _LoginScreen extends State<LoginScreen> {
       Future<void> dummy = dummyOrder();
       // Wait for all of them to complete
       List<void> results = await Future.wait([storeType,store,statePin,product,productRate,branch,dummy]);
-      Navigator.of(context).pop();
+      //Navigator.of(context).pop();
+      LoaderUtils().dismissLoader(context);
       pref.setBool('isLoggedIn', true);
       Navigator.pushReplacement(
         context,
@@ -308,6 +315,7 @@ class _LoginScreen extends State<LoginScreen> {
       );
     } catch (e) {
       print("Error occurred: $e");
+      LoaderUtils().dismissLoader(context);
     }
   }
 

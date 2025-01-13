@@ -28,8 +28,5 @@ class AppColor{
   static const Color colorBlueBaby= Color(0xFF95B9C7);
   static const Color colorBlueSteel= Color(0xFF4682B4);
   static const Color colorGreenSteel= Color(0xFF0b9ba8);
-  static const Color colorStatus= Color(0xFFcf971f);
-  static const Color colorDeleteRed= Color(0xFFf91818);
-  static const Color color_order_blue= Color(0xFF0c50a9);
-  static const Color color_order_id= Color(0xFFdfeb41);
+  static const Color colorYellow= Color(0xFFcf971f);
 }
