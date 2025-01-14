@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_utils.dart';
+import '../utils/snackbar_utils.dart';
 
 class OrderAddFragment extends StatefulWidget {
   @override
@@ -146,11 +148,19 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                   ),
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => OrderCartFragment()),
-                        );
+                      onTap: () async {
+                        final getCount =  await appDatabase.orderProductDao.getProductAddedCount();
+
+                        if(getCount! > 0) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => OrderCartFragment()),
+                          );
+                        }
+                        else{
+                          SnackBarUtils().showSnackBar(context,'Please add any product');
+                        }
                       },
                       child: Expanded(
                         child: Container(
@@ -433,9 +443,17 @@ class _OrderAddFragment extends State<OrderAddFragment> {
               _rateFocusNode[product.sl_no].unfocus();
               if (q == "") {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter quantity')));
-              } else if (r == "") {
+              }
+              else if (q == "0"){
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter quantity')));
+              }
+              else if (r == "") {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter rate')));
-              } else {
+              }
+              else if (r == "0" || r == "0.0"){
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter rate')));
+              }
+              else {
                 await appDatabase.orderProductDao.updateAdded(int.parse(q), double.parse(r), true, product.product_id);
                 final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
                 setState(() {
@@ -481,6 +499,8 @@ class _OrderAddFragment extends State<OrderAddFragment> {
     );
   }
 }
+
+
 
 enum LoadingState { idle, loading, error }
 

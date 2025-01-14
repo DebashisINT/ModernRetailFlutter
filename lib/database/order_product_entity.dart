@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:floor/floor.dart';
 
 @Entity(tableName: 'mr_order_product')
@@ -69,4 +71,8 @@ abstract class OrderProductDao {
 
   @Query('SELECT * FROM mr_order_product where isAdded=1 LIMIT :limit OFFSET :offset')
   Future<List<OrderProductEntity>> fetchPaginatedItemsAdded(int limit, int offset);
+
+  @Query('select count(*)As count from mr_order_product WHERE isAdded=1')
+  Future<int?> getProductAddedCount();
+
 }

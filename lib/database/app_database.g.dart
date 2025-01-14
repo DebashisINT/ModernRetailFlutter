@@ -986,6 +986,13 @@ class _$OrderProductDao extends OrderProductDao {
   }
 
   @override
+  Future<int?> getProductAddedCount() async {
+    return _queryAdapter.query(
+        'select count(*)As count from mr_order_product WHERE isAdded=1',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
   Future<void> insertAll(List<OrderProductEntity> list) async {
     await _orderProductEntityInsertionAdapter.insertList(
         list, OnConflictStrategy.replace);
