@@ -18,7 +18,7 @@ class LoaderUtils {
           onWillPop: () async => false, // Prevent dismissing by back button
           child: Dialog(
             backgroundColor: Colors.transparent, // Make the dialog background transparent
-            insetPadding: const EdgeInsets.all(100), // Add padding around the dialog
+            insetPadding: const EdgeInsets.all(50), // Add padding around the dialog
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.grey[200], // Light grey background
