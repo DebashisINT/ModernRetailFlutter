@@ -72,7 +72,7 @@ abstract class OrderProductDao {
   @Query('select count(*)As count from mr_order_product WHERE isAdded=1')
   Future<int?> getProductAddedCount();
 
-  @Query('update mr_order_product set isAdded=:isAdded where product_id=:product_id')
+  @Query('update mr_order_product set isAdded=:isAdded , qty=0 , rate=0 where product_id=:product_id')
   Future<void> discardProduct(bool isAdded,int product_id);
 
   @Query('Select COALESCE(sum(qty),0) as qty from mr_order_product WHERE isAdded=1')
