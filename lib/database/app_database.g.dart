@@ -991,7 +991,7 @@ class _$OrderProductDao extends OrderProductDao {
     int product_id,
   ) async {
     await _queryAdapter.queryNoReturn(
-        'update mr_order_product set isAdded=?1 where product_id=?2',
+        'update mr_order_product set isAdded=?1 , qty=0 , rate=0 where product_id=?2',
         arguments: [isAdded ? 1 : 0, product_id]);
   }
 

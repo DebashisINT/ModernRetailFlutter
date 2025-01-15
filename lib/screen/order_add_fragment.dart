@@ -52,6 +52,25 @@ class _OrderAddFragment extends State<OrderAddFragment> {
     }
   }
 
+  void _updateData() async {
+    orderProductL = await appDatabase.orderProductDao.getAll();
+    _qtyControllers.clear();
+    _rateControllers.clear();
+    _qtyFocusNode.clear();
+    _rateFocusNode.clear();
+    for (var value in orderProductL) {
+      _qtyControllers.add(TextEditingController(text: value.qty.toString()));
+      _rateControllers.add(TextEditingController(text: value.rate.toString()));
+      _qtyFocusNode.add(FocusNode());
+      _rateFocusNode.add(FocusNode());
+    }
+    var _totalAmt = await appDatabase.orderProductDao.getTotalAmt();
+    setState(()  {
+      viewModel.loadItems(refresh: true);
+      _amount = _totalAmt.toString();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,7 +174,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => OrderCartFragment()),
+                                builder: (context) => OrderCartFragment(onDataChanged: _updateData)),
                           );
                         }
                         else{
