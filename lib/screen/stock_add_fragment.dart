@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../api/api_service.dart';
+import '../api/response/stock_save_request.dart';
 import '../database/app_database.dart';
 import '../database/stock_product_entity.dart';
 import '../database/stock_save_dtls_entity.dart';
@@ -14,6 +17,7 @@ import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_utils.dart';
+import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
 
 class StockAddFragment extends StatefulWidget {
@@ -33,6 +37,8 @@ class _StockAddFragment extends State<StockAddFragment> {
   List<StockProductEntity> stockProductL = [];
 
   final viewModel = ItemViewModel(appDatabase.stockProductDao);
+
+  final apiService = ApiService(Dio());
 
   @override
   void initState() {
@@ -273,19 +279,14 @@ class _StockAddFragment extends State<StockAddFragment> {
 
   Future<void> submitData(List<MapEntry<int, TextEditingController>> qtyList) async {
     try {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return Center(child: CircularProgressIndicator());
-        },
-      );
+      LoaderUtils().showLoader(context);
 
       final StockSaveEntity stock = StockSaveEntity();
       final List<StockSaveDtlsEntity> stockL = [];
 
       DateTime currentDateTime = DateTime.now();
       String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
-      final stockID = pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
+      final stockID = "STK_"+pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
 
       stock.stock_id = stockID;
       stock.save_date_time = formattedDate;
@@ -303,14 +304,37 @@ class _StockAddFragment extends State<StockAddFragment> {
       await appDatabase.stockSaveDao.insertStock(stock);
       await appDatabase.stockSaveDtlsDao.insertAll(stockL);
       await Future.delayed(Duration(seconds: 2));
-      Navigator.of(context).pop();
-      AppUtils().showCustomDialog(context, "Congrats!", "Hi ${pref.getString('user_name') ?? ""}, Your Stock for ${selectedStore.store_name} has been updated successfully.", () {
-        Navigator.of(context).pop();
-      });
+
+
+
+      bool isOnline = await AppUtils().checkConnectivity();
+      if(isOnline){
+        final request = StockSaveRequest(user_id: pref.getString('user_id')!,stock_id: stock.stock_id,save_date_time: stock.save_date_time,
+        store_id: stock.store_id,product_list: stockL);
+        final response = await apiService.saveStock(request);
+        if(response.status == "200"){
+          LoaderUtils().dismissLoader(context);
+          showDialog();
+        }else{
+          LoaderUtils().dismissLoader(context);
+          SnackBarUtils().showSnackBar(context,'Something went wrong.');
+        }
+      }else{
+        LoaderUtils().dismissLoader(context);
+        showDialog();
+      }
+
+
     } catch (e) {
       print(e);
       Navigator.of(context).pop();
     }
+  }
+
+  void showDialog(){
+    AppUtils().showCustomDialog(context, "Congrats!", "Hi ${pref.getString('user_name') ?? ""}, Your Stock for ${selectedStore.store_name} has been updated successfully.", () {
+      Navigator.of(context).pop();
+    });
   }
 
   Widget _buildProductCard(StockProductEntity product, int index) {
