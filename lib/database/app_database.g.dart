@@ -911,13 +911,6 @@ class _$OrderProductDao extends OrderProductDao {
   }
 
   @override
-  Future<double?> getTotalAmt() async {
-    return _queryAdapter.query(
-        'select COALESCE(sum(qty * rate), 0.0) as totalAmt from mr_order_product where isAdded = 1',
-        mapper: (Map<String, Object?> row) => row.values.first as double);
-  }
-
-  @override
   Future<List<OrderProductEntity>> fetchPaginatedItemsSearch(
     String query,
     int limit,
@@ -990,6 +983,30 @@ class _$OrderProductDao extends OrderProductDao {
     return _queryAdapter.query(
         'select count(*)As count from mr_order_product WHERE isAdded=1',
         mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
+  Future<void> discardProduct(
+    bool isAdded,
+    int product_id,
+  ) async {
+    await _queryAdapter.queryNoReturn(
+        'update mr_order_product set isAdded=?1 where product_id=?2',
+        arguments: [isAdded ? 1 : 0, product_id]);
+  }
+
+  @override
+  Future<int?> getTotalQty() async {
+    return _queryAdapter.query(
+        'Select COALESCE(sum(qty),0) as qty from mr_order_product WHERE isAdded=1',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
+  Future<double?> getTotalAmt() async {
+    return _queryAdapter.query(
+        'select COALESCE(sum(qty * rate), 0.0) as totalAmt from mr_order_product where isAdded = 1',
+        mapper: (Map<String, Object?> row) => row.values.first as double);
   }
 
   @override

@@ -207,8 +207,26 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       print("Container clicked");
+                      // Perform the delete operation
+                      await appDatabase.orderProductDao.discardProduct(false, product.product_id);
+                      _qtyControllers.clear();
+                      _rateControllers.clear();
+                      _qtyFocusNode.clear();
+                      _rateFocusNode.clear();
+                      loadData();
+                      // Fetch updated product list from the database
+                      List<OrderProductEntity> updatedProducts = await appDatabase.orderProductDao.getAllAdded();
+                      /*// Update the UI to reflect the changes
+                      var totalQty =await appDatabase.orderProductDao.getTotalQty();
+                      var totalAmt =await appDatabase.orderProductDao.getTotalAmt();*/
+                      setState(() {
+                        product.isAdded = false; // Update product state
+                        viewModel._items = updatedProducts; // Update the product list
+                        /*_totalQty = totalQty.toString();
+                        _totalAmount = totalAmt.toString();*/
+                      });
                     },
                     child: Container(
                       width: 30, // Increase container width to accommodate padding
@@ -238,6 +256,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       ),
                     ),
                   ),
+
                 ],
               ),
             ),
