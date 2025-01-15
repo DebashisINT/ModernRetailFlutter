@@ -8,6 +8,7 @@ import 'package:modern_retail/api/response/login_request.dart';
 import 'package:modern_retail/api/response/login_response.dart';
 import 'package:modern_retail/api/response/product_response.dart';
 import 'package:modern_retail/api/response/state_pin_response.dart';
+import 'package:modern_retail/api/response/stock_save_request.dart';
 import 'package:modern_retail/api/response/store_response.dart';
 import 'package:modern_retail/api/response/store_save_request.dart';
 import 'package:modern_retail/api/response/store_type_response.dart';
@@ -46,4 +47,7 @@ abstract class ApiService{
 
   @POST("ModernRetailInfoDetails/StoreInfoEdit")
   Future<GenericResponse> editStoreInfo(@Body() StoreSaveRequest input);
+
+  @POST("ModernRetailInfoDetails/StockInfoSave")
+  Future<GenericResponse> saveStock(@Body() StockSaveRequest input);
 }
