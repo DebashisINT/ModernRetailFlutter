@@ -2,6 +2,7 @@
 import 'package:floor/floor.dart';
 import 'package:modern_retail/database/product_entity.dart';
 import 'package:modern_retail/database/product_rate_entity.dart';
+import 'package:modern_retail/database/product_uom.dart';
 import 'package:modern_retail/database/state_pin_entity.dart';
 import 'package:modern_retail/database/stock_product_entity.dart';
 import 'package:modern_retail/database/stock_save_dtls_entity.dart';
@@ -33,4 +34,5 @@ abstract class AppDatabase extends FloorDatabase{
   OrderSaveDao get orderSaveDao;
   OrderSaveDtlsDao get orderSaveDtlsDao;
   BranchDao get branchDao;
+  ProductUOMDao get productUOMDao;
 }

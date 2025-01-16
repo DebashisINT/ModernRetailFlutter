@@ -1,13 +1,15 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:modern_retail/api/response/ProductRateResponse.dart';
+import 'package:modern_retail/api/response/product_rate_response.dart';
 import 'package:modern_retail/api/response/branch_response.dart';
 import 'package:modern_retail/api/response/generic_response.dart';
 import 'package:modern_retail/api/response/login_request.dart';
 import 'package:modern_retail/api/response/login_response.dart';
 import 'package:modern_retail/api/response/product_response.dart';
+import 'package:modern_retail/api/response/product_uom_response.dart';
 import 'package:modern_retail/api/response/state_pin_response.dart';
+import 'package:modern_retail/api/response/stock_history_response.dart';
 import 'package:modern_retail/api/response/stock_save_request.dart';
 import 'package:modern_retail/api/response/store_response.dart';
 import 'package:modern_retail/api/response/store_save_request.dart';
@@ -39,6 +41,9 @@ abstract class ApiService{
   @POST("ModernRetailInfoDetails/ProductRateLists")
   Future<ProductRateResponse> getProductRate(@Body() UserIdRequest obj);
 
+  @POST("ModernRetailInfoDetails/ProductUomLists")
+  Future<ProductUOMResponse> getProductUOM(@Body() UserIdRequest obj);
+
   @POST("ModernRetailInfoDetails/UserBranchLists")
   Future<BranchResponse> getBranch(@Body() UserIdRequest obj);
 
@@ -50,4 +55,7 @@ abstract class ApiService{
 
   @POST("ModernRetailInfoDetails/StockInfoSave")
   Future<GenericResponse> saveStock(@Body() StockSaveRequest input);
+
+  @POST("ModernRetailInfoDetails/StockInfoFetchLists")
+  Future<StockHistoryResponse> fetchStockHistory(@Body() UserIdRequest input);
 }

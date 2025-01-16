@@ -14,6 +14,7 @@ class StockProductEntity{
   final int watt_id;
   final String watt_name;
   final double product_mrp;
+  final int UOM_id;
   final String UOM;
   final String product_pic_url;
   final String qty;
@@ -23,7 +24,7 @@ class StockProductEntity{
 
   StockProductEntity({this.sl_no=0,this.product_id=0,this.product_name="", this.product_description="", this.brand_id=0,
     this.brand_name="", this.category_id=0, this.category_name="", this.watt_id=0, this.watt_name="",
-    this.product_mrp=0.0, this.UOM="", this.product_pic_url="",this.qty="",this.mfgDate="",this.expDate=""});
+    this.product_mrp=0.0,this.UOM_id=0, this.UOM="", this.product_pic_url="",this.qty="",this.mfgDate="",this.expDate=""});
 }
 
 @dao
@@ -38,11 +39,14 @@ abstract class StockProductDao{
   Future<void> insertAll(List<StockProductEntity> list);
 
   @Query(''' insert into mr_stock_product (sl_no,product_id,product_name,product_description,
-    brand_id,brand_name,category_id,category_name,watt_id,watt_name,product_mrp,UOM,
+    brand_id,brand_name,category_id,category_name,watt_id,watt_name,product_mrp,UOM_id,UOM,
     product_pic_url,qty,mfgDate,expDate)
 select (SELECT COUNT(*) + 1 + ROWID FROM mr_stock_product) AS sl_no,PR.product_id,PR.product_name,
 PR.product_description,PR.brand_id,PR.brand_name,PR.category_id,PR.category_name,PR.watt_id,
-PR.watt_name,PR.product_mrp,PR.uom,PR.product_pic_url,'' as qty,'' as mfgDate,'' as expDate
+PR.watt_name,PR.product_mrp,
+(select uom_id from mr_product_uom where product_id = PR.product_id limit 1) as uom_id,
+(select uom_name from mr_product_uom where product_id = PR.product_id limit 1) as uom,
+PR.product_pic_url,'' as qty,'' as mfgDate,'' as expDate
 from mr_product as PR ''')
   Future<void> setData();
 

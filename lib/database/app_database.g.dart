@@ -96,6 +96,8 @@ class _$AppDatabase extends AppDatabase {
 
   BranchDao? _branchDaoInstance;
 
+  ProductUOMDao? _productUOMDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
@@ -128,13 +130,15 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_product_rate` (`product_id` INTEGER NOT NULL, `state_id` INTEGER NOT NULL, `rate` REAL NOT NULL, PRIMARY KEY (`product_id`))');
         await database.execute(
+            'CREATE TABLE IF NOT EXISTS `mr_product_uom` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `product_id` INTEGER NOT NULL, `uom_id` INTEGER NOT NULL, `uom_name` TEXT NOT NULL)');
+        await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_branch` (`branch_id` INTEGER NOT NULL, `branch_name` TEXT NOT NULL, PRIMARY KEY (`branch_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_save` (`stock_id` TEXT NOT NULL, `save_date_time` TEXT NOT NULL, `store_id` TEXT NOT NULL, PRIMARY KEY (`stock_id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_stock_dtls_save` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `stock_id` TEXT NOT NULL, `product_id` TEXT NOT NULL, `qty` TEXT NOT NULL, `uom` TEXT NOT NULL, `mfg_date` TEXT NOT NULL, `expire_date` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `mr_stock_dtls_save` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `stock_id` TEXT NOT NULL, `product_dtls_id` INTEGER NOT NULL, `product_id` TEXT NOT NULL, `qty` INTEGER NOT NULL, `uom_id` INTEGER NOT NULL, `uom` TEXT NOT NULL, `mfg_date` TEXT NOT NULL, `expire_date` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_stock_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `qty` TEXT NOT NULL, `mfgDate` TEXT NOT NULL, `expDate` TEXT NOT NULL, PRIMARY KEY (`sl_no`))');
+            'CREATE TABLE IF NOT EXISTS `mr_stock_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM_id` INTEGER NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `qty` TEXT NOT NULL, `mfgDate` TEXT NOT NULL, `expDate` TEXT NOT NULL, PRIMARY KEY (`sl_no`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_order_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `state_id` INTEGER NOT NULL, `qty` INTEGER NOT NULL, `rate` REAL NOT NULL, `isAdded` INTEGER NOT NULL, PRIMARY KEY (`sl_no`))');
         await database.execute(
@@ -211,6 +215,11 @@ class _$AppDatabase extends AppDatabase {
   @override
   BranchDao get branchDao {
     return _branchDaoInstance ??= _$BranchDao(database, changeListener);
+  }
+
+  @override
+  ProductUOMDao get productUOMDao {
+    return _productUOMDaoInstance ??= _$ProductUOMDao(database, changeListener);
   }
 }
 
@@ -528,8 +537,10 @@ class _$StockSaveDtlsDao extends StockSaveDtlsDao {
             (StockSaveDtlsEntity item) => <String, Object?>{
                   'sl_no': item.sl_no,
                   'stock_id': item.stock_id,
+                  'product_dtls_id': item.product_dtls_id,
                   'product_id': item.product_id,
                   'qty': item.qty,
+                  'uom_id': item.uom_id,
                   'uom': item.uom,
                   'mfg_date': item.mfg_date,
                   'expire_date': item.expire_date
@@ -550,8 +561,10 @@ class _$StockSaveDtlsDao extends StockSaveDtlsDao {
         mapper: (Map<String, Object?> row) => StockSaveDtlsEntity(
             sl_no: row['sl_no'] as int?,
             stock_id: row['stock_id'] as String,
+            product_dtls_id: row['product_dtls_id'] as int,
             product_id: row['product_id'] as String,
-            qty: row['qty'] as String,
+            qty: row['qty'] as int,
+            uom_id: row['uom_id'] as int,
             uom: row['uom'] as String,
             mfg_date: row['mfg_date'] as String,
             expire_date: row['expire_date'] as String));
@@ -733,6 +746,7 @@ class _$StockProductDao extends StockProductDao {
                   'watt_id': item.watt_id,
                   'watt_name': item.watt_name,
                   'product_mrp': item.product_mrp,
+                  'UOM_id': item.UOM_id,
                   'UOM': item.UOM,
                   'product_pic_url': item.product_pic_url,
                   'qty': item.qty,
@@ -764,6 +778,7 @@ class _$StockProductDao extends StockProductDao {
             watt_id: row['watt_id'] as int,
             watt_name: row['watt_name'] as String,
             product_mrp: row['product_mrp'] as double,
+            UOM_id: row['UOM_id'] as int,
             UOM: row['UOM'] as String,
             product_pic_url: row['product_pic_url'] as String,
             qty: row['qty'] as String,
@@ -779,7 +794,7 @@ class _$StockProductDao extends StockProductDao {
   @override
   Future<void> setData() async {
     await _queryAdapter.queryNoReturn(
-        'insert into mr_stock_product (sl_no,product_id,product_name,product_description,     brand_id,brand_name,category_id,category_name,watt_id,watt_name,product_mrp,UOM,     product_pic_url,qty,mfgDate,expDate) select (SELECT COUNT(*) + 1 + ROWID FROM mr_stock_product) AS sl_no,PR.product_id,PR.product_name, PR.product_description,PR.brand_id,PR.brand_name,PR.category_id,PR.category_name,PR.watt_id, PR.watt_name,PR.product_mrp,PR.uom,PR.product_pic_url,\'\' as qty,\'\' as mfgDate,\'\' as expDate from mr_product as PR');
+        'insert into mr_stock_product (sl_no,product_id,product_name,product_description,     brand_id,brand_name,category_id,category_name,watt_id,watt_name,product_mrp,UOM_id,UOM,     product_pic_url,qty,mfgDate,expDate) select (SELECT COUNT(*) + 1 + ROWID FROM mr_stock_product) AS sl_no,PR.product_id,PR.product_name, PR.product_description,PR.brand_id,PR.brand_name,PR.category_id,PR.category_name,PR.watt_id, PR.watt_name,PR.product_mrp, (select uom_id from mr_product_uom where product_id = PR.product_id limit 1) as uom_id, (select uom_name from mr_product_uom where product_id = PR.product_id limit 1) as uom, PR.product_pic_url,\'\' as qty,\'\' as mfgDate,\'\' as expDate from mr_product as PR');
   }
 
   @override
@@ -796,7 +811,7 @@ class _$StockProductDao extends StockProductDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM mr_stock_product WHERE product_name LIKE ?1 LIMIT ?2 OFFSET ?3',
-        mapper: (Map<String, Object?> row) => StockProductEntity(sl_no: row['sl_no'] as int, product_id: row['product_id'] as int, product_name: row['product_name'] as String, product_description: row['product_description'] as String, brand_id: row['brand_id'] as int, brand_name: row['brand_name'] as String, category_id: row['category_id'] as int, category_name: row['category_name'] as String, watt_id: row['watt_id'] as int, watt_name: row['watt_name'] as String, product_mrp: row['product_mrp'] as double, UOM: row['UOM'] as String, product_pic_url: row['product_pic_url'] as String, qty: row['qty'] as String, mfgDate: row['mfgDate'] as String, expDate: row['expDate'] as String),
+        mapper: (Map<String, Object?> row) => StockProductEntity(sl_no: row['sl_no'] as int, product_id: row['product_id'] as int, product_name: row['product_name'] as String, product_description: row['product_description'] as String, brand_id: row['brand_id'] as int, brand_name: row['brand_name'] as String, category_id: row['category_id'] as int, category_name: row['category_name'] as String, watt_id: row['watt_id'] as int, watt_name: row['watt_name'] as String, product_mrp: row['product_mrp'] as double, UOM_id: row['UOM_id'] as int, UOM: row['UOM'] as String, product_pic_url: row['product_pic_url'] as String, qty: row['qty'] as String, mfgDate: row['mfgDate'] as String, expDate: row['expDate'] as String),
         arguments: [query, limit, offset]);
   }
 
@@ -1203,6 +1218,51 @@ class _$BranchDao extends BranchDao {
   @override
   Future<void> insertAll(List<BranchEntity> list) async {
     await _branchEntityInsertionAdapter.insertList(
+        list, OnConflictStrategy.replace);
+  }
+}
+
+class _$ProductUOMDao extends ProductUOMDao {
+  _$ProductUOMDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _productUOMEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'mr_product_uom',
+            (ProductUOMEntity item) => <String, Object?>{
+                  'sl_no': item.sl_no,
+                  'product_id': item.product_id,
+                  'uom_id': item.uom_id,
+                  'uom_name': item.uom_name
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<ProductUOMEntity> _productUOMEntityInsertionAdapter;
+
+  @override
+  Future<List<ProductUOMEntity>> getAll() async {
+    return _queryAdapter.queryList('select * from mr_product_uom',
+        mapper: (Map<String, Object?> row) => ProductUOMEntity(
+            sl_no: row['sl_no'] as int?,
+            product_id: row['product_id'] as int,
+            uom_id: row['uom_id'] as int,
+            uom_name: row['uom_name'] as String));
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('delete from mr_product_uom');
+  }
+
+  @override
+  Future<void> insertAll(List<ProductUOMEntity> list) async {
+    await _productUOMEntityInsertionAdapter.insertList(
         list, OnConflictStrategy.replace);
   }
 }
