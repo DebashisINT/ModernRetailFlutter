@@ -6,14 +6,14 @@ class StockSaveDtlsEntity{
   int? sl_no;
   String stock_id;
   int product_dtls_id;
-  String product_id;
-  int qty;
+  int product_id;
+  double qty;
   int uom_id;
   String uom;
   String mfg_date;
   String expire_date;
 
-  StockSaveDtlsEntity({this.sl_no,this.stock_id="",this.product_dtls_id=0,this.product_id="", this.qty=0,
+  StockSaveDtlsEntity({this.sl_no,this.stock_id="",this.product_dtls_id=0,this.product_id=0, this.qty=0.0,
      this.uom_id=0, this.uom="", this.mfg_date="", this.expire_date=""});
 
   factory StockSaveDtlsEntity.fromJson(Map<String,dynamic> json){
@@ -43,6 +43,9 @@ abstract class StockSaveDtlsDao{
 
   @Query('delete from mr_stock_dtls_save')
   Future<void> deleteAll();
+
+  @Insert(onConflict: OnConflictStrategy.replace)
+  Future<void> insertStockDtls(StockSaveDtlsEntity obj);
 
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertAll(List<StockSaveDtlsEntity> list);

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -108,169 +110,164 @@ class _StockAddFragment extends State<StockAddFragment> {
   }
 
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return false; // Prevent default behavior
-      },
-      child: Scaffold(
-        appBar: _buildAppBar(context),
-        body: ChangeNotifierProvider<ItemViewModel>(
-          create: (_) => viewModel,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  height: 50, // Set your desired height here
-                  decoration: BoxDecoration(
-                    color: AppColor.colorWhite, // Optional: Set a background color
-                    borderRadius: BorderRadius.circular(8), // Optional: Add rounded corners
-                    border: Border.all(
-                      color: Colors.grey[400]!, // Set your border color
-                      width: 1, // Set your border width
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3), // Shadow color
-                        spreadRadius: 2, // Spread radius
-                        blurRadius: 5, // Blur radius
-                        offset: Offset(0, 2), // Offset in x and y directions
-                      ),
-                    ],
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: ChangeNotifierProvider<ItemViewModel>(
+        create: (_) => viewModel,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                height: 50, // Set your desired height here
+                decoration: BoxDecoration(
+                  color: AppColor.colorWhite, // Optional: Set a background color
+                  borderRadius: BorderRadius.circular(8), // Optional: Add rounded corners
+                  border: Border.all(
+                    color: Colors.grey[400]!, // Set your border color
+                    width: 1, // Set your border width
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                    child: DropdownButton<StoreEntity>(
-                      isExpanded: true,
-                      underline: SizedBox(),
-                      value: selectedStore.store_name.isEmpty ? null : selectedStore,
-                      // Default value
-                      hint: Text(
-                        selectedStore.store_name.isEmpty ? "Select Store" : selectedStore.store_name,
-                        style: TextStyle(color: AppColor.colorBlueSteel),
-                      ),
-                      items: dropdownStores,
-                      onChanged: (value) {
-                        setState(() {
-                          try {
-                            // Update your selectedStore here
-                            selectedStore = value!;
-                          } catch (e) {
-                            print(e);
-                          }
-                        });
-                      },
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3), // Shadow color
+                      spreadRadius: 2, // Spread radius
+                      blurRadius: 5, // Blur radius
+                      offset: Offset(0, 2), // Offset in x and y directions
                     ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: DropdownButton<StoreEntity>(
+                    isExpanded: true,
+                    underline: SizedBox(),
+                    value: selectedStore.store_name.isEmpty ? null : selectedStore,
+                    // Default value
+                    hint: Text(
+                      selectedStore.store_name.isEmpty ? "Select Store" : selectedStore.store_name,
+                      style: TextStyle(color: AppColor.colorBlueSteel),
+                    ),
+                    items: dropdownStores,
+                    onChanged: (value) {
+                      setState(() {
+                        try {
+                          // Update your selectedStore here
+                          selectedStore = value!;
+                        } catch (e) {
+                          print(e);
+                        }
+                      });
+                    },
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                      hintText: "Search Product",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      filled: true,
-                      // Enable filling the background color
-                      fillColor: AppColor.colorWhite,
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: blue border when focused
-                      )),
-                  onChanged: (query) {
-                    viewModel.loadItems(refresh: true, query: query);
-                  },
-                ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                decoration: InputDecoration(
+                    hintText: "Search Product",
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    filled: true,
+                    // Enable filling the background color
+                    fillColor: AppColor.colorWhite,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: blue border when focused
+                    )),
+                onChanged: (query) {
+                  viewModel.loadItems(refresh: true, query: query);
+                },
               ),
-              Expanded(
-                child: Consumer<ItemViewModel>(
-                  builder: (context, viewModel, child) {
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        await viewModel.loadItems(refresh: true);
+            ),
+            Expanded(
+              child: Consumer<ItemViewModel>(
+                builder: (context, viewModel, child) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      await viewModel.loadItems(refresh: true);
+                    },
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scrollInfo) {
+                        if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
+                          return false;
+                        }
+                        if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                          viewModel.loadItems();
+                        }
+                        return true;
                       },
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (ScrollNotification scrollInfo) {
-                          if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
-                            return false;
-                          }
-                          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                            viewModel.loadItems();
-                          }
-                          return true;
-                        },
-                        child: ListView.builder(
-                          padding: EdgeInsets.only(bottom: 150.0),
-                          itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
-                          itemBuilder: (context, index) {
-                            if (index == viewModel.items.length) {
-                              if (viewModel.loadingState == LoadingState.error) {
-                                return Center(
-                                  child: ElevatedButton(
-                                    onPressed: () => viewModel.loadItems(),
-                                    child: Text('Retry'),
-                                  ),
-                                );
-                              } else if (viewModel.loadingState == LoadingState.loading) {
-                                return Center(child: CircularProgressIndicator()); // Show loader while loading
-                              } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
-                                // When idle and no items, show a message
-                                //return Center(child: Text("No items available"));
-                                return SizedBox.shrink();
-                              } else if (viewModel.loadingState == LoadingState.idle) {
-                                // Idle state but items are loaded, just return an empty container or nothing
-                                return SizedBox.shrink(); // No loader, no retry button
-                              }
-                              //return Center(child: CircularProgressIndicator());
+                      child: ListView.builder(
+                        padding: EdgeInsets.only(bottom: 150.0),
+                        itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == viewModel.items.length) {
+                            if (viewModel.loadingState == LoadingState.error) {
+                              return Center(
+                                child: ElevatedButton(
+                                  onPressed: () => viewModel.loadItems(),
+                                  child: Text('Retry'),
+                                ),
+                              );
+                            } else if (viewModel.loadingState == LoadingState.loading) {
+                              return Center(child: CircularProgressIndicator()); // Show loader while loading
+                            } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
+                              // When idle and no items, show a message
+                              //return Center(child: Text("No items available"));
+                              return SizedBox.shrink();
+                            } else if (viewModel.loadingState == LoadingState.idle) {
+                              // Idle state but items are loaded, just return an empty container or nothing
+                              return SizedBox.shrink(); // No loader, no retry button
                             }
-      
-                            final item = viewModel.items[index];
-                            return _buildProductCard(item, index);
-                          },
-                        ),
+                            //return Center(child: CircularProgressIndicator());
+                          }
+
+                          final item = viewModel.items[index];
+                          return _buildProductCard(item, index);
+                        },
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-                    backgroundColor: AppColor.colorButton,
-                  ),
-                  onPressed: () async {
-                    if (selectedStore.store_id == "") {
-                      SnackBarUtils().showSnackBar(context,'Select Store');
+            ),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 5,
+                  shadowColor: Colors.black,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  side: const BorderSide(color: Colors.black26, width: 0),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+                  backgroundColor: AppColor.colorButton,
+                ),
+                onPressed: () async {
+                  if (selectedStore.store_id == "") {
+                    SnackBarUtils().showSnackBar(context,'Select Store');
+                  } else {
+                    final qtyList = getNonEmptyControllersWithIndices(_qtyControllers);
+                    //final uomList =getNonEmptyControllersWithIndices(_uomControllers);
+                    //final mfgList =getNonEmptyControllersWithIndices(_mfgDatecontrollers);
+                    //final expList =getNonEmptyControllersWithIndices(_expDatecontrollers);
+                    if (qtyList.isEmpty) {
+                      SnackBarUtils().showSnackBar(context,'Select a product');
                     } else {
-                      final qtyList = getNonEmptyControllersWithIndices(_qtyControllers);
-                      //final uomList =getNonEmptyControllersWithIndices(_uomControllers);
-                      //final mfgList =getNonEmptyControllersWithIndices(_mfgDatecontrollers);
-                      //final expList =getNonEmptyControllersWithIndices(_expDatecontrollers);
-                      if (qtyList.isEmpty) {
-                        SnackBarUtils().showSnackBar(context,'Select a product');
-                      } else {
-                        submitData(qtyList);
-                      }
+                      submitData(qtyList);
                     }
-                  },
-                  child: const Text('Submit', style: TextStyle(fontSize: 18, color: AppColor.colorWhite)),
-                ),
+                  }
+                },
+                child: const Text('Submit', style: TextStyle(fontSize: 18, color: AppColor.colorWhite)),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        backgroundColor: AppColor.colorSmokeWhite, // Set the background color to red
       ),
+      backgroundColor: AppColor.colorSmokeWhite, // Set the background color to red
     );
   }
 
@@ -304,7 +301,7 @@ class _StockAddFragment extends State<StockAddFragment> {
         final selected_UOM = _uomControllers[qtyList[i].key].text.toString();
         final selected_mfg_date = _mfgDatecontrollers[qtyList[i].key].text.toString();
         final selected_expire_date = _expDatecontrollers[qtyList[i].key].text.toString();
-        final obj = StockSaveDtlsEntity(stock_id: stockID, product_id: selected_product_id,product_dtls_id: i+1, qty: int.parse(selected_qty), uom_id: int.parse(selected_UOMID),uom: selected_UOM, mfg_date: selected_mfg_date, expire_date: selected_expire_date);
+        final obj = StockSaveDtlsEntity(stock_id: stockID, product_id: int.parse(selected_product_id),product_dtls_id: i+1, qty: double.parse(selected_qty), uom_id: int.parse(selected_UOMID),uom: selected_UOM, mfg_date: selected_mfg_date, expire_date: selected_expire_date);
         stockL.add(obj);
       }
       await appDatabase.stockSaveDao.insertStock(stock);
@@ -318,14 +315,14 @@ class _StockAddFragment extends State<StockAddFragment> {
         final response = await apiService.saveStock(request);
         if(response.status == "200"){
           LoaderUtils().dismissLoader(context);
-          showDialog();
+          showSuccessDialog();
         }else{
           LoaderUtils().dismissLoader(context);
           SnackBarUtils().showSnackBar(context,'Something went wrong.');
         }
       }else{
         LoaderUtils().dismissLoader(context);
-        showDialog();
+        showSuccessDialog();
       }
     } catch (e) {
       print(e);
@@ -333,10 +330,88 @@ class _StockAddFragment extends State<StockAddFragment> {
     }
   }
 
-  void showDialog(){
+  void showSuccessDialog(){
     AppUtils().showCustomDialog(context, "Congrats!", "Hi ${pref.getString('user_name') ?? ""}, Your Stock for ${selectedStore.store_name} has been updated successfully.", () {
       Navigator.of(context).pop();
     });
+  }
+
+  void _showInputDialog(BuildContext context) {
+    TextEditingController textController = TextEditingController();
+    String? selectedFilePath;
+    String? selectedFileName;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Enter Details'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Text Input Field
+                  TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                      labelText: 'Remarks',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Attachment Selection
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          selectedFileName ?? 'No file selected',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          FilePickerResult? result = await FilePicker.platform.pickFiles();
+                          if (result != null && result.files.isNotEmpty) {
+                            setState(() {
+                              selectedFilePath = result.files.single.path;
+                              selectedFileName = result.files.single.name;
+                            });
+                          }
+                        },
+                        child: Text('Attach'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Handle submission
+                    print('Text: ${textController.text}');
+                    print('Attachment: $selectedFilePath');
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('Submit'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _buildProductCard(StockProductEntity product, int index) {

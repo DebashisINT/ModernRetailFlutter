@@ -134,7 +134,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_save` (`stock_id` TEXT NOT NULL, `save_date_time` TEXT NOT NULL, `store_id` TEXT NOT NULL, PRIMARY KEY (`stock_id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_stock_dtls_save` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `stock_id` TEXT NOT NULL, `product_dtls_id` INTEGER NOT NULL, `product_id` TEXT NOT NULL, `qty` INTEGER NOT NULL, `uom_id` INTEGER NOT NULL, `uom` TEXT NOT NULL, `mfg_date` TEXT NOT NULL, `expire_date` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `mr_stock_dtls_save` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `stock_id` TEXT NOT NULL, `product_dtls_id` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `qty` REAL NOT NULL, `uom_id` INTEGER NOT NULL, `uom` TEXT NOT NULL, `mfg_date` TEXT NOT NULL, `expire_date` TEXT NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM_id` INTEGER NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `qty` TEXT NOT NULL, `mfgDate` TEXT NOT NULL, `expDate` TEXT NOT NULL, PRIMARY KEY (`sl_no`))');
         await database.execute(
@@ -552,8 +552,8 @@ class _$StockSaveDtlsDao extends StockSaveDtlsDao {
             sl_no: row['sl_no'] as int?,
             stock_id: row['stock_id'] as String,
             product_dtls_id: row['product_dtls_id'] as int,
-            product_id: row['product_id'] as String,
-            qty: row['qty'] as int,
+            product_id: row['product_id'] as int,
+            qty: row['qty'] as double,
             uom_id: row['uom_id'] as int,
             uom: row['uom'] as String,
             mfg_date: row['mfg_date'] as String,
@@ -563,6 +563,12 @@ class _$StockSaveDtlsDao extends StockSaveDtlsDao {
   @override
   Future<void> deleteAll() async {
     await _queryAdapter.queryNoReturn('delete from mr_stock_dtls_save');
+  }
+
+  @override
+  Future<void> insertStockDtls(StockSaveDtlsEntity obj) async {
+    await _stockSaveDtlsEntityInsertionAdapter.insert(
+        obj, OnConflictStrategy.replace);
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:modern_retail/database/stock_save_dtls_entity.dart';
 import 'package:modern_retail/utils/app_utils.dart';
 import 'package:modern_retail/utils/loader_utils.dart';
 import 'package:modern_retail/utils/snackbar_utils.dart';
@@ -445,13 +446,33 @@ class _LoginScreen extends State<LoginScreen> {
   Future<void> apiCallStockHistory() async {
     try {
       final itemDao = appDatabase.stockSaveDao;
+      final itemDtlsDao = appDatabase.stockSaveDtlsDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty){
         final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
         final response = await apiService.fetchStockHistory(userRequest);
         if(response.status == "200"){
           await itemDao.deleteAll();
-          //await itemDao.insertAll(response.branchList);
+          await itemDtlsDao.deleteAll();
+          for(var stock in response.stockList){
+            StockSaveEntity obj = StockSaveEntity();
+            StockSaveDtlsEntity objDtls = StockSaveDtlsEntity();
+            obj.stock_id = stock.stock_id;
+            obj.save_date_time = stock.save_date_time;
+            obj.store_id = stock.store_id;
+            await itemDao.insertStock(obj);
+            for(var stockDtls in stock.product_list){
+              objDtls.stock_id = stockDtls.stock_id;
+              objDtls.product_dtls_id = stockDtls.product_dtls_id;
+              objDtls.product_id = stockDtls.product_id;
+              objDtls.qty = stockDtls.qty;
+              objDtls.uom_id = stockDtls.uom_id;
+              objDtls.uom = stockDtls.uom;
+              objDtls.mfg_date = stockDtls.mfg_date;
+              objDtls.expire_date = stockDtls.expire_date;
+              await itemDtlsDao.insertStockDtls(objDtls);
+            }
+          }
         }
       }
     } catch (error) {
@@ -486,6 +507,7 @@ class _LoginScreen extends State<LoginScreen> {
     Map<Permission, PermissionStatus> statuses = await [
       Permission.camera,
       Permission.location,
+      Permission.storage,
     ].request();
 
     if (statuses[Permission.camera]!.isGranted &&

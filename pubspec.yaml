@@ -66,6 +66,8 @@ dependencies:
 
   connectivity_plus: ^5.0.2
 
+  file_picker: ^8.1.7
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -46,36 +46,36 @@ class Stock {
 }
 
 class Product {
-  String stockId;
-  int productDtlsId;
-  int productId;
+  String stock_id;
+  int product_dtls_id;
+  int product_id;
   double qty;
-  int uomId;
+  int uom_id;
   String uom;
-  String mfgDate;
-  String expireDate;
+  String mfg_date;
+  String expire_date;
 
   Product({
-    required this.stockId,
-    required this.productDtlsId,
-    required this.productId,
+    required this.stock_id,
+    required this.product_dtls_id,
+    required this.product_id,
     required this.qty,
-    required this.uomId,
+    required this.uom_id,
     required this.uom,
-    required this.mfgDate,
-    required this.expireDate,
+    required this.mfg_date,
+    required this.expire_date,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      stockId: json['stock_id'],
-      productDtlsId: json['product_dtls_id'],
-      productId: json['product_id'],
+      stock_id: json['stock_id'],
+      product_dtls_id: json['product_dtls_id'],
+      product_id: json['product_id'],
       qty: (json['qty'] as num).toDouble(),
-      uomId: json['uom_id'],
+      uom_id: json['uom_id'],
       uom: json['uom'],
-      mfgDate: json['mfg_date'],
-      expireDate: json['expire_date'],
+      mfg_date: json['mfg_date'],
+      expire_date: json['expire_date'],
     );
   }
 }
