@@ -228,6 +228,40 @@ class _ApiService implements ApiService {
   }
 
   @override
+  Future<ProductUOMResponse> getProductUOM(UserIdRequest obj) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(obj.toJson());
+    final _options = _setStreamType<ProductUOMResponse>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          'ModernRetailInfoDetails/ProductUomLists',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late ProductUOMResponse _value;
+    try {
+      _value = ProductUOMResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
   Future<BranchResponse> getBranch(UserIdRequest obj) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
@@ -356,6 +390,40 @@ class _ApiService implements ApiService {
     late GenericResponse _value;
     try {
       _value = GenericResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<StockHistoryResponse> fetchStockHistory(UserIdRequest input) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(input.toJson());
+    final _options = _setStreamType<StockHistoryResponse>(Options(
+      method: 'POST',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          'ModernRetailInfoDetails/StockInfoFetchLists',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late StockHistoryResponse _value;
+    try {
+      _value = StockHistoryResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

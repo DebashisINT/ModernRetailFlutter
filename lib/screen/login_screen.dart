@@ -10,9 +10,11 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../api/api_service.dart';
 import '../api/response/login_request.dart';
+import '../api/response/stock_history_response.dart';
 import '../api/response/user_id_request.dart';
 import '../database/order_save_entity.dart';
 import '../database/state_pin_entity.dart';
+import '../database/stock_save_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
 import 'dashboard_screen.dart';
@@ -302,10 +304,12 @@ class _LoginScreen extends State<LoginScreen> {
       Future<void> statePin = apiCallStatePin();
       Future<void> product = apiCallProduct();
       Future<void> productRate = apiCallProductRate();
+      Future<void> productUOM = apiCallProductUOM();
       Future<void> branch = apiCallBranch();
+      Future<void> stockHistory = apiCallStockHistory();
       Future<void> dummy = dummyOrder();
       // Wait for all of them to complete
-      List<void> results = await Future.wait([storeType,store,statePin,product,productRate,branch,dummy]);
+      List<void> results = await Future.wait([storeType,store,statePin,product,productRate,productUOM,branch,stockHistory,dummy]);
       //Navigator.of(context).pop();
       LoaderUtils().dismissLoader(context);
       pref.setBool('isLoggedIn', true);
@@ -365,7 +369,6 @@ class _LoginScreen extends State<LoginScreen> {
           await itemDao.insertAll(response.statePinList);
         }
       }
-      print("flow_chk apiCallStatePin end");
     } catch (error) {
       print('Error: $error');
     }
@@ -383,7 +386,6 @@ class _LoginScreen extends State<LoginScreen> {
           await itemDao.insertAll(response.productList);
         }
       }
-      print("flow_chk apiCallStatePin end");
     } catch (error) {
       print('Error: $error');
     }
@@ -401,7 +403,23 @@ class _LoginScreen extends State<LoginScreen> {
           await itemDao.insertAll(response.productList);
         }
       }
-      print("flow_chk apiCallStatePin end");
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> apiCallProductUOM() async {
+    try {
+      final itemDao = appDatabase.productUOMDao;
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty){
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final response = await apiService.getProductUOM(userRequest);
+        if(response.status == "200"){
+          await itemDao.deleteAll();
+          await itemDao.insertAll(response.uomList);
+        }
+      }
     } catch (error) {
       print('Error: $error');
     }
@@ -419,7 +437,23 @@ class _LoginScreen extends State<LoginScreen> {
           await itemDao.insertAll(response.branchList);
         }
       }
-      print("flow_chk apiCallStatePin end");
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> apiCallStockHistory() async {
+    try {
+      final itemDao = appDatabase.stockSaveDao;
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty){
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final response = await apiService.fetchStockHistory(userRequest);
+        if(response.status == "200"){
+          await itemDao.deleteAll();
+          //await itemDao.insertAll(response.branchList);
+        }
+      }
     } catch (error) {
       print('Error: $error');
     }
@@ -443,7 +477,6 @@ class _LoginScreen extends State<LoginScreen> {
         dataList.add(obj2);
         await itemDao.insertAll(dataList);
       }
-      print("flow_chk apiCallStatePin end");
     } catch (error) {
       print('Error: $error');
     }
