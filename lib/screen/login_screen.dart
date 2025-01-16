@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:modern_retail/database/order_save_dtls_entity.dart';
 import 'package:modern_retail/database/stock_save_dtls_entity.dart';
 import 'package:modern_retail/utils/app_utils.dart';
 import 'package:modern_retail/utils/loader_utils.dart';
@@ -308,8 +309,9 @@ class _LoginScreen extends State<LoginScreen> {
       Future<void> productUOM = apiCallProductUOM();
       Future<void> branch = apiCallBranch();
       Future<void> stockHistory = apiCallStockHistory();
+      Future<void> orderHistory = apiCallOrderHistory();
       // Wait for all of them to complete
-      List<void> results = await Future.wait([storeType,store,statePin,product,productRate,productUOM,branch,stockHistory]);
+      List<void> results = await Future.wait([storeType,store,statePin,product,productRate,productUOM,branch,stockHistory,orderHistory]);
       //Navigator.of(context).pop();
       LoaderUtils().dismissLoader(context);
       pref.setBool('isLoggedIn', true);
@@ -470,6 +472,42 @@ class _LoginScreen extends State<LoginScreen> {
               objDtls.mfg_date = stockDtls.mfg_date;
               objDtls.expire_date = stockDtls.expire_date;
               await itemDtlsDao.insertStockDtls(objDtls);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> apiCallOrderHistory() async {
+    try {
+      final itemDao = appDatabase.orderSaveDao;
+      final itemDtlsDao = appDatabase.orderSaveDtlsDao;
+      final dataL = await itemDao.getAll();
+      if(dataL.isEmpty){
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final response = await apiService.fetchOrderHistory(userRequest);
+        if(response.status == "200"){
+          await itemDao.deleteAll();
+          await itemDtlsDao.deleteAll();
+          for(var order in response.orderList){
+            OrderSaveEntity obj = OrderSaveEntity();
+            OrderSaveDtlsEntity objDtls = OrderSaveDtlsEntity();
+            obj.store_id = order.store_id;
+            obj.order_id = order.order_id;
+            obj.order_date_time = order.order_date_time;
+            obj.order_amount = order.order_amount;
+            obj.order_status = order.order_status;
+            obj.remarks = order.remarks;
+            await itemDao.insert(obj);
+            for(var orderDtls in order.order_details_list){
+              objDtls.order_id = orderDtls.order_id;
+              objDtls.product_id = orderDtls.product_id.toString();
+              objDtls.qty = orderDtls.qty.toString();
+              objDtls.rate = orderDtls.rate.toString();
+              await itemDtlsDao.insert(objDtls);
             }
           }
         }
