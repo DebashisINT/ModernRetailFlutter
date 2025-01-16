@@ -8,6 +8,9 @@ import '../main.dart';
 import '../utils/app_color.dart';
 
 class OrderCartFragment extends StatefulWidget {
+  final VoidCallback onDataChanged;
+  const OrderCartFragment({super.key, required this.onDataChanged});
+
   @override
   _OrderCartFragment createState() => _OrderCartFragment();
 }
@@ -52,127 +55,136 @@ class _OrderCartFragment extends State<OrderCartFragment> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      body: ChangeNotifierProvider<ItemViewModel>(
-        create: (_) => viewModel,
-        child: Column(
-          children: [
-            Expanded(
-              child: Consumer<ItemViewModel>(
-                builder: (context, viewModel, child) {
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      await viewModel.loadItems(refresh: true);
-                    },
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
-                          return false;
-                        }
-                        if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                          viewModel.loadItems();
-                        }
-                        return true;
+    return WillPopScope(
+      onWillPop: () async {
+        // Custom logic here
+        print("Back button pressed!");
+        widget.onDataChanged();
+        Navigator.of(context).pop();
+        return false; // Prevent default behavior
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(context),
+        body: ChangeNotifierProvider<ItemViewModel>(
+          create: (_) => viewModel,
+          child: Column(
+            children: [
+              Expanded(
+                child: Consumer<ItemViewModel>(
+                  builder: (context, viewModel, child) {
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        await viewModel.loadItems(refresh: true);
                       },
-                      child: ListView.builder(
-                        padding: EdgeInsets.only(bottom: 150.0),
-                        itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == viewModel.items.length) {
-                            if (viewModel.loadingState == LoadingState.error) {
-                              return Center(
-                                child: ElevatedButton(
-                                  onPressed: () => viewModel.loadItems(),
-                                  child: Text('Retry'),
-                                ),
-                              );
-                            } else if (viewModel.loadingState == LoadingState.loading) {
-                              return Center(child: CircularProgressIndicator()); // Show loader while loading
-                            } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
-                              // When idle and no items, show a message
-                              //return Center(child: Text("No items available"));
-                              return SizedBox.shrink();
-                            } else if (viewModel.loadingState == LoadingState.idle) {
-                              // Idle state but items are loaded, just return an empty container or nothing
-                              return SizedBox.shrink(); // No loader, no retry button
-                            }
-                            //return Center(child: CircularProgressIndicator());
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
+                            return false;
                           }
-
-                          var item = viewModel.items[index];
-                          return _buildProductCard(item, index);
+                          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                            viewModel.loadItems();
+                          }
+                          return true;
                         },
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Container(
-              color: Colors.white, // Example bottom widget
-              height: 100,
-              width: double.infinity,
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 50,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            color: AppColor.colorButton,
-                            child: Center(
-                              child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + _totalQty, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 2,
-                        ),
-                        Expanded(
-                          child: Container(
-                            color: AppColor.colorButton,
-                            child: Center(
-                              child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + _totalAmount, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50,
-                    child: Expanded(
-                      child: Container(
-                        color: AppColor.colorBlueSteel,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center, // Centers horizontally
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text("View Cart", style: TextStyle(color: AppColor.colorWhite)),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            Image.asset(
-                              "assets/images/ic_arrow.png",
-                              height: 30,
-                              width: 30,
-                              fit: BoxFit.fill,
-                              color: AppColor.colorWhite,
-                            ),
-                          ],
+                        child: ListView.builder(
+                          padding: EdgeInsets.only(bottom: 150.0),
+                          itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == viewModel.items.length) {
+                              if (viewModel.loadingState == LoadingState.error) {
+                                return Center(
+                                  child: ElevatedButton(
+                                    onPressed: () => viewModel.loadItems(),
+                                    child: Text('Retry'),
+                                  ),
+                                );
+                              } else if (viewModel.loadingState == LoadingState.loading) {
+                                return Center(child: CircularProgressIndicator()); // Show loader while loading
+                              } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
+                                // When idle and no items, show a message
+                                //return Center(child: Text("No items available"));
+                                return SizedBox.shrink();
+                              } else if (viewModel.loadingState == LoadingState.idle) {
+                                // Idle state but items are loaded, just return an empty container or nothing
+                                return SizedBox.shrink(); // No loader, no retry button
+                              }
+                              //return Center(child: CircularProgressIndicator());
+                            }
+
+                            var item = viewModel.items[index];
+                            return _buildProductCard(item, index);
+                          },
                         ),
                       ),
-                    ),
-                  )
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+              Container(
+                color: Colors.white, // Example bottom widget
+                height: 100,
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 50,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              color: AppColor.colorButton,
+                              child: Center(
+                                child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + _totalQty, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 2,
+                          ),
+                          Expanded(
+                            child: Container(
+                              color: AppColor.colorButton,
+                              child: Center(
+                                child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + _totalAmount, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 50,
+                      child: Expanded(
+                        child: Container(
+                          color: AppColor.colorBlueSteel,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center, // Centers horizontally
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text("View Cart", style: TextStyle(color: AppColor.colorWhite)),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Image.asset(
+                                "assets/images/ic_arrow.png",
+                                height: 30,
+                                width: 30,
+                                fit: BoxFit.fill,
+                                color: AppColor.colorWhite,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+        backgroundColor: AppColor.colorSmokeWhite,
       ),
-      backgroundColor: AppColor.colorSmokeWhite,
     );
   }
 
@@ -207,8 +219,26 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       print("Container clicked");
+                      // Perform the delete operation
+                      await appDatabase.orderProductDao.discardProduct(false, product.product_id);
+                      _qtyControllers.clear();
+                      _rateControllers.clear();
+                      _qtyFocusNode.clear();
+                      _rateFocusNode.clear();
+                      loadData();
+                      // Fetch updated product list from the database
+                      List<OrderProductEntity> updatedProducts = await appDatabase.orderProductDao.getAllAdded();
+                      /*// Update the UI to reflect the changes
+                      var totalQty =await appDatabase.orderProductDao.getTotalQty();
+                      var totalAmt =await appDatabase.orderProductDao.getTotalAmt();*/
+                      setState(() {
+                        product.isAdded = false; // Update product state
+                        viewModel._items = updatedProducts; // Update the product list
+                        /*_totalQty = totalQty.toString();
+                        _totalAmount = totalAmt.toString();*/
+                      });
                     },
                     child: Container(
                       width: 30, // Increase container width to accommodate padding
@@ -238,6 +268,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       ),
                     ),
                   ),
+
                 ],
               ),
             ),
