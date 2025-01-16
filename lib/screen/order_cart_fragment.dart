@@ -21,7 +21,8 @@ import 'order_fragment.dart';
 class OrderCartFragment extends StatefulWidget {
   final VoidCallback onDataChanged;
   final StoreEntity storeObj;
-  const OrderCartFragment({super.key, required this.onDataChanged , required this.storeObj});
+
+  const OrderCartFragment({super.key, required this.onDataChanged, required this.storeObj});
 
   @override
   _OrderCartFragment createState() => _OrderCartFragment();
@@ -171,13 +172,12 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                         onTap: () async {
                           // Handle the Place Order click event here
                           print("Place Order button clicked!");
-                          final getCount =  await appDatabase.orderProductDao.getProductAddedCount();
+                          final getCount = await appDatabase.orderProductDao.getProductAddedCount();
 
-                          if(getCount! > 0) {
+                          if (getCount! > 0) {
                             _handlePlaceOrder(widget.storeObj);
-                          }
-                          else{
-                            SnackBarUtils().showSnackBar(context,'There is no product in Cart');
+                          } else {
+                            SnackBarUtils().showSnackBar(context, 'There is no product in Cart');
                           }
                         },
                         child: Container(
@@ -300,7 +300,6 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -487,7 +486,6 @@ class _OrderCartFragment extends State<OrderCartFragment> {
   }
 
   Future<void> _handlePlaceOrder(StoreEntity storeObj) async {
-
     try {
       LoaderUtils().showLoader(context);
 
@@ -496,7 +494,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
 
       DateTime currentDateTime = DateTime.now();
       String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
-      final orderID = "ORD_"+pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
+      final orderID = "ORD_" + pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
 
       final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
 
@@ -508,55 +506,48 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       orderObj.remarks = "";
 
       final productL = await appDatabase.orderProductDao.getAllAdded();
-      for(var value in productL){
-            OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
-            obj.order_id = orderID;
-            obj.product_id = value.product_id.toString();
-            obj.qty = value.qty.toString();
-            obj.rate = value.rate.toString();
-            orderDtlsL.add(obj);
-          }
+      for (var value in productL) {
+        OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
+        obj.order_id = orderID;
+        obj.product_id = value.product_id.toString();
+        obj.qty = value.qty.toString();
+        obj.rate = value.rate.toString();
+        orderDtlsL.add(obj);
+      }
 
       await appDatabase.orderSaveDao.insert(orderObj);
       await appDatabase.orderSaveDtlsDao.insertAll(orderDtlsL);
       await Future.delayed(Duration(seconds: 2));
 
       bool isOnline = await AppUtils().checkConnectivity();
-      if(isOnline){
-        final request = OrderSaveRequest(user_id: pref.getString('user_id')!,store_id: storeObj.store_id,order_id:orderID,order_date_time: formattedDate,order_amount:ordAmt.toString(),
-            order_status:'',remarks: '',order_details_list: orderDtlsL );
+      if (isOnline) {
+        final request = OrderSaveRequest(user_id: pref.getString('user_id')!, store_id: storeObj.store_id, order_id: orderID, order_date_time: formattedDate, order_amount: ordAmt.toString(), order_status: '', remarks: '', order_details_list: orderDtlsL);
         final response = await apiService.saveOrder(request);
-        if(response.status == "200"){
+        if (response.status == "200") {
           LoaderUtils().dismissLoader(context);
-          showSuccessDialog(storeObj ,orderID);
-        }else{
+          showSuccessDialog(storeObj, orderID);
+        } else {
           LoaderUtils().dismissLoader(context);
-          SnackBarUtils().showSnackBar(context,'Something went wrong.');
+          SnackBarUtils().showSnackBar(context, 'Something went wrong.');
         }
-          }else{
-            LoaderUtils().dismissLoader(context);
-            showSuccessDialog(storeObj ,orderID);
-          }
+      } else {
+        LoaderUtils().dismissLoader(context);
+        showSuccessDialog(storeObj, orderID);
+      }
     } catch (e) {
       print(e);
       Navigator.of(context).pop();
     }
-
   }
 
-  void showSuccessDialog(StoreEntity storeObj, String orderID){
+  void showSuccessDialog(StoreEntity storeObj, String orderID) {
     AppUtils().showCustomDialogWithOrderId(context, "Congrats!", "Hi ${pref.getString('user_name') ?? ""}, Your Order for ${storeObj.store_name} has been placed successfully.", orderID, () {
-      Navigator.pop(context); // Close the dialog
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => OrderFragment(storeObj: storeObj),
-        ),
-      );
+      widget.onDataChanged();
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
     });
   }
 }
-
 
 enum LoadingState { idle, loading, error }
 

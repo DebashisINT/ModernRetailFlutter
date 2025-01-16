@@ -38,7 +38,9 @@ class _OrderAddFragment extends State<OrderAddFragment> {
   Future<void> loadData() async {
     Future<void> product = loadProduct();
     List<void> results = await Future.wait([product]);
-    viewModel.loadItems();
+    if(orderProductL.isNotEmpty){
+      viewModel.loadItems();
+    }
   }
 
   Future<void> loadProduct() async {

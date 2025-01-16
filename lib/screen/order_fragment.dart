@@ -11,8 +11,9 @@ import '../utils/app_utils.dart';
 import 'order_add_fragment.dart';
 
 class OrderFragment extends StatefulWidget {
+  final VoidCallback? onDataChanged;
   final StoreEntity storeObj;
-  const OrderFragment({super.key, required this.storeObj});
+  const OrderFragment({super.key, this.onDataChanged,required this.storeObj});
 
   @override
   _OrderFragment createState() => _OrderFragment();
@@ -22,17 +23,29 @@ class _OrderFragment extends State<OrderFragment> {
 
   final viewModel = ItemViewModel(appDatabase.orderSaveDao);
 
+  @override
+  void initState() {
+    super.initState();
+    loadData();
+  }
+
+  Future<void> loadData() async {
+    List<OrderSaveEntity>  data = await appDatabase.orderSaveDao.getAll();
+    if(data.isNotEmpty){
+      viewModel.loadItems();
+    }
+  }
+
   void _updateData() {
     setState(() {
       viewModel.loadItems(refresh: true);
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ItemViewModel>(
-      create: (_) => ItemViewModel(appDatabase.orderSaveDao),
+      create: (_) => viewModel,//ItemViewModel(appDatabase.orderSaveDao),
       child: Scaffold(
         appBar: _buildAppBar(context),
         body: Padding(
@@ -44,17 +57,16 @@ class _OrderFragment extends State<OrderFragment> {
                 child: Consumer<ItemViewModel>(
                   builder: (context, viewModel, child) {
                     // Load items initially when the widget is built
-                    if (viewModel.items.isEmpty && viewModel.loadingState == LoadingState.idle) {
+                   /* if (viewModel.items.isEmpty && viewModel.loadingState == LoadingState.idle) {
                       viewModel.loadItems();
-                    }
+                    }*/
                     return RefreshIndicator(
                       onRefresh: () async {
                         await viewModel.loadItems(refresh: true);
                       },
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (ScrollNotification scrollInfo) {
-                          if (!viewModel.hasMoreData ||
-                              viewModel.loadingState == LoadingState.loading) {
+                          if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
                             return false;
                           }
                           if (scrollInfo.metrics.pixels ==
@@ -64,8 +76,7 @@ class _OrderFragment extends State<OrderFragment> {
                           return true;
                         },
                         child: ListView.builder(
-                          itemCount: viewModel.items.length +
-                              (viewModel.hasMoreData ? 1 : 0),
+                          itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == viewModel.items.length) {
                               if (viewModel.loadingState == LoadingState.error) {
@@ -76,15 +87,16 @@ class _OrderFragment extends State<OrderFragment> {
                                   ),
                                 );
                               } else if (viewModel.loadingState == LoadingState.loading) {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              } else if (viewModel.loadingState == LoadingState.idle &&
-                                  viewModel.items.isEmpty) {
+                                return Center(child: CircularProgressIndicator()); // Show loader while loading
+                              } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
+                                // When idle and no items, show a message
+                                //return Center(child: Text("No items available"));
                                 return SizedBox.shrink();
                               } else if (viewModel.loadingState == LoadingState.idle) {
-                                return SizedBox.shrink();
+                                // Idle state but items are loaded, just return an empty container or nothing
+                                return SizedBox.shrink(); // No loader, no retry button
                               }
+                              //return Center(child: CircularProgressIndicator());
                             }
 
                             final item = viewModel.items[index];
@@ -108,7 +120,9 @@ class _OrderFragment extends State<OrderFragment> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => OrderAddFragment(storeObj: widget.storeObj)),
-            );
+            ).then((value) {
+              _updateData();
+            });
           },
           backgroundColor: AppColor.colorToolbar,
           child: const Icon(Icons.add, color: Colors.white),
@@ -257,6 +271,7 @@ class _OrderFragment extends State<OrderFragment> {
       ),
     );
   }
+
   Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -401,6 +416,7 @@ class _OrderFragment extends State<OrderFragment> {
       ],
     );
   }
+
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       title: Center(
