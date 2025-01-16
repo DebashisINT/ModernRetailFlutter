@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:intl/intl.dart';
 
 import 'app_color.dart';
 
@@ -106,6 +107,84 @@ class AppUtils {
         );
       },
     );
+  }
+
+  void showCustomDialogWithOrderId(BuildContext context, String title, String msg, String orderId, VoidCallback callback) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Center(
+            child: Text(
+              title,
+              textAlign: TextAlign.center, // Center the title
+              style: const TextStyle(fontSize: 18),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min, // Adjust to content size
+            children: [
+              Container(
+                constraints: BoxConstraints(
+                  minHeight: 50, // Minimum height for the main message
+                ),
+                child: Center(
+                  child: Text(
+                    msg,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10), // Add spacing between the message and the Order ID
+              Container(
+                constraints: BoxConstraints(
+                  minHeight: 30, // Minimum height for the Order ID
+                ),
+                child: Center(
+                  child: Text(
+                    "Order ID: #$orderId",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: AppColor.colorGreenLeaf, // Set the color of the Order ID text here
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Container(
+              decoration: BoxDecoration(
+                color: AppColor.colorButton, // Background color for the button
+                borderRadius: BorderRadius.circular(0), // Rounded corners
+              ),
+              child: CupertinoDialogAction(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  callback();
+                },
+                child: const Text("OK", style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static String getDateFromDateTime(String dateTimeString) {
+    try {
+      // Parse the datetime string
+      DateTime dateTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(dateTimeString);
+      // Format to extract only the date
+      return DateFormat('yyyy-MM-dd').format(dateTime);
+    } catch (e) {
+      // Handle invalid format or parsing error
+      return '';
+    }
   }
 
   Future<bool> checkConnectivity() async {

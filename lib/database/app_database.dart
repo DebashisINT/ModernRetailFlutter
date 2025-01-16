@@ -19,7 +19,7 @@ import 'order_save_entity.dart';
 
 part 'app_database.g.dart';
 
-@Database(version: 1, entities: [StoreTypeEntity,StoreEntity,StatePinEntity,ProductEntity,ProductRateEntity,BranchEntity,
+@Database(version: 1, entities: [StoreTypeEntity,StoreEntity,StatePinEntity,ProductEntity,ProductRateEntity,BranchEntity,ProductUOMEntity,
   StockSaveEntity,StockSaveDtlsEntity,StockProductEntity,OrderProductEntity,OrderSaveEntity,OrderSaveDtlsEntity])
 abstract class AppDatabase extends FloorDatabase{
   StoreTypeDao get storeTypeDao;

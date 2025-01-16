@@ -130,9 +130,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_product_rate` (`product_id` INTEGER NOT NULL, `state_id` INTEGER NOT NULL, `rate` REAL NOT NULL, PRIMARY KEY (`product_id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_product_uom` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `product_id` INTEGER NOT NULL, `uom_id` INTEGER NOT NULL, `uom_name` TEXT NOT NULL)');
-        await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_branch` (`branch_id` INTEGER NOT NULL, `branch_name` TEXT NOT NULL, PRIMARY KEY (`branch_id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `mr_product_uom` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `product_id` INTEGER NOT NULL, `uom_id` INTEGER NOT NULL, `uom_name` TEXT NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_save` (`stock_id` TEXT NOT NULL, `save_date_time` TEXT NOT NULL, `store_id` TEXT NOT NULL, PRIMARY KEY (`stock_id`))');
         await database.execute(
@@ -1163,6 +1163,14 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
         'SELECT * FROM mr_order_save_dtls ORDER BY order_date_time ASC LIMIT ?1 OFFSET ?2',
         mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(sl_no: row['sl_no'] as int?, order_id: row['order_id'] as String, product_id: row['product_id'] as String, qty: row['qty'] as String, rate: row['rate'] as String),
         arguments: [limit, offset]);
+  }
+
+  @override
+  Future<int?> getItemCount(String order_id) async {
+    return _queryAdapter.query(
+        'select count(*) as itemCount from mr_order_save_dtls where mr_order_save_dtls.order_id = ?1',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [order_id]);
   }
 
   @override

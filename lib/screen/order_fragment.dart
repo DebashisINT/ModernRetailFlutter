@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_utils.dart';
 import 'order_add_fragment.dart';
 
 class OrderFragment extends StatefulWidget {
@@ -46,7 +47,6 @@ class _OrderFragment extends State<OrderFragment> {
                     if (viewModel.items.isEmpty && viewModel.loadingState == LoadingState.idle) {
                       viewModel.loadItems();
                     }
-
                     return RefreshIndicator(
                       onRefresh: () async {
                         await viewModel.loadItems(refresh: true);
@@ -160,7 +160,7 @@ class _OrderFragment extends State<OrderFragment> {
                   ),
                 ),
                 Text(
-                  item.order_date_time,
+                  AppUtils.getDateFromDateTime(item.order_date_time),
                   style: TextStyle(
                     color: Colors.white,
                   ),

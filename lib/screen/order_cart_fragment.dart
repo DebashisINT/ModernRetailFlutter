@@ -10,7 +10,10 @@ import '../database/order_save_dtls_entity.dart';
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_utils.dart';
+import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
+import 'order_fragment.dart';
 
 class OrderCartFragment extends StatefulWidget {
   final VoidCallback onDataChanged;
@@ -478,38 +481,69 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       ],
     );
   }
-}
 
-Future<void> _handlePlaceOrder(StoreEntity storeObj) async {
-  OrderSaveEntity orderObj = OrderSaveEntity();
-  List<OrderSaveDtlsEntity> orderDtlsL = [];
+  Future<void> _handlePlaceOrder(StoreEntity storeObj) async {
 
-  DateTime currentDateTime = DateTime.now();
-  String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
-  final orderID = "ORD_"+pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
+    try {
+      LoaderUtils().showLoader(context);
 
-  final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
+      OrderSaveEntity orderObj = OrderSaveEntity();
+      List<OrderSaveDtlsEntity> orderDtlsL = [];
 
-  orderObj.order_id = orderID;
-  orderObj.store_id = storeObj.store_id;
-  orderObj.order_date_time = formattedDate;
-  orderObj.order_amount = ordAmt.toString();
-  orderObj.order_status = "";
+      DateTime currentDateTime = DateTime.now();
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
+      final orderID = "ORD_"+pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
 
-  final productL = await appDatabase.orderProductDao.getAllAdded();
-  for(var value in productL){
-    OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
-    obj.order_id = orderID;
-    obj.product_id = value.product_id.toString();
-    obj.qty = value.qty.toString();
-    obj.rate = value.rate.toString();
-    orderDtlsL.add(obj);
+      final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
+
+      orderObj.order_id = orderID;
+      orderObj.store_id = storeObj.store_id;
+      orderObj.order_date_time = formattedDate;
+      orderObj.order_amount = ordAmt.toString();
+      orderObj.order_status = "";
+
+      final productL = await appDatabase.orderProductDao.getAllAdded();
+      for(var value in productL){
+            OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
+            obj.order_id = orderID;
+            obj.product_id = value.product_id.toString();
+            obj.qty = value.qty.toString();
+            obj.rate = value.rate.toString();
+            orderDtlsL.add(obj);
+          }
+
+      await appDatabase.orderSaveDao.insert(orderObj);
+      await appDatabase.orderSaveDtlsDao.insertAll(orderDtlsL);
+      await Future.delayed(Duration(seconds: 2));
+
+      bool isOnline = await AppUtils().checkConnectivity();
+      if(isOnline){
+            LoaderUtils().dismissLoader(context);
+            showSuccessDialog(storeObj ,orderID);
+          }else{
+            LoaderUtils().dismissLoader(context);
+            showSuccessDialog(storeObj ,orderID);
+          }
+    } catch (e) {
+      print(e);
+      Navigator.of(context).pop();
+    }
+
   }
 
-  await appDatabase.orderSaveDao.insert(orderObj);
-  await appDatabase.orderSaveDtlsDao.insertAll(orderDtlsL);
-
+  void showSuccessDialog(StoreEntity storeObj, String orderID){
+    AppUtils().showCustomDialogWithOrderId(context, "Congrats!", "Hi ${pref.getString('user_name') ?? ""}, Your Order for ${storeObj.store_name} has been placed successfully.", orderID, () {
+      Navigator.pop(context); // Close the dialog
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OrderFragment(storeObj: storeObj),
+        ),
+      );
+    });
+  }
 }
+
 
 enum LoadingState { idle, loading, error }
 

@@ -308,9 +308,8 @@ class _LoginScreen extends State<LoginScreen> {
       Future<void> productUOM = apiCallProductUOM();
       Future<void> branch = apiCallBranch();
       Future<void> stockHistory = apiCallStockHistory();
-      Future<void> dummy = dummyOrder();
       // Wait for all of them to complete
-      List<void> results = await Future.wait([storeType,store,statePin,product,productRate,productUOM,branch,stockHistory,dummy]);
+      List<void> results = await Future.wait([storeType,store,statePin,product,productRate,productUOM,branch,stockHistory]);
       //Navigator.of(context).pop();
       LoaderUtils().dismissLoader(context);
       pref.setBool('isLoggedIn', true);
@@ -480,7 +479,7 @@ class _LoginScreen extends State<LoginScreen> {
     }
   }
 
-  Future<void> dummyOrder() async {
+ /* Future<void> dummyOrder() async {
     try {
       final itemDao = appDatabase.orderSaveDao;
       final dataL = await itemDao.getAll();
@@ -501,7 +500,7 @@ class _LoginScreen extends State<LoginScreen> {
     } catch (error) {
       print('Error: $error');
     }
-  }
+  }*/
 
   Future<void> _requestPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
