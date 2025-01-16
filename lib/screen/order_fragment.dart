@@ -107,7 +107,7 @@ class _OrderFragment extends State<OrderFragment> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => OrderAddFragment()),
+              MaterialPageRoute(builder: (context) => OrderAddFragment(storeObj: widget.storeObj)),
             );
           },
           backgroundColor: AppColor.colorToolbar,
