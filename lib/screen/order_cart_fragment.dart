@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:modern_retail/database/order_save_entity.dart';
 import 'package:provider/provider.dart';
 
+import '../api/api_service.dart';
+import '../api/response/order_save_request.dart';
 import '../database/order_product_entity.dart';
 import '../database/order_save_dtls_entity.dart';
 import '../database/store_entity.dart';
@@ -26,6 +29,7 @@ class OrderCartFragment extends StatefulWidget {
 
 class _OrderCartFragment extends State<OrderCartFragment> {
   final viewModel = ItemViewModel(appDatabase.orderProductDao);
+  final apiService = ApiService(Dio());
 
   final List<TextEditingController> _qtyControllers = [];
   final List<TextEditingController> _rateControllers = [];
@@ -496,11 +500,12 @@ class _OrderCartFragment extends State<OrderCartFragment> {
 
       final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
 
-      orderObj.order_id = orderID;
       orderObj.store_id = storeObj.store_id;
+      orderObj.order_id = orderID;
       orderObj.order_date_time = formattedDate;
       orderObj.order_amount = ordAmt.toString();
       orderObj.order_status = "";
+      orderObj.remarks = "";
 
       final productL = await appDatabase.orderProductDao.getAllAdded();
       for(var value in productL){
@@ -518,8 +523,16 @@ class _OrderCartFragment extends State<OrderCartFragment> {
 
       bool isOnline = await AppUtils().checkConnectivity();
       if(isOnline){
-            LoaderUtils().dismissLoader(context);
-            showSuccessDialog(storeObj ,orderID);
+        final request = OrderSaveRequest(user_id: pref.getString('user_id')!,store_id: storeObj.store_id,order_id:orderID,order_date_time: formattedDate,order_amount:ordAmt.toString(),
+            order_status:'',remarks: '',order_details_list: orderDtlsL );
+        final response = await apiService.saveOrder(request);
+        if(response.status == "200"){
+          LoaderUtils().dismissLoader(context);
+          showSuccessDialog(storeObj ,orderID);
+        }else{
+          LoaderUtils().dismissLoader(context);
+          SnackBarUtils().showSnackBar(context,'Something went wrong.');
+        }
           }else{
             LoaderUtils().dismissLoader(context);
             showSuccessDialog(storeObj ,orderID);
