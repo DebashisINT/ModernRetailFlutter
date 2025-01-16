@@ -1,15 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:modern_retail/database/order_save_entity.dart';
 import 'package:provider/provider.dart';
 
 import '../database/order_product_entity.dart';
+import '../database/order_save_dtls_entity.dart';
+import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/snackbar_utils.dart';
 
 class OrderCartFragment extends StatefulWidget {
   final VoidCallback onDataChanged;
-  const OrderCartFragment({super.key, required this.onDataChanged});
+  final StoreEntity storeObj;
+  const OrderCartFragment({super.key, required this.onDataChanged , required this.storeObj});
 
   @override
   _OrderCartFragment createState() => _OrderCartFragment();
@@ -154,14 +160,33 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     ),
                     SizedBox(
                       height: 50,
-                      child: Expanded(
+                      child: GestureDetector(
+                        onTap: () async {
+                          // Handle the Place Order click event here
+                          print("Place Order button clicked!");
+                          final getCount =  await appDatabase.orderProductDao.getProductAddedCount();
+
+                          if(getCount! > 0) {
+                            _handlePlaceOrder(widget.storeObj);
+                          }
+                          else{
+                            SnackBarUtils().showSnackBar(context,'There is no product in Cart');
+                          }
+                        },
                         child: Container(
-                          color: AppColor.colorBlueSteel,
+                          color: AppColor.colorGreenLeaf,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center, // Centers horizontally
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text("View Cart", style: TextStyle(color: AppColor.colorWhite)),
+                              Text(
+                                "Place Order",
+                                style: TextStyle(
+                                  color: AppColor.colorWhite,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               SizedBox(
                                 width: 15,
                               ),
@@ -176,7 +201,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                           ),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -453,6 +478,37 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       ],
     );
   }
+}
+
+Future<void> _handlePlaceOrder(StoreEntity storeObj) async {
+  OrderSaveEntity orderObj = OrderSaveEntity();
+  List<OrderSaveDtlsEntity> orderDtlsL = [];
+
+  DateTime currentDateTime = DateTime.now();
+  String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
+  final orderID = "ORD_"+pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
+
+  final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
+
+  orderObj.order_id = orderID;
+  orderObj.store_id = storeObj.store_id;
+  orderObj.order_date_time = formattedDate;
+  orderObj.order_amount = ordAmt.toString();
+  orderObj.order_status = "";
+
+  final productL = await appDatabase.orderProductDao.getAllAdded();
+  for(var value in productL){
+    OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
+    obj.order_id = orderID;
+    obj.product_id = value.product_id.toString();
+    obj.qty = value.qty.toString();
+    obj.rate = value.rate.toString();
+    orderDtlsL.add(obj);
+  }
+
+  await appDatabase.orderSaveDao.insert(orderObj);
+  await appDatabase.orderSaveDtlsDao.insertAll(orderDtlsL);
+
 }
 
 enum LoadingState { idle, loading, error }

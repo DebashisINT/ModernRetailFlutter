@@ -29,4 +29,6 @@ class AppColor{
   static const Color colorBlueSteel= Color(0xFF4682B4);
   static const Color colorGreenSteel= Color(0xFF0b9ba8);
   static const Color colorYellow= Color(0xFFcf971f);
+  static const Color colorGreen= Color(0xFF099250);
+  static const Color colorGreenLeaf= Color(0xFF0ca97e);
 }
