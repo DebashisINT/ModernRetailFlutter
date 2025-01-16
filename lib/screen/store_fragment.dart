@@ -329,7 +329,7 @@ class _StoreFragmentState extends State<StoreFragment> {
                     _buildActionButton('assets/images/ic_order.webp', "Order",onTap: (){
                       Navigator.push(context,
                         MaterialPageRoute(
-                            builder: (context) => OrderFragment(storeObj: store,)),);
+                            builder: (context) => OrderFragment(storeObj: store)),);
                     }),
                     SizedBox(width: 10),
                     _buildActionButton('assets/images/ic_operation.webp', "Survey"),

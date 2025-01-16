@@ -92,6 +92,8 @@ class _$AppDatabase extends AppDatabase {
 
   OrderSaveDao? _orderSaveDaoInstance;
 
+  OrderSaveDtlsDao? _orderSaveDtlsDaoInstance;
+
   BranchDao? _branchDaoInstance;
 
   ProductUOMDao? _productUOMDaoInstance;
@@ -140,7 +142,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_order_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `state_id` INTEGER NOT NULL, `qty` INTEGER NOT NULL, `rate` REAL NOT NULL, `isAdded` INTEGER NOT NULL, PRIMARY KEY (`sl_no`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_order_save` (`order_id` TEXT NOT NULL, `store_id` TEXT NOT NULL, `order_date_time` TEXT NOT NULL, `order_amount` TEXT NOT NULL, `order_status` TEXT NOT NULL, PRIMARY KEY (`order_id`))');
+            'CREATE TABLE IF NOT EXISTS `mr_order_save` (`order_id` TEXT NOT NULL, `store_id` TEXT NOT NULL, `order_date_time` TEXT NOT NULL, `order_amount` TEXT NOT NULL, `order_status` TEXT NOT NULL, `remarks` TEXT NOT NULL, PRIMARY KEY (`order_id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `mr_order_save_dtls` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `order_id` TEXT NOT NULL, `product_id` TEXT NOT NULL, `qty` TEXT NOT NULL, `rate` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -200,6 +204,12 @@ class _$AppDatabase extends AppDatabase {
   @override
   OrderSaveDao get orderSaveDao {
     return _orderSaveDaoInstance ??= _$OrderSaveDao(database, changeListener);
+  }
+
+  @override
+  OrderSaveDtlsDao get orderSaveDtlsDao {
+    return _orderSaveDtlsDaoInstance ??=
+        _$OrderSaveDtlsDao(database, changeListener);
   }
 
   @override
@@ -1050,7 +1060,8 @@ class _$OrderSaveDao extends OrderSaveDao {
                   'store_id': item.store_id,
                   'order_date_time': item.order_date_time,
                   'order_amount': item.order_amount,
-                  'order_status': item.order_status
+                  'order_status': item.order_status,
+                  'remarks': item.remarks
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -1069,7 +1080,8 @@ class _$OrderSaveDao extends OrderSaveDao {
             store_id: row['store_id'] as String,
             order_date_time: row['order_date_time'] as String,
             order_amount: row['order_amount'] as String,
-            order_status: row['order_status'] as String));
+            order_status: row['order_status'] as String,
+            remarks: row['remarks'] as String));
   }
 
   @override
@@ -1084,7 +1096,7 @@ class _$OrderSaveDao extends OrderSaveDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM mr_order_save ORDER BY order_date_time ASC LIMIT ?1 OFFSET ?2',
-        mapper: (Map<String, Object?> row) => OrderSaveEntity(order_id: row['order_id'] as String, store_id: row['store_id'] as String, order_date_time: row['order_date_time'] as String, order_amount: row['order_amount'] as String, order_status: row['order_status'] as String),
+        mapper: (Map<String, Object?> row) => OrderSaveEntity(order_id: row['order_id'] as String, store_id: row['store_id'] as String, order_date_time: row['order_date_time'] as String, order_amount: row['order_amount'] as String, order_status: row['order_status'] as String, remarks: row['remarks'] as String),
         arguments: [limit, offset]);
   }
 
@@ -1097,6 +1109,71 @@ class _$OrderSaveDao extends OrderSaveDao {
   @override
   Future<void> insertAll(List<OrderSaveEntity> list) async {
     await _orderSaveEntityInsertionAdapter.insertList(
+        list, OnConflictStrategy.replace);
+  }
+}
+
+class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
+  _$OrderSaveDtlsDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _orderSaveDtlsEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'mr_order_save_dtls',
+            (OrderSaveDtlsEntity item) => <String, Object?>{
+                  'sl_no': item.sl_no,
+                  'order_id': item.order_id,
+                  'product_id': item.product_id,
+                  'qty': item.qty,
+                  'rate': item.rate
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<OrderSaveDtlsEntity>
+      _orderSaveDtlsEntityInsertionAdapter;
+
+  @override
+  Future<List<OrderSaveDtlsEntity>> getAll() async {
+    return _queryAdapter.queryList('select * from mr_order_save_dtls',
+        mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(
+            sl_no: row['sl_no'] as int?,
+            order_id: row['order_id'] as String,
+            product_id: row['product_id'] as String,
+            qty: row['qty'] as String,
+            rate: row['rate'] as String));
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('delete from mr_order_save_dtls');
+  }
+
+  @override
+  Future<List<OrderSaveDtlsEntity>> fetchPaginatedItems(
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM mr_order_save_dtls ORDER BY order_date_time ASC LIMIT ?1 OFFSET ?2',
+        mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(sl_no: row['sl_no'] as int?, order_id: row['order_id'] as String, product_id: row['product_id'] as String, qty: row['qty'] as String, rate: row['rate'] as String),
+        arguments: [limit, offset]);
+  }
+
+  @override
+  Future<void> insert(OrderSaveDtlsEntity obj) async {
+    await _orderSaveDtlsEntityInsertionAdapter.insert(
+        obj, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> insertAll(List<OrderSaveDtlsEntity> list) async {
+    await _orderSaveDtlsEntityInsertionAdapter.insertList(
         list, OnConflictStrategy.replace);
   }
 }

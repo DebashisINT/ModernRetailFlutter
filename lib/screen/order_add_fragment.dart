@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modern_retail/database/order_product_entity.dart';
+import 'package:modern_retail/database/store_entity.dart';
 import 'package:modern_retail/screen/order_cart_fragment.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +12,8 @@ import '../utils/app_utils.dart';
 import '../utils/snackbar_utils.dart';
 
 class OrderAddFragment extends StatefulWidget {
+  final StoreEntity storeObj;
+  const OrderAddFragment({super.key, required this.storeObj});
   @override
   _OrderAddFragment createState() => _OrderAddFragment();
 }
@@ -174,7 +177,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => OrderCartFragment(onDataChanged: _updateData)),
+                                builder: (context) => OrderCartFragment(onDataChanged: _updateData , storeObj: widget.storeObj)),
                           );
                         }
                         else{
@@ -183,7 +186,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                       },
                       child: Expanded(
                         child: Container(
-                          color: AppColor.colorBluePeacock,
+                          color: AppColor.colorGreenLeaf,
                           child: Center(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center, // Centers horizontally
@@ -453,7 +456,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               side: const BorderSide(color: Colors.black26, width: 0),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              backgroundColor: product.isAdded ? AppColor.colorGreenMoss : AppColor.colorButton,
+              backgroundColor: product.isAdded ? AppColor.colorGreen : AppColor.colorButton,
             ),
             onPressed: () async {
               final q = _qtyControllers[product.sl_no].text;
