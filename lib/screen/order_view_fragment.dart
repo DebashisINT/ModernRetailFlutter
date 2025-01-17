@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:modern_retail/api/response/order_history_response.dart';
+import 'package:modern_retail/database/order_save_dtls_entity.dart';
 import 'package:modern_retail/database/store_entity.dart';
 import 'package:provider/provider.dart';
 
@@ -18,7 +20,7 @@ class OrderViewFragment extends StatefulWidget {
 
 class _OrderViewFragment extends State<OrderViewFragment> {
 
-  final viewModel = ItemViewModel(appDatabase.orderProductDao);
+  final viewModel = ItemViewModel(appDatabase.orderSaveDtlsDao);
 
   StoreEntity? storeObj = StoreEntity();
 
@@ -51,7 +53,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
           _totalQty = qty.toString();
           _totalAmount = amt.toString();
         });
-        viewModel.loadItems();
+        viewModel.loadItems(widget.orderObj.order_id);
       }
     }
   }
@@ -93,7 +95,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
                   builder: (context, viewModel, child) {
                     return RefreshIndicator(
                       onRefresh: () async {
-                        await viewModel.loadItems(refresh: true);
+                        await viewModel.loadItems(widget.orderObj.order_id,refresh: true);
                       },
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (ScrollNotification scrollInfo) {
@@ -101,7 +103,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
                             return false;
                           }
                           if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                            viewModel.loadItems();
+                            viewModel.loadItems(widget.orderObj.order_id);
                           }
                           return true;
                         },
@@ -113,7 +115,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
                               if (viewModel.loadingState == LoadingState.error) {
                                 return Center(
                                   child: ElevatedButton(
-                                    onPressed: () => viewModel.loadItems(),
+                                    onPressed: () => viewModel.loadItems(widget.orderObj.order_id),
                                     child: Text('Retry'),
                                   ),
                                 );
@@ -182,9 +184,9 @@ class _OrderViewFragment extends State<OrderViewFragment> {
     );
   }
 
-  Widget _buildProductCard(OrderProductEntity product, int index) {
+  Widget _buildProductCard(OrderSaveDtlsEntity product, int index) {
     return Card(
-      color: product.isAdded ? AppColor.colorWhite : AppColor.colorWhite,
+      color: AppColor.colorWhite,
       margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
       elevation: 5.0,
       shape: RoundedRectangleBorder(
@@ -229,7 +231,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
     );
   }
 
-  Widget _buildEntryDetails(OrderProductEntity product, TextEditingController qtyController, TextEditingController rateController) {
+  Widget _buildEntryDetails(OrderSaveDtlsEntity product, TextEditingController qtyController, TextEditingController rateController) {
     return Flexible(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -357,9 +359,9 @@ class _OrderViewFragment extends State<OrderViewFragment> {
 enum LoadingState { idle, loading, error }
 
 class ItemViewModel extends ChangeNotifier {
-  final OrderProductDao _itemDao;
-  List<OrderProductEntity> _items = [];
-  List<OrderProductEntity> _filteredItems = [];
+  final OrderSaveDtlsDao _itemDao;
+  List<OrderSaveDtlsEntity> _items = [];
+  List<OrderSaveDtlsEntity> _filteredItems = [];
   bool _hasMoreData = true;
   LoadingState _loadingState = LoadingState.idle;
   int _page = 0;
@@ -367,13 +369,13 @@ class ItemViewModel extends ChangeNotifier {
 
   ItemViewModel(this._itemDao);
 
-  List<OrderProductEntity> get items => _filteredItems.isEmpty ? _items : _filteredItems;
+  List<OrderSaveDtlsEntity> get items => _filteredItems.isEmpty ? _items : _filteredItems;
 
   bool get hasMoreData => _hasMoreData;
 
   LoadingState get loadingState => _loadingState;
 
-  Future<void> loadItems({bool refresh = false, String query = ""}) async {
+  Future<void> loadItems(String order_id,{bool refresh = false, String query = ""}) async {
     if (_loadingState == LoadingState.loading) return;
 
     if (refresh) {
@@ -388,7 +390,7 @@ class ItemViewModel extends ChangeNotifier {
 
     try {
       final offset = _page * _pageSize;
-      final newItems = await _itemDao.fetchPaginatedItemsAdded(_pageSize, offset);
+      final newItems = await _itemDao.fetchPaginatedItemsForOrder(order_id,_pageSize, offset);
 
       if (newItems.isEmpty) {
         _hasMoreData = false;

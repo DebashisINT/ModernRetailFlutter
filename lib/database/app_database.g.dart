@@ -144,7 +144,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_order_save` (`order_id` TEXT NOT NULL, `store_id` TEXT NOT NULL, `order_date_time` TEXT NOT NULL, `order_amount` TEXT NOT NULL, `order_status` TEXT NOT NULL, `remarks` TEXT NOT NULL, PRIMARY KEY (`order_id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_order_save_dtls` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `order_id` TEXT NOT NULL, `product_id` TEXT NOT NULL, `qty` TEXT NOT NULL, `rate` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `mr_order_save_dtls` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `order_id` TEXT NOT NULL, `product_id` TEXT NOT NULL, `product_name` TEXT NOT NULL, `qty` TEXT NOT NULL, `rate` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -1174,6 +1174,7 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
                   'sl_no': item.sl_no,
                   'order_id': item.order_id,
                   'product_id': item.product_id,
+                  'product_name': item.product_name,
                   'qty': item.qty,
                   'rate': item.rate
                 });
@@ -1194,6 +1195,7 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
             sl_no: row['sl_no'] as int?,
             order_id: row['order_id'] as String,
             product_id: row['product_id'] as String,
+            product_name: row['product_name'] as String,
             qty: row['qty'] as String,
             rate: row['rate'] as String));
   }
@@ -1210,7 +1212,7 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM mr_order_save_dtls ORDER BY order_date_time ASC LIMIT ?1 OFFSET ?2',
-        mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(sl_no: row['sl_no'] as int?, order_id: row['order_id'] as String, product_id: row['product_id'] as String, qty: row['qty'] as String, rate: row['rate'] as String),
+        mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(sl_no: row['sl_no'] as int?, order_id: row['order_id'] as String, product_id: row['product_id'] as String, product_name: row['product_name'] as String, qty: row['qty'] as String, rate: row['rate'] as String),
         arguments: [limit, offset]);
   }
 
@@ -1237,9 +1239,28 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
             sl_no: row['sl_no'] as int?,
             order_id: row['order_id'] as String,
             product_id: row['product_id'] as String,
+            product_name: row['product_name'] as String,
             qty: row['qty'] as String,
             rate: row['rate'] as String),
         arguments: [order_id]);
+  }
+
+  @override
+  Future<List<OrderSaveDtlsEntity>> fetchPaginatedItemsForOrder(
+    String order_id,
+    int limit,
+    int offset,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM mr_order_save_dtls where order_id=?1 LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(
+            sl_no: row['sl_no'] as int?,
+            order_id: row['order_id'] as String,
+            product_id: row['product_id'] as String,
+            product_name: row['product_name'] as String,
+            qty: row['qty'] as String,
+            rate: row['rate'] as String),
+        arguments: [order_id, limit, offset]);
   }
 
   @override

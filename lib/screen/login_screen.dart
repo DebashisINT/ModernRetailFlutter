@@ -485,6 +485,7 @@ class _LoginScreen extends State<LoginScreen> {
             for(var orderDtls in order.order_details_list){
               objDtls.order_id = orderDtls.order_id;
               objDtls.product_id = orderDtls.product_id.toString();
+              objDtls.product_name = orderDtls.product_name.toString();
               objDtls.qty = orderDtls.qty.toString();
               objDtls.rate = orderDtls.rate.toString();
               await itemDtlsDao.insert(objDtls);

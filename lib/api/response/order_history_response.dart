@@ -57,12 +57,14 @@ class Order {
 class OrderDtls {
   String order_id;
   int product_id;
+  String product_name;
   double qty;
   double rate;
 
   OrderDtls({
     required this.order_id,
     required this.product_id,
+    required this.product_name,
     required this.qty,
     required this.rate
   });
@@ -71,6 +73,7 @@ class OrderDtls {
     return OrderDtls(
       order_id: json['order_id'],
       product_id: json['product_id'],
+      product_name: json['product_name'],
       qty: (json['qty'] as num).toDouble(),
       rate: (json['rate'] as num).toDouble(),
     );

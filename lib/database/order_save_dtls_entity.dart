@@ -6,14 +6,15 @@ class OrderSaveDtlsEntity{
   int? sl_no;
   String order_id;
   String product_id;
+  String product_name;
   String qty;
   String rate;
 
-  OrderSaveDtlsEntity({this.sl_no,this.order_id="", this.product_id="", this.qty="", this.rate=""});
+  OrderSaveDtlsEntity({this.sl_no,this.order_id="", this.product_id="",this.product_name="", this.qty="", this.rate=""});
 
   factory OrderSaveDtlsEntity.fromJson(Map<String, dynamic> json) {
     return OrderSaveDtlsEntity(
-        sl_no: json['sl_no'],order_id: json['order_id'],product_id: json['product_id'] ,
+        sl_no: json['sl_no'],order_id: json['order_id'],product_id: json['product_id'],product_name: json['product_name'],
         qty: json['qty'],rate: json['rate']);
   }
 
@@ -21,6 +22,7 @@ class OrderSaveDtlsEntity{
     return {
       'order_id': order_id,
       'product_id': product_id,
+      'product_name': product_name,
       'qty': qty,
       'rate': rate
     };
@@ -52,4 +54,7 @@ abstract class OrderSaveDtlsDao{
 
   @Query('select * from mr_order_save_dtls where order_id=:order_id')
   Future<List<OrderSaveDtlsEntity>> getDtlsById(String order_id);
+
+  @Query('SELECT * FROM mr_order_save_dtls where order_id=:order_id LIMIT :limit OFFSET :offset')
+  Future<List<OrderSaveDtlsEntity>> fetchPaginatedItemsForOrder(String order_id,int limit, int offset);
 }
