@@ -175,6 +175,81 @@ class AppUtils {
     );
   }
 
+
+  static void showOrderDeleteDialog({
+    required BuildContext context,
+    required String title,
+    required String msg,
+    required String orderId,
+    required VoidCallback onCancel,
+    required VoidCallback onDelete,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 320), // Adjust max width as needed
+          child: AlertDialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20), // Reduce space on left and right
+            title: Center(
+              child: Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+            content: SingleChildScrollView(
+              child: Center(
+                child: Text(
+                  msg,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 5,
+                  shadowColor: Colors.black87,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  side: const BorderSide(color: Colors.black26, width: 0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  backgroundColor: AppColor.colorGrey,
+                ),
+                onPressed: onCancel,
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(fontSize: 14, color: AppColor.colorBlack),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 5,
+                  shadowColor: Colors.black87,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  side: const BorderSide(color: Colors.black26, width: 0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  backgroundColor: AppColor.colorButton,
+                ),
+                onPressed: onDelete,
+                child: Text(
+                  'Delete',
+                  style: TextStyle(fontSize: 14, color: AppColor.colorWhite),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
   static String getDateFromDateTime(String dateTimeString) {
     try {
       // Parse the datetime string

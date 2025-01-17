@@ -284,8 +284,21 @@ class _OrderFragment extends State<OrderFragment> {
                         onPressed: () {
                           // Add action for Delete button
                           print("Delete order ${item.order_id}");
-                          _showOrderDeleteDialog(item.order_id);
-                          //_handleDeleteOrder(item.order_id);
+
+                          AppUtils.showOrderDeleteDialog(
+                            context: context,
+                            title: 'Hi ${pref.getString('user_name') ?? ""}',
+                            msg: 'Are you sure you want to delete order?',
+                            orderId: item.order_id,
+                            onCancel: () {
+                              // Use the context of the dialog to close it
+                              Navigator.of(context).pop(); // This only dismisses the dialog
+                              print('Cancel button clicked'); // Optional logging
+                            },
+                            onDelete: () => _onDelete(item.order_id),
+                          );
+
+                          //_showOrderDeleteDialog(item.order_id);
                         },
                         icon: Icon(Icons.delete, color: Colors.white), // White delete icon
                         iconSize: 20, // Smaller icon size
@@ -301,57 +314,12 @@ class _OrderFragment extends State<OrderFragment> {
     );
   }
 
-  void _showOrderDeleteDialog(String order_id) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text('Are you sure you want to delete this item?' ,style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-              ),
-              actions: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black87,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorGrey,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  child: Text('Cancel',style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black87,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorButton,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                    // Pass the value back to the caller
-                    _handleDeleteOrder(order_id);
-
-                  },
-                  child: Text('Delete',style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+  void _onDelete(String orderId) {
+    // Handle delete functionality here
+    print('Deleting order with ID: $orderId');
+    Navigator.of(context).pop(); // Close the dialog
+    // Pass the value back to the caller
+    _handleDeleteOrder(orderId);
   }
 
   Future<void> _handleDeleteOrder(String order_id) async {
