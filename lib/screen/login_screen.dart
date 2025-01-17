@@ -93,7 +93,7 @@ class _LoginScreen extends State<LoginScreen> {
             alignment: Alignment.bottomCenter, // Aligns this child at the bottom
             child: Container(
               color: Colors.transparent, // Example bottom widget
-              height: MediaQuery.of(context).size.width * 0.6,
+              height: MediaQuery.of(context).size.width * 0.55,
               width: double.infinity,
               child: Center(
                 child: Image.asset(
@@ -110,12 +110,12 @@ class _LoginScreen extends State<LoginScreen> {
               children: [
                 Image.asset(
                   "assets/images/login_top.webp",
-                  height: MediaQuery.of(context).size.height * .3,
+                  height: MediaQuery.of(context).size.height * .35,
                   width: MediaQuery.of(context).size.width,
                   fit: BoxFit.fill,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 35,vertical: 5),
+                  padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -516,29 +516,6 @@ class _LoginScreen extends State<LoginScreen> {
       print('Error: $error');
     }
   }
-
- /* Future<void> dummyOrder() async {
-    try {
-      final itemDao = appDatabase.orderSaveDao;
-      final dataL = await itemDao.getAll();
-      if(dataL.isEmpty){
-        await itemDao.deleteAll();
-        final obj1 = OrderSaveEntity(order_id: "#11223344",
-            store_id: "3_20250107111347",order_date_time: "2025-01-07",
-            order_amount: "2000",order_status: "Pending");
-        final obj2 = OrderSaveEntity(order_id: "#11223345",
-            store_id: "3_20250107111347",order_date_time: "2025-01-07",
-            order_amount: "200000",order_status: "Approved");
-
-        var dataList = List<OrderSaveEntity>.empty(growable: true);
-        dataList.add(obj1);
-        dataList.add(obj2);
-        await itemDao.insertAll(dataList);
-      }
-    } catch (error) {
-      print('Error: $error');
-    }
-  }*/
 
   Future<void> _requestPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
