@@ -86,198 +86,182 @@ class _LoginScreen extends State<LoginScreen> {
     );
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter, // Aligns this child at the bottom
-            child: Container(
-              color: Colors.transparent, // Example bottom widget
-              height: MediaQuery.of(context).size.width * 0.55,
-              width: double.infinity,
-              child: Center(
-                child: Image.asset(
-                  'assets/images/login_bottom.webp', // Path to the bottom image asset
-                  width: double.infinity, // Makes the image stretch across the width
-                  //height: MediaQuery.of(context).size.height *.15, // Set the height of the bottom image
-                  fit: BoxFit.fill, // You can adjust this as needed
-                ),
-              ),
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        physics: ClampingScrollPhysics(),
+        child: Column(
+          children: [
+            Image.asset(
+              "assets/images/login_top.webp",
+              height: MediaQuery.of(context).size.height * .35,
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.fill,
             ),
-          ),
-          Center(
-            child: Column(
-              children: [
-                Image.asset(
-                  "assets/images/login_top.webp",
-                  height: MediaQuery.of(context).size.height * .35,
-                  width: MediaQuery.of(context).size.width,
-                  fit: BoxFit.fill,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 5),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 5),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height:10),
+                  Image.asset(
+                    "assets/images/ic_logo.webp",
+                    height: 55,
+                    width: 135,
+                    fit: BoxFit.fill,
+                  ),
+                  SizedBox(height:20),
+                  TextField(
+                    controller: usernameController,
+                    focusNode: usernameFocusNode,
+                    decoration: InputDecoration(
+                      hintText: "Username",
+                      prefixIcon:  Padding(
+                        padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
+                        child: Image.asset(
+                          'assets/images/ic_user.png', // Your custom icon image
+                          width: 14, // You can set width and height to fit
+                          height: 14,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 1.0), // Inactive (unfocused) color
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: passwordController,
+                    focusNode: passwordFocusNode,
+                    obscureText: !_isPasswordVisible,
+                    decoration: InputDecoration(
+                      hintText: "Password",
+                      prefixIcon:  Padding(
+                        padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
+                        child: Image.asset(
+                          'assets/images/ic_lock.png', // Your custom icon image
+                          width: 14, // You can set width and height to fit
+                          height: 14,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isPasswordVisible ? Icons.visibility : Icons.visibility_off, // Toggle icon
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible; // Change visibility
+                          });
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue, width: 1.0), // Active (focused) color
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey, width: 1.0), // Inactive (unfocused) color
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      SizedBox(height:10),
-                      Image.asset(
-                        "assets/images/ic_logo.webp",
-                        height: 55,
-                        width: 135,
-                        fit: BoxFit.fill,
+                      Checkbox(
+                        value: _isChecked,
+                        onChanged: _toggleCheckbox,
+                        activeColor: AppColor.colorButton, // Change the color when selected
+                        checkColor: Colors.white,
                       ),
-                      SizedBox(height:20),
-                      TextField(
-                        controller: usernameController,
-                        focusNode: usernameFocusNode,
-                        decoration: InputDecoration(
-                          hintText: "Username",
-                          prefixIcon:  Padding(
-                            padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
-                            child: Image.asset(
-                              'assets/images/ic_user.png', // Your custom icon image
-                              width: 14, // You can set width and height to fit
-                              height: 14,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue, width: 1.0),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey, width: 1.0), // Inactive (unfocused) color
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      TextField(
-                        controller: passwordController,
-                        focusNode: passwordFocusNode,
-                        obscureText: !_isPasswordVisible,
-                        decoration: InputDecoration(
-                          hintText: "Password",
-                          prefixIcon:  Padding(
-                            padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
-                            child: Image.asset(
-                              'assets/images/ic_lock.png', // Your custom icon image
-                              width: 14, // You can set width and height to fit
-                              height: 14,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible ? Icons.visibility : Icons.visibility_off, // Toggle icon
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible; // Change visibility
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue, width: 1.0), // Active (focused) color
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey, width: 1.0), // Inactive (unfocused) color
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Checkbox(
-                            value: _isChecked,
-                            onChanged: _toggleCheckbox,
-                            activeColor: AppColor.colorButton, // Change the color when selected
-                            checkColor: Colors.white,
-                          ),
-                          Text('Remember Me'),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      SizedBox(
-                        height: 55, // 20% of screen height
-                        width: MediaQuery.of(context).size.width * 1, // 50% of screen width
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            elevation: 5,
-                            shadowColor: Colors.black87,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            side: const BorderSide(color: Colors.black26, width: 0),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                            backgroundColor: AppColor.colorButton,
-                          ),
-                          onPressed: () async {
-                            usernameFocusNode.unfocus();
-                            passwordFocusNode.unfocus();
-                            String loginID = usernameController.text;
-                            String password = passwordController.text;
-                            if(loginID == ""){
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Username')));
-                            }else if(password == ""){
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Password')));
-                            }else{
-                              if(_isChecked){
-                                await pref.setString('userLoginID', loginID);
-                                await pref.setString('userLoginPassword', password);
-                                await pref.setBool('isLoginRemember', true);
-                              }else{
-                                await pref.setString('userLoginID', "");
-                                await pref.setString('userLoginPassword', "");
-                                await pref.setBool('isLoginRemember', false);
-                              }
-                              FocusScope.of(context).unfocus();
-                              bool isOnline = await AppUtils().checkConnectivity();
-                              if(isOnline){
-                                doLogin(loginID,password);
-                              }else{
-                                SnackBarUtils().showSnackBar(context,'Please connect to internet.',imagePath: "assets/images/ic_no_internet.png");
-                              }
-                            }
-                          },
-                          child: const Text('Login', style: TextStyle(color: AppColor.colorWhite)),
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          'App Version: $_appVersion',
-                          style: TextStyle(
-                            fontSize: 14.0, fontWeight: FontWeight.normal, // Bold font weight
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 0),
+                      Text('Remember Me'),
                     ],
                   ),
-                ),
-              ],
+                  SizedBox(height: 5),
+                  SizedBox(
+                    height: 55, // 20% of screen height
+                    width: MediaQuery.of(context).size.width * 1, // 50% of screen width
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 5,
+                        shadowColor: Colors.black87,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        side: const BorderSide(color: Colors.black26, width: 0),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        backgroundColor: AppColor.colorButton,
+                      ),
+                      onPressed: () async {
+                        usernameFocusNode.unfocus();
+                        passwordFocusNode.unfocus();
+                        String loginID = usernameController.text;
+                        String password = passwordController.text;
+                        if(loginID == ""){
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Username')));
+                        }else if(password == ""){
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Password')));
+                        }else{
+                          if(_isChecked){
+                            await pref.setString('userLoginID', loginID);
+                            await pref.setString('userLoginPassword', password);
+                            await pref.setBool('isLoginRemember', true);
+                          }else{
+                            await pref.setString('userLoginID', "");
+                            await pref.setString('userLoginPassword', "");
+                            await pref.setBool('isLoginRemember', false);
+                          }
+                          FocusScope.of(context).unfocus();
+                          bool isOnline = await AppUtils().checkConnectivity();
+                          if(isOnline){
+                            doLogin(loginID,password);
+                          }else{
+                            SnackBarUtils().showSnackBar(context,'Please connect to internet.',imagePath: "assets/images/ic_no_internet.png");
+                          }
+                        }
+                      },
+                      child: const Text('Login', style: TextStyle(color: AppColor.colorWhite)),
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'App Version: $_appVersion',
+                      style: TextStyle(
+                        fontSize: 14.0, fontWeight: FontWeight.normal, // Bold font weight
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 0),
+                ],
+              ),
             ),
-          ),
-        ],
+            Image.asset(
+              'assets/images/login_bottom.webp', // Path to the bottom image asset
+              //width: double.infinity, // Makes the image stretch across the width
+              height: MediaQuery.of(context).size.height * .30,
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.fill, // You can adjust this as needed
+            )
+          ],
+        ),
       ),
     );
   }
 
   Future<void> doLogin(loginID,password) async {
     try {
-      /*showDialog(context: context, builder: (context) {
-        return Center(child: CircularProgressIndicator());
-      },);*/
-
       LoaderUtils().showLoader(context);
 
       final loginRequest = LoginRequest(login_id: loginID,login_password: password,app_version: "1.0.1",device_token: "");
@@ -287,13 +271,10 @@ class _LoginScreen extends State<LoginScreen> {
         await pref.setString('user_name', loginResponse.user_name);
         fetchData();
       }else{
-        //Navigator.of(context).pop();
         LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loginResponse.message)),);
       }
-
     } catch (error) {
-      //Navigator.of(context).pop();
       LoaderUtils().dismissLoader(context);
       print('Error: $error');
     }
@@ -312,7 +293,6 @@ class _LoginScreen extends State<LoginScreen> {
       Future<void> orderHistory = apiCallOrderHistory();
       // Wait for all of them to complete
       List<void> results = await Future.wait([storeType,store,statePin,product,productRate,productUOM,branch,stockHistory,orderHistory]);
-      //Navigator.of(context).pop();
       LoaderUtils().dismissLoader(context);
       pref.setBool('isLoggedIn', true);
       Navigator.pushReplacement(
