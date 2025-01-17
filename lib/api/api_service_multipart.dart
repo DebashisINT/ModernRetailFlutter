@@ -14,4 +14,8 @@ abstract class ApiServiceMultipart{
   @POST("ModernRetailImageInfo/StoreImageSave")
   @MultiPart()
   Future<GenericResponse> uploadImage(@Part(name: 'data') String data, @Part(name: 'attachments') File file,);
+
+  @POST("ModernRetailImageInfo/StockImageSave")
+  @MultiPart()
+  Future<GenericResponse> uploadStockFile(@Part(name: 'data') String data, @Part(name: 'attachments') File file,);
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../api/api_service.dart';
+import '../api/api_service_multipart.dart';
 import '../api/response/stock_save_request.dart';
 import '../database/app_database.dart';
 import '../database/stock_product_entity.dart';
@@ -37,6 +39,11 @@ class _StockAddFragment extends State<StockAddFragment> {
   final List<TextEditingController> _mfgDatecontrollers = [];
   final List<TextEditingController> _expDatecontrollers = [];
 
+  String remarks = "";
+  String filePath = "";
+
+  final apiServiceMultipart = ApiServiceMultipart(Dio());
+
   List<StockProductEntity> stockProductL = [];
 
   final viewModel = ItemViewModel(appDatabase.stockProductDao);
@@ -57,27 +64,6 @@ class _StockAddFragment extends State<StockAddFragment> {
   }
 
   Future<void> loadStockProduct() async {
-    /*stockProductL = productL.asMap().entries.map((item) {
-      return StockProductEntity(
-          sl_no: item.key,
-          product_id: item.value.product_id,
-          product_name: item.value.product_name,
-          product_description: item.value.product_description,
-          brand_id: item.value.brand_id,
-          brand_name: item.value.brand_name,
-          category_id: item.value.category_id,
-          category_name: item.value.category_name,
-          watt_id: item.value.watt_id,
-          watt_name: item.value.watt_name,
-          product_mrp: item.value.product_mrp,
-          UOM: item.value.UOM,
-          product_pic_url: item.value.product_pic_url,
-          qty: "",
-          mfgDate: "",
-          expDate: "");
-    }).toList();
-    appDatabase.stockProductDao.insertAll(stockProductL);*/
-
     appDatabase.stockProductDao.deleteAll();
     appDatabase.stockProductDao.setData();
     appDatabase.stockProductDao.setSlNo();
@@ -257,7 +243,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                     if (qtyList.isEmpty) {
                       SnackBarUtils().showSnackBar(context,'Select a product');
                     } else {
-                      submitData(qtyList);
+                      _showInputDialog();
                     }
                   }
                 },
@@ -279,8 +265,28 @@ class _StockAddFragment extends State<StockAddFragment> {
         .toList(); // Convert the filtered entries back to a list
   }
 
-  Future<void> submitData(List<MapEntry<int, TextEditingController>> qtyList) async {
+  Future<void> uploadFileApi(String stockID) async {
     try {
+      final jsonData = '{"stock_id":"$stockID","user_id":"${pref.getString('user_id')!}"}';
+
+      final File file = File(filePath);
+
+      final response = await apiServiceMultipart.uploadStockFile(jsonData, file!);
+      if (response.status == "200") {
+        final a =123;
+        LoaderUtils().dismissLoader(context);
+        showSuccessDialog();
+      }
+    } catch (e) {
+      print(e);
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something went wrong.")));
+    }
+  }
+
+  Future<void> submitData() async {
+    try {
+      List<MapEntry<int, TextEditingController>> qtyList = getNonEmptyControllersWithIndices(_qtyControllers);
       LoaderUtils().showLoader(context);
 
       final StockSaveEntity stock = StockSaveEntity();
@@ -293,6 +299,7 @@ class _StockAddFragment extends State<StockAddFragment> {
       stock.stock_id = stockID;
       stock.save_date_time = formattedDate;
       stock.store_id = selectedStore.store_id;
+      stock.remarks = remarks;
 
       for (var i = 0; i < qtyList.length; i++) {
         final selected_product_id = stockProductL[qtyList[i].key].product_id.toString();
@@ -310,12 +317,16 @@ class _StockAddFragment extends State<StockAddFragment> {
 
       bool isOnline = await AppUtils().checkConnectivity();
       if(isOnline){
-        final request = StockSaveRequest(user_id: pref.getString('user_id')!,stock_id: stock.stock_id,save_date_time: stock.save_date_time,
-        store_id: stock.store_id,product_list: stockL);
+        final request = StockSaveRequest(user_id: pref.getString('user_id')!,stock_id: stock.stock_id,save_date_time: stock.save_date_time,remarks: stock.remarks,
+            store_id: stock.store_id,product_list: stockL);
         final response = await apiService.saveStock(request);
         if(response.status == "200"){
-          LoaderUtils().dismissLoader(context);
-          showSuccessDialog();
+          if(filePath!=""){
+            uploadFileApi(stock.stock_id);
+          }else{
+            LoaderUtils().dismissLoader(context);
+            showSuccessDialog();
+          }
         }else{
           LoaderUtils().dismissLoader(context);
           SnackBarUtils().showSnackBar(context,'Something went wrong.');
@@ -336,7 +347,7 @@ class _StockAddFragment extends State<StockAddFragment> {
     });
   }
 
-  void _showInputDialog(BuildContext context) {
+  void _showInputDialog() {
     TextEditingController textController = TextEditingController();
     String? selectedFilePath;
     String? selectedFileName;
@@ -350,6 +361,7 @@ class _StockAddFragment extends State<StockAddFragment> {
               title: Text('Enter Details'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Text Input Field
                   TextField(
@@ -391,20 +403,39 @@ class _StockAddFragment extends State<StockAddFragment> {
                 ],
               ),
               actions: [
-                TextButton(
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    shadowColor: Colors.black87,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: const BorderSide(color: Colors.black26, width: 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    backgroundColor: AppColor.colorGrey,
+                  ),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
+                    submitData();
                   },
-                  child: Text('Cancel'),
+                  child: Text('Cancel',style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    shadowColor: Colors.black87,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: const BorderSide(color: Colors.black26, width: 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    backgroundColor: AppColor.colorGreenSteel,
+                  ),
                   onPressed: () {
-                    // Handle submission
-                    print('Text: ${textController.text}');
-                    print('Attachment: $selectedFilePath');
+                    remarks = textController.text;
+                    if(selectedFilePath != null){
+                      filePath = selectedFilePath!;
+                    }
                     Navigator.of(context).pop(); // Close the dialog
+                    submitData();
                   },
-                  child: Text('Submit'),
+                  child: Text('Submit',style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
                 ),
               ],
             );
