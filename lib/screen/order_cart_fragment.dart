@@ -38,12 +38,12 @@ class _OrderCartFragment extends State<OrderCartFragment> {
   final List<TextEditingController> _rateControllers = [];
   final List<FocusNode> _qtyFocusNode = [];
   final List<FocusNode> _rateFocusNode = [];
+  List<bool> _visibilityControllers = [];
 
   List<OrderProductEntity> orderProductL = [];
 
   String _totalQty = "";
   String _totalAmount = "";
-  bool _isTickVisible = false;
 
   @override
   void initState() {
@@ -60,6 +60,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       _rateControllers.add(TextEditingController(text: value.rate.toString()));
       _qtyFocusNode.add(FocusNode());
       _rateFocusNode.add(FocusNode());
+      _visibilityControllers.add(false);
       qty = qty + value.qty;
       amt = amt + (value.qty * value.rate);
     }
@@ -361,7 +362,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                 padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [_buildEntryDetails(product, _qtyControllers[index], _rateControllers[index], _qtyFocusNode[index], _rateFocusNode[index])],
+                  children: [_buildEntryDetails(product, _qtyControllers[index], _rateControllers[index], _qtyFocusNode[index], _rateFocusNode[index],index)],
                 )),
             SizedBox(height: 10),
           ],
@@ -370,7 +371,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
     );
   }
 
-  Widget _buildEntryDetails(OrderProductEntity product, TextEditingController qtyController, TextEditingController rateController, FocusNode qtyFocusNode, FocusNode rateFocusNode) {
+  Widget _buildEntryDetails(OrderProductEntity product, TextEditingController qtyController, TextEditingController rateController, FocusNode qtyFocusNode, FocusNode rateFocusNode,int index) {
     return Flexible(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -412,7 +413,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       onChanged: (text) {
                         // Handle text changes here
                         setState(() {
-                          _isTickVisible = true;
+                          _visibilityControllers[index] = true;
                         });
                         print('tag_Text_changed: $text'); // Example: Print the current text
                       }),
@@ -457,7 +458,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       onChanged: (text) {
                         // Handle text changes here
                         setState(() {
-                          _isTickVisible = true;
+                          _visibilityControllers[index] = true;
                         });
                         print('tag_Text_changed: $text'); // Example: Print the current text
                       }
@@ -470,12 +471,12 @@ class _OrderCartFragment extends State<OrderCartFragment> {
             width: 15,
           ),
           Visibility(
-            visible: _isTickVisible,
+            visible: _visibilityControllers[index],
               child: GestureDetector(
                 onTap: () {
                   commitChange(product,qtyController.text,rateController.text);
                   setState(() {
-                    _isTickVisible = false;
+                    _visibilityControllers[index] = false;
                   });
                 },
                 child: Image.asset(

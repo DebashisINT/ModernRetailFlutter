@@ -1,13 +1,21 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:modern_retail/database/order_save_entity.dart';
 import 'package:provider/provider.dart';
 
+import '../api/api_service.dart';
+import '../api/response/order_save_request.dart';
 import '../database/order_product_entity.dart';
+import '../database/order_save_dtls_entity.dart';
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_utils.dart';
+import '../utils/loader_utils.dart';
+import '../utils/snackbar_utils.dart';
 
 class OrderEditCartFragment extends StatefulWidget {
   final OrderSaveEntity orderObj;
@@ -19,13 +27,14 @@ class OrderEditCartFragment extends StatefulWidget {
 }
 
 class _OrderEditCartFragment extends State<OrderEditCartFragment> {
-
+  final apiService = ApiService(Dio());
   final viewModel = ItemViewModel(appDatabase.orderProductDao);
 
   final List<TextEditingController> _qtyControllers = [];
   final List<TextEditingController> _rateControllers = [];
   final List<FocusNode> _qtyFocusNode = [];
   final List<FocusNode> _rateFocusNode = [];
+  List<bool> _visibilityControllers = [];
 
   String _totalQty = "";
   String _totalAmount = "";
@@ -46,7 +55,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
 
     final orderDtls = await appDatabase.orderSaveDtlsDao.getDtlsById(widget.orderObj.order_id);
     for(var value in orderDtls){
-      await appDatabase.orderProductDao.updateAdded(int.parse(value.qty), double.parse(value.rate), true, int.parse(value.product_id));
+      await appDatabase.orderProductDao.updateAdded(double.parse(value.qty).toInt(), double.parse(value.rate), true, int.parse(value.product_id));
     }
     loadData();
   }
@@ -60,6 +69,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
       _rateControllers.add(TextEditingController(text: value.rate.toString()));
       _qtyFocusNode.add(FocusNode());
       _rateFocusNode.add(FocusNode());
+      _visibilityControllers.add(false);
       qty = qty + value.qty;
       amt = amt + (value.qty * value.rate);
     }
@@ -173,8 +183,9 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                           // Handle the Place Order click event here
                           print("Place Order button clicked!");
                           final getCount = await appDatabase.orderProductDao.getProductAddedCount();
+
                           if (getCount! > 0) {
-                            //_showRemarksDialog();
+                            _showRemarksDialog();
                           } else {
                             //SnackBarUtils().showSnackBar(context, 'There is no product in Cart');
                           }
@@ -186,7 +197,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                "Place Order",
+                                "Edit Order",
                                 style: TextStyle(
                                   color: AppColor.colorWhite,
                                   fontSize: 20,
@@ -259,15 +270,21 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                       _qtyFocusNode.clear();
                       _rateFocusNode.clear();
                       loadData();
+                      // Fetch updated product list from the database
                       List<OrderProductEntity> updatedProducts = await appDatabase.orderProductDao.getAllAdded();
+                      /*// Update the UI to reflect the changes
+                      var totalQty =await appDatabase.orderProductDao.getTotalQty();
+                      var totalAmt =await appDatabase.orderProductDao.getTotalAmt();*/
                       setState(() {
-                        product.isAdded = false;
-                        viewModel._items = updatedProducts;
+                        product.isAdded = false; // Update product state
+                        viewModel._items = updatedProducts; // Update the product list
+                        /*_totalQty = totalQty.toString();
+                        _totalAmount = totalAmt.toString();*/
                       });
                     },
                     child: Container(
-                      width: 30,
-                      height: 30,
+                      width: 30, // Increase container width to accommodate padding
+                      height: 30, // Increase container height to accommodate padding
                       decoration: BoxDecoration(
                         color: AppColor.colorRed, // Background color
                         borderRadius: BorderRadius.circular(200), // Rounded corners
@@ -351,7 +368,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                 padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [_buildEntryDetails(product, _qtyControllers[index], _rateControllers[index], _qtyFocusNode[index], _rateFocusNode[index])],
+                  children: [_buildEntryDetails(product, _qtyControllers[index], _rateControllers[index], _qtyFocusNode[index], _rateFocusNode[index],index)],
                 )),
             SizedBox(height: 10),
           ],
@@ -360,7 +377,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
     );
   }
 
-  Widget _buildEntryDetails(OrderProductEntity product, TextEditingController qtyController, TextEditingController rateController, FocusNode qtyFocusNode, FocusNode rateFocusNode) {
+  Widget _buildEntryDetails(OrderProductEntity product, TextEditingController qtyController, TextEditingController rateController, FocusNode qtyFocusNode, FocusNode rateFocusNode,int index) {
     return Flexible(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -401,6 +418,9 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                       ],
                       onChanged: (text) {
                         // Handle text changes here
+                        setState(() {
+                          _visibilityControllers[index] = true;
+                        });
                         print('tag_Text_changed: $text'); // Example: Print the current text
                       }),
                 ),
@@ -430,17 +450,24 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                   height: 30, // Fixed height for text box
                   alignment: Alignment.center,
                   child: TextFormField(
-                    controller: rateController,
-                    focusNode: rateFocusNode,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: '',
-                      border: UnderlineInputBorder(),
-                    ),
-                    textAlign: TextAlign.center,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
-                    ],
+                      controller: rateController,
+                      focusNode: rateFocusNode,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: '',
+                        border: UnderlineInputBorder(),
+                      ),
+                      textAlign: TextAlign.center,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                      ],
+                      onChanged: (text) {
+                        // Handle text changes here
+                        setState(() {
+                          _visibilityControllers[index] = true;
+                        });
+                        print('tag_Text_changed: $text'); // Example: Print the current text
+                      }
                   ),
                 ),
               ],
@@ -450,12 +477,12 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
             width: 15,
           ),
           Visibility(
-              visible: _isTickVisible,
+              visible: _visibilityControllers[index],
               child: GestureDetector(
                 onTap: () {
                   commitChange(product,qtyController.text,rateController.text);
                   setState(() {
-                    _isTickVisible = false;
+                    _visibilityControllers[index] = false;
                   });
                 },
                 child: Image.asset(
@@ -470,6 +497,148 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
     );
   }
 
+  Future<void> commitChange(OrderProductEntity product,String qty,String rate) async {
+    await appDatabase.orderProductDao.updateAddedInCart(int.parse(qty), double.parse(rate), product.product_id);
+    var totalQty =await appDatabase.orderProductDao.getTotalQty();
+    var totalAmt =await appDatabase.orderProductDao.getTotalAmt();
+    setState(() {
+      _totalQty = totalQty.toString();
+      _totalAmount = totalAmt.toString();
+    });
+  }
+
+  void _showRemarksDialog() {
+    TextEditingController textController = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Enter Details'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Text Input Field
+                  TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                      labelText: 'Remarks',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  // Attachment Selection
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    shadowColor: Colors.black87,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: const BorderSide(color: Colors.black26, width: 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    backgroundColor: AppColor.colorGrey,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                    onSubmit_handlePlaceOrder("");
+                  },
+                  child: Text('Cancel', style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    shadowColor: Colors.black87,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: const BorderSide(color: Colors.black26, width: 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    backgroundColor: AppColor.colorButton,
+                  ),
+                  onPressed: () {
+                    String userInput = textController.text;
+
+                    Navigator.of(context).pop(); // Close the dialog
+                    // Pass the value back to the caller
+                    onSubmit_handlePlaceOrder(userInput);
+                  },
+                  child: Text('Submit', style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> onSubmit_handlePlaceOrder(String remarks) async {
+    try {
+      LoaderUtils().showLoader(context);
+
+      OrderSaveEntity orderObj = OrderSaveEntity();
+      List<OrderSaveDtlsEntity> orderDtlsL = [];
+
+      DateTime currentDateTime = DateTime.now();
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
+
+      final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
+
+      orderObj.store_id =  widget.orderObj.store_id;
+      orderObj.order_id = widget.orderObj.order_id;
+      orderObj.order_date_time = formattedDate;
+      orderObj.order_amount = ordAmt.toString();
+      orderObj.order_status = "";
+      orderObj.remarks = remarks;
+
+      final productL = await appDatabase.orderProductDao.getAllAdded();
+      for (var value in productL) {
+        OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
+        obj.order_id = orderObj.order_id;
+        obj.product_id = value.product_id.toString();
+        obj.qty = value.qty.toString();
+        obj.rate = value.rate.toString();
+        orderDtlsL.add(obj);
+      }
+
+
+      await Future.delayed(Duration(seconds: 2));
+
+      bool isOnline = await AppUtils().checkConnectivity();
+      if (isOnline) {
+        final request = OrderSaveRequest(user_id: pref.getString('user_id')!, store_id: orderObj.store_id, order_id: orderObj.order_id, order_date_time: formattedDate, order_amount: ordAmt.toString(), order_status: '', remarks: remarks, order_details_list: orderDtlsL);
+        final response = await apiService.editOrder(request);
+        if (response.status == "200") {
+          await appDatabase.orderSaveDao.deleteById(orderObj.order_id);
+          await appDatabase.orderSaveDtlsDao.deleteById(orderObj.order_id);
+
+          await appDatabase.orderSaveDao.insert(orderObj);
+          await appDatabase.orderSaveDtlsDao.insertAll(orderDtlsL);
+          LoaderUtils().dismissLoader(context);
+          showSuccessDialog(orderObj.order_id);
+        } else {
+          LoaderUtils().dismissLoader(context);
+          SnackBarUtils().showSnackBar(context, 'Something went wrong.');
+        }
+      } else {
+        LoaderUtils().dismissLoader(context);
+        showSuccessDialog(orderObj.order_id);
+      }
+    } catch (e) {
+      print(e);
+      Navigator.of(context).pop();
+    }
+  }
+
+  void showSuccessDialog(String orderID) {
+    AppUtils().showCustomDialogWithOrderId(context, "Congrats!", "Hi ${pref.getString('user_name') ?? ""}, Your Order has been edited successfully.", orderID, () {
+      Navigator.of(context).pop();
+    });
+  }
 
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
