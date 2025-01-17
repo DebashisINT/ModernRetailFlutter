@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modern_retail/api/response/order_delete_request.dart';
 import 'package:modern_retail/database/order_save_entity.dart';
+import 'package:modern_retail/screen/order_edit_cart_fragment.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -238,6 +239,26 @@ class _OrderFragment extends State<OrderFragment> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end, // Align both buttons to the right
                   children: [
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  OrderEditCartFragment(orderObj: item)),
+                        );
+                      },
+                      icon: Icon(Icons.edit, color: Colors.white),
+                      label: Text("Edit", style: TextStyle(color: Colors.white)),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColor.colorBlue, // Set the background color to blue
+                        side: BorderSide(color: AppColor.colorBlue),
+                        padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0), // Reduced top and bottom padding
+                        minimumSize: Size(0, 28), // Minimum height for the button
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Shrink button tap area
+                      ),
+                    ),
+                    SizedBox(width: 8),
                     OutlinedButton.icon(
                       onPressed: () {
                         // Add action for View button

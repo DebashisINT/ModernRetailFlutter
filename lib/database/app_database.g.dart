@@ -1192,6 +1192,19 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
   }
 
   @override
+  Future<List<OrderSaveDtlsEntity>> getDtlsById(String order_id) async {
+    return _queryAdapter.queryList(
+        'select * from mr_order_save_dtls where order_id=?1',
+        mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(
+            sl_no: row['sl_no'] as int?,
+            order_id: row['order_id'] as String,
+            product_id: row['product_id'] as String,
+            qty: row['qty'] as String,
+            rate: row['rate'] as String),
+        arguments: [order_id]);
+  }
+
+  @override
   Future<void> insert(OrderSaveDtlsEntity obj) async {
     await _orderSaveDtlsEntityInsertionAdapter.insert(
         obj, OnConflictStrategy.replace);

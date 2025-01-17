@@ -49,4 +49,7 @@ abstract class OrderSaveDtlsDao{
 
   @Query('delete from mr_order_save_dtls where order_id=:order_id ')
   Future<void> deleteById(String order_id);
+
+  @Query('select * from mr_order_save_dtls where order_id=:order_id ')
+  Future<List<OrderSaveDtlsEntity>> getDtlsById(String order_id);
 }

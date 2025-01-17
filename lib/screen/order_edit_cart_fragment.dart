@@ -1,51 +1,52 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:modern_retail/database/order_save_entity.dart';
 import 'package:provider/provider.dart';
 
-import '../api/api_service.dart';
-import '../api/response/order_save_request.dart';
 import '../database/order_product_entity.dart';
-import '../database/order_save_dtls_entity.dart';
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
-import '../utils/app_utils.dart';
-import '../utils/loader_utils.dart';
-import '../utils/snackbar_utils.dart';
-import 'order_fragment.dart';
 
-class OrderCartFragment extends StatefulWidget {
-  final VoidCallback onDataChanged;
-  final StoreEntity storeObj;
+class OrderEditCartFragment extends StatefulWidget {
+  final OrderSaveEntity orderObj;
 
-  const OrderCartFragment({super.key, required this.onDataChanged, required this.storeObj});
+  const OrderEditCartFragment({super.key, required this.orderObj});
 
   @override
-  _OrderCartFragment createState() => _OrderCartFragment();
+  _OrderEditCartFragment createState() => _OrderEditCartFragment();
 }
 
-class _OrderCartFragment extends State<OrderCartFragment> {
+class _OrderEditCartFragment extends State<OrderEditCartFragment> {
+
   final viewModel = ItemViewModel(appDatabase.orderProductDao);
-  final apiService = ApiService(Dio());
 
   final List<TextEditingController> _qtyControllers = [];
   final List<TextEditingController> _rateControllers = [];
   final List<FocusNode> _qtyFocusNode = [];
   final List<FocusNode> _rateFocusNode = [];
 
-  List<OrderProductEntity> orderProductL = [];
-
   String _totalQty = "";
   String _totalAmount = "";
-  bool _isTickVisible = false;
+
+  List<OrderProductEntity> orderProductL = [];
 
   @override
   void initState() {
     super.initState();
+    setData();
+  }
+
+  Future<void> setData() async {
+    await appDatabase.orderProductDao.deleteAll();
+    await appDatabase.orderProductDao.setData();
+    await appDatabase.orderProductDao.setSlNo();
+
+    final orderDtls = await appDatabase.orderSaveDtlsDao.getDtlsById(widget.orderObj.order_id);
+    for(var value in orderDtls){
+      await appDatabase.orderProductDao.updateAdded(int.parse(value.qty), double.parse(value.rate), true, int.parse(value.product_id));
+    }
     loadData();
   }
 
@@ -72,9 +73,6 @@ class _OrderCartFragment extends State<OrderCartFragment> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Custom logic here
-        print("Back button pressed!");
-        widget.onDataChanged();
         Navigator.of(context).pop();
         return false; // Prevent default behavior
       },
@@ -174,11 +172,10 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                           // Handle the Place Order click event here
                           print("Place Order button clicked!");
                           final getCount = await appDatabase.orderProductDao.getProductAddedCount();
-
                           if (getCount! > 0) {
-                            _showRemarksDialog();
+                            //_showRemarksDialog();
                           } else {
-                            SnackBarUtils().showSnackBar(context, 'There is no product in Cart');
+                            //SnackBarUtils().showSnackBar(context, 'There is no product in Cart');
                           }
                         },
                         child: Container(
@@ -261,21 +258,15 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       _qtyFocusNode.clear();
                       _rateFocusNode.clear();
                       loadData();
-                      // Fetch updated product list from the database
                       List<OrderProductEntity> updatedProducts = await appDatabase.orderProductDao.getAllAdded();
-                      /*// Update the UI to reflect the changes
-                      var totalQty =await appDatabase.orderProductDao.getTotalQty();
-                      var totalAmt =await appDatabase.orderProductDao.getTotalAmt();*/
                       setState(() {
-                        product.isAdded = false; // Update product state
-                        viewModel._items = updatedProducts; // Update the product list
-                        /*_totalQty = totalQty.toString();
-                        _totalAmount = totalAmt.toString();*/
+                        product.isAdded = false;
+                        viewModel._items = updatedProducts;
                       });
                     },
                     child: Container(
-                      width: 30, // Increase container width to accommodate padding
-                      height: 30, // Increase container height to accommodate padding
+                      width: 30,
+                      height: 30,
                       decoration: BoxDecoration(
                         color: AppColor.colorRed, // Background color
                         borderRadius: BorderRadius.circular(200), // Rounded corners
@@ -409,9 +400,6 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       ],
                       onChanged: (text) {
                         // Handle text changes here
-                        setState(() {
-                          _isTickVisible = true;
-                        });
                         print('tag_Text_changed: $text'); // Example: Print the current text
                       }),
                 ),
@@ -457,28 +445,11 @@ class _OrderCartFragment extends State<OrderCartFragment> {
               ],
             ),
           ),
-          SizedBox(
-            width: 15,
-          ),
-          Visibility(
-            visible: _isTickVisible,
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isTickVisible = false;
-                  });
-                },
-                child: Image.asset(
-                  "assets/images/ic_tick.png",
-                  height: 30,
-                  width: 30,
-                  fit: BoxFit.fill,
-                ),
-              )),
         ],
       ),
     );
   }
+
 
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
@@ -507,137 +478,6 @@ class _OrderCartFragment extends State<OrderCartFragment> {
     );
   }
 
-  void _showRemarksDialog() {
-    TextEditingController textController = TextEditingController();
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text('Enter Details'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Text Input Field
-                  TextField(
-                    controller: textController,
-                    decoration: InputDecoration(
-                      labelText: 'Remarks',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  // Attachment Selection
-                ],
-              ),
-              actions: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black87,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorGrey,
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                    onSubmit_handlePlaceOrder(widget.storeObj, "");
-                  },
-                  child: Text('Cancel', style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black87,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorButton,
-                  ),
-                  onPressed: () {
-                    String userInput = textController.text;
-
-                    Navigator.of(context).pop(); // Close the dialog
-                    // Pass the value back to the caller
-                    onSubmit_handlePlaceOrder(widget.storeObj, userInput);
-                  },
-                  child: Text('Submit', style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> onSubmit_handlePlaceOrder(StoreEntity storeObj, String remarks) async {
-    try {
-      LoaderUtils().showLoader(context);
-
-      OrderSaveEntity orderObj = OrderSaveEntity();
-      List<OrderSaveDtlsEntity> orderDtlsL = [];
-
-      DateTime currentDateTime = DateTime.now();
-      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
-      final orderID = "ORD_" + pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
-
-      final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
-
-      orderObj.store_id = storeObj.store_id;
-      orderObj.order_id = orderID;
-      orderObj.order_date_time = formattedDate;
-      orderObj.order_amount = ordAmt.toString();
-      orderObj.order_status = "";
-      orderObj.remarks = remarks;
-
-      final productL = await appDatabase.orderProductDao.getAllAdded();
-      for (var value in productL) {
-        OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
-        obj.order_id = orderID;
-        obj.product_id = value.product_id.toString();
-        obj.qty = value.qty.toString();
-        obj.rate = value.rate.toString();
-        orderDtlsL.add(obj);
-      }
-
-      await appDatabase.orderSaveDao.insert(orderObj);
-      await appDatabase.orderSaveDtlsDao.insertAll(orderDtlsL);
-      await Future.delayed(Duration(seconds: 2));
-
-      bool isOnline = await AppUtils().checkConnectivity();
-      if (isOnline) {
-        final request = OrderSaveRequest(user_id: pref.getString('user_id')!, store_id: storeObj.store_id, order_id: orderID, order_date_time: formattedDate, order_amount: ordAmt.toString(), order_status: '', remarks: remarks, order_details_list: orderDtlsL);
-        final response = await apiService.saveOrder(request);
-        if (response.status == "200") {
-          LoaderUtils().dismissLoader(context);
-          showSuccessDialog(storeObj, orderID);
-        } else {
-          LoaderUtils().dismissLoader(context);
-          SnackBarUtils().showSnackBar(context, 'Something went wrong.');
-        }
-      } else {
-        LoaderUtils().dismissLoader(context);
-        showSuccessDialog(storeObj, orderID);
-      }
-    } catch (e) {
-      print(e);
-      Navigator.of(context).pop();
-    }
-  }
-
-  void showSuccessDialog(StoreEntity storeObj, String orderID) {
-    AppUtils().showCustomDialogWithOrderId(context, "Congrats!", "Hi ${pref.getString('user_name') ?? ""}, Your Order for ${storeObj.store_name} has been placed successfully.", orderID, () {
-      widget.onDataChanged();
-      Navigator.of(context).pop();
-      Navigator.of(context).pop();
-    });
-  }
 }
 
 enum LoadingState { idle, loading, error }
