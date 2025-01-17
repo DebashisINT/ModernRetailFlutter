@@ -1105,6 +1105,13 @@ class _$OrderSaveDao extends OrderSaveDao {
   }
 
   @override
+  Future<void> deleteById(String order_id) async {
+    await _queryAdapter.queryNoReturn(
+        'delete from mr_order_save where order_id=?1',
+        arguments: [order_id]);
+  }
+
+  @override
   Future<void> insert(OrderSaveEntity obj) async {
     await _orderSaveEntityInsertionAdapter.insert(
         obj, OnConflictStrategy.replace);
@@ -1174,6 +1181,13 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
     return _queryAdapter.query(
         'select count(*) as itemCount from mr_order_save_dtls where mr_order_save_dtls.order_id = ?1',
         mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [order_id]);
+  }
+
+  @override
+  Future<void> deleteById(String order_id) async {
+    await _queryAdapter.queryNoReturn(
+        'delete from mr_order_save_dtls where order_id=?1',
         arguments: [order_id]);
   }
 

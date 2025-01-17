@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:modern_retail/api/response/order_delete_request.dart';
 import 'package:modern_retail/api/response/order_history_response.dart';
 import 'package:modern_retail/api/response/order_save_request.dart';
 import 'package:modern_retail/api/response/product_rate_response.dart';
@@ -66,4 +67,7 @@ abstract class ApiService{
 
   @POST("ModernRetailInfoDetails/OrderInfoFetchLists")
   Future<OrderHistoryResponse> fetchOrderHistory(@Body() UserIdRequest input);
+
+  @POST("ModernRetailInfoDetails/OrderWithProductDetailDelete")
+  Future<GenericResponse> deleteOrder(@Body() OrderDeleteRequest input);
 }

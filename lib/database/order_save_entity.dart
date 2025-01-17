@@ -47,4 +47,7 @@ abstract class OrderSaveDao{
   @Query('SELECT * FROM mr_order_save ORDER BY order_date_time ASC LIMIT :limit OFFSET :offset')
   Future<List<OrderSaveEntity>> fetchPaginatedItems(int limit, int offset);
 
+  @Query('delete from mr_order_save where order_id=:order_id ')
+  Future<void> deleteById(String order_id);
+
 }

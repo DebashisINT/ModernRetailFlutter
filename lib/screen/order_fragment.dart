@@ -1,13 +1,18 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:modern_retail/api/response/order_delete_request.dart';
 import 'package:modern_retail/database/order_save_entity.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../api/api_service.dart';
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_utils.dart';
+import '../utils/loader_utils.dart';
+import '../utils/snackbar_utils.dart';
 import 'order_add_fragment.dart';
 
 class OrderFragment extends StatefulWidget {
@@ -22,6 +27,7 @@ class OrderFragment extends StatefulWidget {
 class _OrderFragment extends State<OrderFragment> {
 
   final viewModel = ItemViewModel(appDatabase.orderSaveDao);
+  final apiService = ApiService(Dio());
 
   @override
   void initState() {
@@ -257,6 +263,7 @@ class _OrderFragment extends State<OrderFragment> {
                         onPressed: () {
                           // Add action for Delete button
                           print("Delete order ${item.order_id}");
+                          _handleDeleteOrder(item.order_id);
                         },
                         icon: Icon(Icons.delete, color: Colors.white), // White delete icon
                         iconSize: 20, // Smaller icon size
@@ -270,6 +277,35 @@ class _OrderFragment extends State<OrderFragment> {
         ],
       ),
     );
+  }
+
+
+  Future<void> _handleDeleteOrder(String order_id) async {
+
+    LoaderUtils().showLoader(context);
+
+    List<OrderDelete> orderDeleteList = [];
+    orderDeleteList.add(OrderDelete(order_id: order_id));
+
+    bool isOnline = await AppUtils().checkConnectivity();
+    if (isOnline) {
+      final request = OrderDeleteRequest(user_id: pref.getString('user_id')!,order_delete_list: orderDeleteList);
+      final response = await apiService.deleteOrder(request);
+      if (response.status == "200") {
+        LoaderUtils().dismissLoader(context);
+        await appDatabase.orderSaveDao.deleteById(order_id);
+        await appDatabase.orderSaveDtlsDao.deleteById(order_id);
+        showSuccessDialog();
+      } else {
+        LoaderUtils().dismissLoader(context);
+        SnackBarUtils().showSnackBar(context, 'Something went wrong.');
+      }
+    }
+    else {
+      LoaderUtils().dismissLoader(context);
+      SnackBarUtils().showSnackBar(context,'Please connect to internet.',imagePath: "assets/images/ic_no_internet.png");
+    }
+
   }
 
   Widget _buildHeader() {
@@ -471,7 +507,14 @@ class _OrderFragment extends State<OrderFragment> {
       debugPrint('Error opening map: $e');
     }
   }
+
+  void showSuccessDialog() {
+    AppUtils().showCustomDialog(context, "Hi ${pref.getString('user_name') ?? ""}", "Your Order has been deleted successfully.", () {
+      _updateData();
+    });
+  }
 }
+
 
 enum LoadingState { idle, loading, error }
 class ItemViewModel extends ChangeNotifier {
