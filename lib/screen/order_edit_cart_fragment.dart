@@ -29,6 +29,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
 
   String _totalQty = "";
   String _totalAmount = "";
+  bool _isTickVisible = false;
 
   List<OrderProductEntity> orderProductL = [];
 
@@ -445,6 +446,25 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
               ],
             ),
           ),
+          SizedBox(
+            width: 15,
+          ),
+          Visibility(
+              visible: _isTickVisible,
+              child: GestureDetector(
+                onTap: () {
+                  commitChange(product,qtyController.text,rateController.text);
+                  setState(() {
+                    _isTickVisible = false;
+                  });
+                },
+                child: Image.asset(
+                  "assets/images/ic_tick.png",
+                  height: 30,
+                  width: 30,
+                  fit: BoxFit.fill,
+                ),
+              )),
         ],
       ),
     );
