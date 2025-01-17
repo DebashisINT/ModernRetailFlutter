@@ -644,7 +644,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
     return AppBar(
       title: Center(
         child: Text(
-          "Cart",
+          "Edit Order",
           style: TextStyle(color: AppColor.colorWhite, fontSize: 20),
         ),
       ),

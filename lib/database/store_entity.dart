@@ -70,6 +70,9 @@ abstract class StoreDao{
   @Query('select * from mr_store')
   Future<List<StoreEntity>> getAll();
 
+  @Query('select * from mr_store where store_id=:store_id')
+  Future<StoreEntity?> getByID(String store_id);
+
   @Query('delete from mr_store')
   Future<void> deleteAll();
 

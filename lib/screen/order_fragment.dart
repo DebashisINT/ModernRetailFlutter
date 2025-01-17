@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:modern_retail/api/response/order_delete_request.dart';
 import 'package:modern_retail/database/order_save_entity.dart';
 import 'package:modern_retail/screen/order_edit_cart_fragment.dart';
+import 'package:modern_retail/screen/order_view_fragment.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -263,8 +264,12 @@ class _OrderFragment extends State<OrderFragment> {
                     SizedBox(width: 8),
                     OutlinedButton.icon(
                       onPressed: () {
-                        // Add action for View button
-                        print("View details for order ${item.order_id}");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  OrderViewFragment(orderObj: item)),
+                        );
                       },
                       icon: Icon(Icons.info, color: Colors.white),
                       label: Text("View", style: TextStyle(color: Colors.white)),
