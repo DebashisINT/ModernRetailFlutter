@@ -1045,6 +1045,17 @@ class _$OrderProductDao extends OrderProductDao {
   }
 
   @override
+  Future<void> updateAddedInCart(
+    int qty,
+    double rate,
+    int product_id,
+  ) async {
+    await _queryAdapter.queryNoReturn(
+        'update mr_order_product set qty =?1 , rate=?2 where product_id=?3',
+        arguments: [qty, rate, product_id]);
+  }
+
+  @override
   Future<void> insertAll(List<OrderProductEntity> list) async {
     await _orderProductEntityInsertionAdapter.insertList(
         list, OnConflictStrategy.replace);

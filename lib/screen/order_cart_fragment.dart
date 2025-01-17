@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -452,6 +454,13 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
                     ],
+                      onChanged: (text) {
+                        // Handle text changes here
+                        setState(() {
+                          _isTickVisible = true;
+                        });
+                        print('tag_Text_changed: $text'); // Example: Print the current text
+                      }
                   ),
                 ),
               ],
@@ -464,6 +473,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
             visible: _isTickVisible,
               child: GestureDetector(
                 onTap: () {
+                  commitChange(product,qtyController.text,rateController.text);
                   setState(() {
                     _isTickVisible = false;
                   });
@@ -478,6 +488,16 @@ class _OrderCartFragment extends State<OrderCartFragment> {
         ],
       ),
     );
+  }
+
+  Future<void> commitChange(OrderProductEntity product,String qty,String rate) async {
+    await appDatabase.orderProductDao.updateAddedInCart(int.parse(qty), double.parse(rate), product.product_id);
+    var totalQty =await appDatabase.orderProductDao.getTotalQty();
+    var totalAmt =await appDatabase.orderProductDao.getTotalAmt();
+    setState(() {
+      _totalQty = totalQty.toString();
+      _totalAmount = totalAmt.toString();
+    });
   }
 
   AppBar _buildAppBar(BuildContext context) {

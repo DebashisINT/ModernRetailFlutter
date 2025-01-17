@@ -81,4 +81,8 @@ abstract class OrderProductDao {
   @Query('select COALESCE(sum(qty * rate), 0.0) as totalAmt from mr_order_product where isAdded = 1')
   Future<double?> getTotalAmt();
 
+  @Query('update mr_order_product set qty =:qty , rate=:rate where product_id=:product_id')
+  Future<void> updateAddedInCart(int qty,double rate,int product_id);
+
+
 }
