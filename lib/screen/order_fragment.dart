@@ -246,7 +246,9 @@ class _OrderFragment extends State<OrderFragment> {
                           MaterialPageRoute(
                               builder: (context) =>
                                   OrderEditCartFragment(orderObj: item)),
-                        );
+                        ).then((value) {
+                          _updateData();
+                        });
                       },
                       icon: Icon(Icons.edit, color: Colors.white),
                       label: Text("Edit", style: TextStyle(color: Colors.white)),

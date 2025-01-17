@@ -65,6 +65,9 @@ abstract class ApiService{
   @POST("ModernRetailInfoDetails/OrderInfoSave")
   Future<GenericResponse> saveOrder(@Body() OrderSaveRequest input);
 
+  @POST("ModernRetailInfoDetails/OrderWithProductDetailEdit")
+  Future<GenericResponse> editOrder(@Body() OrderSaveRequest input);
+
   @POST("ModernRetailInfoDetails/OrderInfoFetchLists")
   Future<OrderHistoryResponse> fetchOrderHistory(@Body() UserIdRequest input);
 
