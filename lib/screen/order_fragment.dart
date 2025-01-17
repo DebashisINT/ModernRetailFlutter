@@ -200,7 +200,8 @@ class _OrderFragment extends State<OrderFragment> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Amount (${item.order_amount} items)"),
+                   // Text("Amount (${item.order_amount} items)"),
+                    Text("Amount"),
                     Text(
                       "₹${double.tryParse(item.order_amount ?? '0')?.toStringAsFixed(2) ?? '0.00'}",
                       style: TextStyle(fontWeight: FontWeight.bold),
