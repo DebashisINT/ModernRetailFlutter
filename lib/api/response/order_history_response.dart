@@ -25,7 +25,7 @@ class Order {
   String store_id;
   String order_id;
   String order_date_time;
-  String order_amount;
+  double order_amount;
   String order_status;
   String remarks;
   List<OrderDtls> order_details_list;
@@ -45,7 +45,7 @@ class Order {
       store_id: json['store_id'],
       order_id: json['order_id'],
       order_date_time: json['order_date_time'],
-      order_amount: json['order_amount'],
+      order_amount: (json['order_amount'] as num).toDouble(),
       order_status: json['order_status'],
       remarks: json['remarks'],
       order_details_list: (json['order_details_list'] as List)
@@ -71,7 +71,7 @@ class OrderDtls {
     return OrderDtls(
       order_id: json['order_id'],
       product_id: json['product_id'],
-      qty: json['qty'],
+      qty: (json['qty'] as num).toDouble(),
       rate: (json['rate'] as num).toDouble(),
     );
   }

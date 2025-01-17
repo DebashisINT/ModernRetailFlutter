@@ -354,6 +354,7 @@ class _StockAddFragment extends State<StockAddFragment> {
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -387,6 +388,14 @@ class _StockAddFragment extends State<StockAddFragment> {
                         ),
                       ),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          elevation: 5,
+                          shadowColor: Colors.black87,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          side: const BorderSide(color: Colors.black26, width: 0),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          backgroundColor: AppColor.colorButton,
+                        ),
                         onPressed: () async {
                           FilePickerResult? result = await FilePicker.platform.pickFiles();
                           if (result != null && result.files.isNotEmpty) {
@@ -396,7 +405,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                             });
                           }
                         },
-                        child: Text('Attach'),
+                        child: Text('Attach',style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
                       ),
                     ],
                   ),
@@ -425,7 +434,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     side: const BorderSide(color: Colors.black26, width: 0),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorGreenSteel,
+                    backgroundColor: AppColor.colorButton,
                   ),
                   onPressed: () {
                     remarks = textController.text;
@@ -435,7 +444,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                     Navigator.of(context).pop(); // Close the dialog
                     submitData();
                   },
-                  child: Text('Submit',style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
+                  child: Text('Submit',style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
                 ),
               ],
             );

@@ -498,7 +498,7 @@ class _LoginScreen extends State<LoginScreen> {
             obj.store_id = order.store_id;
             obj.order_id = order.order_id;
             obj.order_date_time = order.order_date_time;
-            obj.order_amount = order.order_amount;
+            obj.order_amount = order.order_amount.toString();
             obj.order_status = order.order_status;
             obj.remarks = order.remarks;
             await itemDao.insert(obj);
