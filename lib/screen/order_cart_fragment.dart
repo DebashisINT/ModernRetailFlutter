@@ -599,7 +599,8 @@ class _OrderCartFragment extends State<OrderCartFragment> {
           LoaderUtils().dismissLoader(context);
           SnackBarUtils().showSnackBar(context, 'Something went wrong.');
         }
-      } else {
+      }
+      else {
         LoaderUtils().dismissLoader(context);
         showSuccessDialog(storeObj, orderID);
       }
