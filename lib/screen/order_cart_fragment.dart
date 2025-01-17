@@ -175,7 +175,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                           final getCount = await appDatabase.orderProductDao.getProductAddedCount();
 
                           if (getCount! > 0) {
-                            _handlePlaceOrder(widget.storeObj);
+                            _showRemarksDialog();
                           } else {
                             SnackBarUtils().showSnackBar(context, 'There is no product in Cart');
                           }
@@ -485,7 +485,58 @@ class _OrderCartFragment extends State<OrderCartFragment> {
     );
   }
 
-  Future<void> _handlePlaceOrder(StoreEntity storeObj) async {
+  void _showRemarksDialog() {
+    TextEditingController textController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Enter Details'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                      labelText: 'Remarks',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+
+                    Navigator.of(context).pop(); // Close the dialog
+                    onSubmit_handlePlaceOrder(widget.storeObj,"");
+                  },
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    String userInput = textController.text;
+
+                    Navigator.of(context).pop(); // Close the dialog
+                    // Pass the value back to the caller
+                    onSubmit_handlePlaceOrder(widget.storeObj,userInput);
+
+                  },
+                  child: Text('Submit'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> onSubmit_handlePlaceOrder(StoreEntity storeObj ,String remarks) async {
     try {
       LoaderUtils().showLoader(context);
 
@@ -503,7 +554,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       orderObj.order_date_time = formattedDate;
       orderObj.order_amount = ordAmt.toString();
       orderObj.order_status = "";
-      orderObj.remarks = "";
+      orderObj.remarks = remarks;
 
       final productL = await appDatabase.orderProductDao.getAllAdded();
       for (var value in productL) {
@@ -521,7 +572,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
 
       bool isOnline = await AppUtils().checkConnectivity();
       if (isOnline) {
-        final request = OrderSaveRequest(user_id: pref.getString('user_id')!, store_id: storeObj.store_id, order_id: orderID, order_date_time: formattedDate, order_amount: ordAmt.toString(), order_status: '', remarks: '', order_details_list: orderDtlsL);
+        final request = OrderSaveRequest(user_id: pref.getString('user_id')!, store_id: storeObj.store_id, order_id: orderID, order_date_time: formattedDate, order_amount: ordAmt.toString(), order_status: '', remarks: remarks, order_details_list: orderDtlsL);
         final response = await apiService.saveOrder(request);
         if (response.status == "200") {
           LoaderUtils().dismissLoader(context);
