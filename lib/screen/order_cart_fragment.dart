@@ -75,8 +75,6 @@ class _OrderCartFragment extends State<OrderCartFragment> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Custom logic here
-        print("Back button pressed!");
         widget.onDataChanged();
         Navigator.of(context).pop();
         return false; // Prevent default behavior
@@ -514,6 +512,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
         icon: Icon(Icons.arrow_back, color: Colors.white),
         // Back button on the left
         onPressed: () {
+          widget.onDataChanged();
           Navigator.pop(context); // Navigate back
         },
       ),
