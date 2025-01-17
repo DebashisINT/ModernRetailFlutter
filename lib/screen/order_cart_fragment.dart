@@ -490,6 +490,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -497,7 +498,9 @@ class _OrderCartFragment extends State<OrderCartFragment> {
               title: Text('Enter Details'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Text Input Field
                   TextField(
                     controller: textController,
                     decoration: InputDecoration(
@@ -506,18 +509,33 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     ),
                   ),
                   SizedBox(height: 20),
+                  // Attachment Selection
                 ],
               ),
               actions: [
-                TextButton(
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    shadowColor: Colors.black87,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: const BorderSide(color: Colors.black26, width: 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    backgroundColor: AppColor.colorGrey,
+                  ),
                   onPressed: () {
-
                     Navigator.of(context).pop(); // Close the dialog
-                    onSubmit_handlePlaceOrder(widget.storeObj,"");
-                  },
-                  child: Text('Cancel'),
+                    onSubmit_handlePlaceOrder(widget.storeObj,"");                  },
+                  child: Text('Cancel',style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    shadowColor: Colors.black87,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: const BorderSide(color: Colors.black26, width: 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    backgroundColor: AppColor.colorButton,
+                  ),
                   onPressed: () {
                     String userInput = textController.text;
 
@@ -526,7 +544,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     onSubmit_handlePlaceOrder(widget.storeObj,userInput);
 
                   },
-                  child: Text('Submit'),
+                  child: Text('Submit',style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
                 ),
               ],
             );
