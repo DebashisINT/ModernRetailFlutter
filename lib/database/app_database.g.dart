@@ -656,6 +656,33 @@ class _$StoreDao extends StoreDao {
   }
 
   @override
+  Future<StoreEntity?> getByID(String store_id) async {
+    return _queryAdapter.query('select * from mr_store where store_id=?1',
+        mapper: (Map<String, Object?> row) => StoreEntity(
+            store_id: row['store_id'] as String,
+            branch_id: row['branch_id'] as int,
+            store_name: row['store_name'] as String,
+            store_address: row['store_address'] as String,
+            store_pincode: row['store_pincode'] as String,
+            store_lat: row['store_lat'] as String?,
+            store_long: row['store_long'] as String?,
+            store_contact_name: row['store_contact_name'] as String,
+            store_contact_number: row['store_contact_number'] as String,
+            store_alternet_contact_number:
+                row['store_alternet_contact_number'] as String?,
+            store_whatsapp_number: row['store_whatsapp_number'] as String?,
+            store_email: row['store_email'] as String?,
+            store_type: row['store_type'] as int,
+            store_size_area: row['store_size_area'] as String?,
+            store_state_id: row['store_state_id'] as int,
+            remarks: row['remarks'] as String?,
+            create_date_time: row['create_date_time'] as String?,
+            store_pic_url: row['store_pic_url'] as String,
+            isUploaded: (row['isUploaded'] as int) != 0),
+        arguments: [store_id]);
+  }
+
+  @override
   Future<void> deleteAll() async {
     await _queryAdapter.queryNoReturn('delete from mr_store');
   }
