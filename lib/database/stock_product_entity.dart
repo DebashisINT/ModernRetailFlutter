@@ -3,28 +3,29 @@ import 'package:floor/floor.dart';
 @Entity(tableName: 'mr_stock_product')
 class StockProductEntity{
   @PrimaryKey(autoGenerate: false)
-  final int sl_no;
-  final int product_id;
-  final String product_name;
-  final String product_description;
-  final int brand_id;
-  final String brand_name;
-  final int category_id;
-  final String category_name;
-  final int watt_id;
-  final String watt_name;
-  final double product_mrp;
-  final int UOM_id;
-  final String UOM;
-  final String product_pic_url;
-  final String qty;
-  final String mfgDate;
-  final String expDate;
+  int sl_no;
+  int product_id;
+  String product_name;
+  String product_description;
+  int brand_id;
+  String brand_name;
+  int category_id;
+  String category_name;
+  int watt_id;
+  String watt_name;
+  double product_mrp;
+  int UOM_id;
+  String UOM;
+  String product_pic_url;
+  String qty;
+  String mfgDate;
+  String expDate;
+  bool isAdded = false;
 
 
   StockProductEntity({this.sl_no=0,this.product_id=0,this.product_name="", this.product_description="", this.brand_id=0,
     this.brand_name="", this.category_id=0, this.category_name="", this.watt_id=0, this.watt_name="",
-    this.product_mrp=0.0,this.UOM_id=0, this.UOM="", this.product_pic_url="",this.qty="",this.mfgDate="",this.expDate=""});
+    this.product_mrp=0.0,this.UOM_id=0, this.UOM="", this.product_pic_url="",this.qty="",this.mfgDate="",this.expDate="",this.isAdded=false});
 }
 
 @dao
@@ -40,13 +41,13 @@ abstract class StockProductDao{
 
   @Query(''' insert into mr_stock_product (sl_no,product_id,product_name,product_description,
     brand_id,brand_name,category_id,category_name,watt_id,watt_name,product_mrp,UOM_id,UOM,
-    product_pic_url,qty,mfgDate,expDate)
+    product_pic_url,qty,mfgDate,expDate,isAdded)
 select (SELECT COUNT(*) + 1 + ROWID FROM mr_stock_product) AS sl_no,PR.product_id,PR.product_name,
 PR.product_description,PR.brand_id,PR.brand_name,PR.category_id,PR.category_name,PR.watt_id,
 PR.watt_name,PR.product_mrp,
 (select uom_id from mr_product_uom where product_id = PR.product_id limit 1) as uom_id,
 (select uom_name from mr_product_uom where product_id = PR.product_id limit 1) as uom,
-PR.product_pic_url,'' as qty,'' as mfgDate,'' as expDate
+PR.product_pic_url,'' as qty,'' as mfgDate,'' as expDate,0 as isAdded
 from mr_product as PR ''')
   Future<void> setData();
 

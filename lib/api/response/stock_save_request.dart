@@ -9,6 +9,7 @@ class StockSaveRequest{
   final String stock_id;
   final String save_date_time;
   final String store_id;
+  final String remarks;
   final List<StockSaveDtlsEntity> product_list;
 
   StockSaveRequest({
@@ -16,6 +17,7 @@ class StockSaveRequest{
     required this.stock_id,
     required this.save_date_time,
     required this.store_id,
+    required this.remarks,
     required this.product_list,
   });
 

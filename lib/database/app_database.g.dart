@@ -134,11 +134,11 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_product_uom` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `product_id` INTEGER NOT NULL, `uom_id` INTEGER NOT NULL, `uom_name` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_stock_save` (`stock_id` TEXT NOT NULL, `save_date_time` TEXT NOT NULL, `store_id` TEXT NOT NULL, PRIMARY KEY (`stock_id`))');
+            'CREATE TABLE IF NOT EXISTS `mr_stock_save` (`stock_id` TEXT NOT NULL, `save_date_time` TEXT NOT NULL, `store_id` TEXT NOT NULL, `remarks` TEXT NOT NULL, PRIMARY KEY (`stock_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_dtls_save` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `stock_id` TEXT NOT NULL, `product_dtls_id` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `qty` REAL NOT NULL, `uom_id` INTEGER NOT NULL, `uom` TEXT NOT NULL, `mfg_date` TEXT NOT NULL, `expire_date` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_stock_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM_id` INTEGER NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `qty` TEXT NOT NULL, `mfgDate` TEXT NOT NULL, `expDate` TEXT NOT NULL, PRIMARY KEY (`sl_no`))');
+            'CREATE TABLE IF NOT EXISTS `mr_stock_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM_id` INTEGER NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `qty` TEXT NOT NULL, `mfgDate` TEXT NOT NULL, `expDate` TEXT NOT NULL, `isAdded` INTEGER NOT NULL, PRIMARY KEY (`sl_no`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_order_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `state_id` INTEGER NOT NULL, `qty` INTEGER NOT NULL, `rate` REAL NOT NULL, `isAdded` INTEGER NOT NULL, PRIMARY KEY (`sl_no`))');
         await database.execute(
@@ -488,7 +488,8 @@ class _$StockSaveDao extends StockSaveDao {
             (StockSaveEntity item) => <String, Object?>{
                   'stock_id': item.stock_id,
                   'save_date_time': item.save_date_time,
-                  'store_id': item.store_id
+                  'store_id': item.store_id,
+                  'remarks': item.remarks
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -505,7 +506,8 @@ class _$StockSaveDao extends StockSaveDao {
         mapper: (Map<String, Object?> row) => StockSaveEntity(
             stock_id: row['stock_id'] as String,
             save_date_time: row['save_date_time'] as String,
-            store_id: row['store_id'] as String));
+            store_id: row['store_id'] as String,
+            remarks: row['remarks'] as String));
   }
 
   @override
@@ -757,7 +759,8 @@ class _$StockProductDao extends StockProductDao {
                   'product_pic_url': item.product_pic_url,
                   'qty': item.qty,
                   'mfgDate': item.mfgDate,
-                  'expDate': item.expDate
+                  'expDate': item.expDate,
+                  'isAdded': item.isAdded ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -789,7 +792,8 @@ class _$StockProductDao extends StockProductDao {
             product_pic_url: row['product_pic_url'] as String,
             qty: row['qty'] as String,
             mfgDate: row['mfgDate'] as String,
-            expDate: row['expDate'] as String));
+            expDate: row['expDate'] as String,
+            isAdded: (row['isAdded'] as int) != 0));
   }
 
   @override
@@ -800,7 +804,7 @@ class _$StockProductDao extends StockProductDao {
   @override
   Future<void> setData() async {
     await _queryAdapter.queryNoReturn(
-        'insert into mr_stock_product (sl_no,product_id,product_name,product_description,     brand_id,brand_name,category_id,category_name,watt_id,watt_name,product_mrp,UOM_id,UOM,     product_pic_url,qty,mfgDate,expDate) select (SELECT COUNT(*) + 1 + ROWID FROM mr_stock_product) AS sl_no,PR.product_id,PR.product_name, PR.product_description,PR.brand_id,PR.brand_name,PR.category_id,PR.category_name,PR.watt_id, PR.watt_name,PR.product_mrp, (select uom_id from mr_product_uom where product_id = PR.product_id limit 1) as uom_id, (select uom_name from mr_product_uom where product_id = PR.product_id limit 1) as uom, PR.product_pic_url,\'\' as qty,\'\' as mfgDate,\'\' as expDate from mr_product as PR');
+        'insert into mr_stock_product (sl_no,product_id,product_name,product_description,     brand_id,brand_name,category_id,category_name,watt_id,watt_name,product_mrp,UOM_id,UOM,     product_pic_url,qty,mfgDate,expDate,isAdded) select (SELECT COUNT(*) + 1 + ROWID FROM mr_stock_product) AS sl_no,PR.product_id,PR.product_name, PR.product_description,PR.brand_id,PR.brand_name,PR.category_id,PR.category_name,PR.watt_id, PR.watt_name,PR.product_mrp, (select uom_id from mr_product_uom where product_id = PR.product_id limit 1) as uom_id, (select uom_name from mr_product_uom where product_id = PR.product_id limit 1) as uom, PR.product_pic_url,\'\' as qty,\'\' as mfgDate,\'\' as expDate,0 as isAdded from mr_product as PR');
   }
 
   @override
@@ -817,7 +821,7 @@ class _$StockProductDao extends StockProductDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM mr_stock_product WHERE product_name LIKE ?1 LIMIT ?2 OFFSET ?3',
-        mapper: (Map<String, Object?> row) => StockProductEntity(sl_no: row['sl_no'] as int, product_id: row['product_id'] as int, product_name: row['product_name'] as String, product_description: row['product_description'] as String, brand_id: row['brand_id'] as int, brand_name: row['brand_name'] as String, category_id: row['category_id'] as int, category_name: row['category_name'] as String, watt_id: row['watt_id'] as int, watt_name: row['watt_name'] as String, product_mrp: row['product_mrp'] as double, UOM_id: row['UOM_id'] as int, UOM: row['UOM'] as String, product_pic_url: row['product_pic_url'] as String, qty: row['qty'] as String, mfgDate: row['mfgDate'] as String, expDate: row['expDate'] as String),
+        mapper: (Map<String, Object?> row) => StockProductEntity(sl_no: row['sl_no'] as int, product_id: row['product_id'] as int, product_name: row['product_name'] as String, product_description: row['product_description'] as String, brand_id: row['brand_id'] as int, brand_name: row['brand_name'] as String, category_id: row['category_id'] as int, category_name: row['category_name'] as String, watt_id: row['watt_id'] as int, watt_name: row['watt_name'] as String, product_mrp: row['product_mrp'] as double, UOM_id: row['UOM_id'] as int, UOM: row['UOM'] as String, product_pic_url: row['product_pic_url'] as String, qty: row['qty'] as String, mfgDate: row['mfgDate'] as String, expDate: row['expDate'] as String, isAdded: (row['isAdded'] as int) != 0),
         arguments: [query, limit, offset]);
   }
 

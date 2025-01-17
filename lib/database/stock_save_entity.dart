@@ -6,12 +6,13 @@ class StockSaveEntity{
   String stock_id;
   String save_date_time;
   String store_id;
+  String remarks;
 
-  StockSaveEntity({this.stock_id="",this.save_date_time="",this.store_id=""});
+  StockSaveEntity({this.stock_id="",this.save_date_time="",this.store_id="",this.remarks=""});
 
   factory StockSaveEntity.fromJson(Map<String,dynamic> json){
     return StockSaveEntity(
-        stock_id: json['stock_id'],save_date_time: json['save_date_time'],store_id: json['store_id']
+        stock_id: json['stock_id'],save_date_time: json['save_date_time'],store_id: json['store_id'],remarks: json['remarks']
     );
   }
 
@@ -20,6 +21,7 @@ class StockSaveEntity{
       'stock_id':stock_id,
       'save_date_time':save_date_time,
       'store_id':store_id,
+      'remarks':remarks,
     };
   }
 }
