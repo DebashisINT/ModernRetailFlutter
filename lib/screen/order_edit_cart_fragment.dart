@@ -600,6 +600,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
         OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
         obj.order_id = orderObj.order_id;
         obj.product_id = value.product_id.toString();
+        obj.product_name = value.product_name.toString();
         obj.qty = value.qty.toString();
         obj.rate = value.rate.toString();
         orderDtlsL.add(obj);
