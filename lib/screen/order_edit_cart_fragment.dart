@@ -481,10 +481,17 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
               visible: _visibilityControllers[index],
               child: GestureDetector(
                 onTap: () {
-                  commitChange(product,qtyController.text,rateController.text);
-                  setState(() {
-                    _visibilityControllers[index] = false;
-                  });
+                  if (qtyController.text.isEmpty || qtyController.text == "0" || qtyController.text == "0.0") {
+                    SnackBarUtils().showSnackBar(context, 'Enter Quantity');
+                  }else if(rateController.text.isEmpty || rateController.text == "0" || rateController.text == "0.0"){
+                    SnackBarUtils().showSnackBar(context, 'Enter rate');
+                  }else {
+                    commitChange(
+                        product, qtyController.text, rateController.text);
+                    setState(() {
+                      _visibilityControllers[index] = false;
+                    });
+                  }
                 },
                 child: Image.asset(
                   "assets/images/ic_tick.png",
