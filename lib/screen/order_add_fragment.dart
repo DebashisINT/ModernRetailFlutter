@@ -1,19 +1,21 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modern_retail/database/order_product_entity.dart';
 import 'package:modern_retail/database/store_entity.dart';
 import 'package:modern_retail/screen/order_cart_fragment.dart';
+import 'package:modern_retail/utils/app_style.dart';
 import 'package:provider/provider.dart';
 
 import '../main.dart';
 import '../utils/app_color.dart';
-import '../utils/app_utils.dart';
+import '../utils/input_formatter.dart';
 import '../utils/snackbar_utils.dart';
 
 class OrderAddFragment extends StatefulWidget {
   final StoreEntity storeObj;
+
   const OrderAddFragment({super.key, required this.storeObj});
+
   @override
   _OrderAddFragment createState() => _OrderAddFragment();
 }
@@ -38,7 +40,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
   Future<void> loadData() async {
     Future<void> product = loadProduct();
     List<void> results = await Future.wait([product]);
-    if(orderProductL.isNotEmpty){
+    if (orderProductL.isNotEmpty) {
       viewModel.loadItems();
     }
   }
@@ -70,7 +72,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
       _rateFocusNode.add(FocusNode());
     }
     var _totalAmt = await appDatabase.orderProductDao.getTotalAmt();
-    setState(()  {
+    setState(() {
       viewModel.loadItems(refresh: true);
       _amount = _totalAmt.toString();
     });
@@ -85,7 +87,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(10.0),
               child: TextField(
                 decoration: InputDecoration(
                     hintText: "Search Product",
@@ -164,48 +166,47 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                 children: [
                   Expanded(
                     child: Container(
-                      color: AppColor.colorButton,
+                      color: AppColor.colorBlue,
                       child: Center(
-                        child: Text(_amount=="" ? "Amount" : _amount, style: TextStyle(color: AppColor.colorWhite)),
+                        child: Text(_amount == "" ? "Amount" : "Amt : "+_amount, style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
                       ),
                     ),
                   ),
                   Expanded(
                     child: GestureDetector(
                       onTap: () async {
-                        final getCount =  await appDatabase.orderProductDao.getProductAddedCount();
+                        final getCount = await appDatabase.orderProductDao.getProductAddedCount();
 
-                        if(getCount! > 0) {
+                        if (getCount! > 0) {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => OrderCartFragment(onDataChanged: _updateData , storeObj: widget.storeObj)),
+                            MaterialPageRoute(builder: (context) => OrderCartFragment(onDataChanged: _updateData, storeObj: widget.storeObj)),
                           );
-                        }
-                        else{
-                          SnackBarUtils().showSnackBar(context,'Please add any product');
+                        } else {
+                          SnackBarUtils().showSnackBar(context, 'Please add any product');
                         }
                       },
                       child: Expanded(
                         child: Container(
                           color: AppColor.colorGreenLeaf,
                           child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center, // Centers horizontally
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text("View Cart",style: TextStyle(color: AppColor.colorWhite)),
-                                SizedBox(width: 5,),
-                                Image.asset(
-                                  "assets/images/ic_arrow.png",
-                                  height: 20,
-                                  width: 30,
-                                  fit: BoxFit.fill,
-                                  color: AppColor.colorWhite,
-                                )
-                              ],
-                            )
-                          ),
+                              child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center, // Centers horizontally
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text("View Cart", style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Image.asset(
+                                "assets/images/ic_arrow.png",
+                                height: 40,
+                                width: 40,
+                                fit: BoxFit.fill,
+                                color: AppColor.colorWhite,
+                              )
+                            ],
+                          )),
                         ),
                       ),
                     ),
@@ -223,13 +224,11 @@ class _OrderAddFragment extends State<OrderAddFragment> {
   Widget _buildProductCard(OrderProductEntity product, int index) {
     return Card(
       color: product.isAdded ? AppColor.colorGreenLight : AppColor.colorWhite,
-      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-      elevation: 5.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
+      margin: AppStyle().cardMargin.copyWith(left: 10,right: 10,top: 10,bottom: 10),
+      elevation:AppStyle().cardEvevation,
+      shape: AppStyle().cardShape,
       child: Padding(
-        padding: const EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0, bottom: 5.0),
+        padding: const EdgeInsets.all(10.0),
         // Set left padding to 5dp
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,19 +288,15 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             Padding(
               padding: const EdgeInsets.only(left: 5.0), // Add 16 pixels of left margin
               child: Text(
                 product.product_name,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.colorButton,
-                ),
+                style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorBlue),
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             Row(
               children: [
                 Container(
@@ -311,12 +306,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     color: AppColor.colorGreyLight, // Background color
                     borderRadius: BorderRadius.circular(200), // Rounded corners
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(1), // Shadow color
-                        blurRadius: 1, // Blur radius
-                        spreadRadius: 1, // Spread radius
-                        offset: Offset(1, 1), // Shadow offset
-                      ),
+                      AppStyle().boxShadow,
                     ],
                   ),
                   child: Padding(
@@ -338,20 +328,14 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
                     mainAxisAlignment: MainAxisAlignment.start, // Ensure text starts from the top
                     children: [
-                      Text(
-                        "MRP",
-                        style: TextStyle(color: AppColor.colorGrey, fontSize: 15.0),
-                      ),
-                      Text(
-                        product.product_mrp.toString(),
-                        style: TextStyle(color: AppColor.colorBlue, fontSize: 15.0),
-                      ),
+                      Text("MRP", style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey)),
+                      Text(product.product_mrp.toString(), style: AppStyle().textStyle.copyWith(color: AppColor.colorBlue)),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 1),
+            SizedBox(height: 5),
             Padding(
                 padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
                 child: Row(
@@ -377,16 +361,10 @@ class _OrderAddFragment extends State<OrderAddFragment> {
             child: Column(
               children: [
                 Container(
-                  height: 30,
+                  //height: 30,
                   alignment: Alignment.center,
-                  child: Text(
-                    'Quantity',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: AppColor.colorGrey,
-                    ),
+                  child: Text('Quantity', textAlign: TextAlign.center,
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
                   ),
                 ),
                 Container(
@@ -402,7 +380,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     ),
                     textAlign: TextAlign.center,
                     inputFormatters: [
-                      LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                      InputFormatter(decimalRange: 2, beforeDecimal: 5,)
                     ],
                   ),
                 ),
@@ -416,16 +394,12 @@ class _OrderAddFragment extends State<OrderAddFragment> {
             child: Column(
               children: [
                 Container(
-                  height: 30,
+                  //height: 30,
                   alignment: Alignment.center,
                   child: Text(
                     'Rate',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: AppColor.colorGrey,
-                    ),
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
                   ),
                 ),
                 Container(
@@ -441,7 +415,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     ),
                     textAlign: TextAlign.center,
                     inputFormatters: [
-                      LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                      InputFormatter(decimalRange: 2, beforeDecimal: 5,)
                     ],
                   ),
                 ),
@@ -452,41 +426,26 @@ class _OrderAddFragment extends State<OrderAddFragment> {
             width: 5,
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              elevation: 5,
-              shadowColor: Colors.black87,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              side: const BorderSide(color: Colors.black26, width: 0),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              backgroundColor: product.isAdded ? AppColor.colorGreen : AppColor.colorButton,
-            ),
+            style: AppStyle().buttonStyle.copyWith(backgroundColor: product.isAdded ? MaterialStateProperty.all(AppColor.colorGreen) : MaterialStateProperty.all(AppColor.colorButton)),
             onPressed: () async {
               final q = _qtyControllers[product.sl_no].text;
               final r = _rateControllers[product.sl_no].text;
               _qtyFocusNode[product.sl_no].unfocus();
               _rateFocusNode[product.sl_no].unfocus();
-              if (q == "") {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter quantity')));
-              }
-              else if (q == "0"){
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter quantity')));
-              }
-              else if (r == "") {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter rate')));
-              }
-              else if (r == "0" || r == "0.0"){
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Enter rate')));
-              }
-              else {
-                await appDatabase.orderProductDao.updateAdded(int.parse(q), double.parse(r), true, product.product_id);
+              if (q == "" || q == "0" || q == "0.0") {
+                SnackBarUtils().showSnackBar(context, 'Enter quantity');
+              } else if (r == "" || r == "0" || r == "0.0") {
+                SnackBarUtils().showSnackBar(context, 'Enter rate');
+              } else {
+                await appDatabase.orderProductDao.updateAdded(double.parse(q), double.parse(r), true, product.product_id);
                 final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
                 setState(() {
                   product.isAdded = true;
-                 _amount = (ordAmt == null) ? "Amount" : "Amt:  " + ordAmt.toString();
+                  _amount = (ordAmt == null) ? "Amount" : ordAmt.toString();
                 });
               }
             },
-            child: Text(product.isAdded ? 'Added' : 'Add', style: TextStyle(color: AppColor.colorWhite)),
+            child: Text(product.isAdded ? 'Added' : 'Add', style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
           ),
           SizedBox(
             width: 5,
@@ -501,7 +460,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
       title: Center(
         child: Text(
           "Select Product(s)",
-          style: TextStyle(color: AppColor.colorWhite, fontSize: 20),
+          style: AppStyle().toolbarTextStyle,
         ),
       ),
       backgroundColor: AppColor.colorToolbar,
@@ -523,8 +482,6 @@ class _OrderAddFragment extends State<OrderAddFragment> {
     );
   }
 }
-
-
 
 enum LoadingState { idle, loading, error }
 

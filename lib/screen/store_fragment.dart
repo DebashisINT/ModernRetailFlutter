@@ -1,13 +1,15 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:modern_retail/screen/store_add_fragment.dart';
+import 'package:modern_retail/utils/app_style.dart';
+import 'package:modern_retail/utils/app_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/snackbar_utils.dart';
 import 'order_fragment.dart';
 
 class StoreFragment extends StatefulWidget {
@@ -16,8 +18,13 @@ class StoreFragment extends StatefulWidget {
 }
 
 class _StoreFragmentState extends State<StoreFragment> {
-
   final viewModel = ItemViewModel(appDatabase.storeDao);
+
+  @override
+  void initState() {
+    super.initState();
+    viewModel.loadItems();
+  }
 
   void _updateData() {
     setState(() {
@@ -29,90 +36,89 @@ class _StoreFragmentState extends State<StoreFragment> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: ChangeNotifierProvider<ItemViewModel>(
-        create: (_) {
-          //final viewModel = ItemViewModel(appDatabase.storeDao);
-          viewModel.loadItems(); // Call loadItems here
-          return viewModel;
-        },
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: "Search Store",
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  filled: true, // Enable filling the background color
-                  fillColor: AppColor.colorWhite,
+      body: Padding(
+        padding: EdgeInsets.all(5.0),
+        child: ChangeNotifierProvider<ItemViewModel>(
+          create: (_) => viewModel,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Search Store",
+                    hintStyle: AppStyle().hintStyle,
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: blue border when focused
-                    )
-                ),
-                onChanged: (query) {
-                  viewModel.loadItems(refresh: true, query: query);
-                },
-              ),
-            ),
-            Expanded(
-              child: Consumer<ItemViewModel>(
-                builder: (context, viewModel, child) {
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      await viewModel.loadItems(refresh: true);
-                    },
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (!viewModel.hasMoreData ||
-                            viewModel.loadingState == LoadingState.loading) {
-                          return false;
-                        }
-                        if (scrollInfo.metrics.pixels ==
-                            scrollInfo.metrics.maxScrollExtent) {
-                          viewModel.loadItems();
-                        }
-                        return true;
-                      },
-                      child: ListView.builder(
-                        padding: EdgeInsets.only(bottom: 150.0),
-                        itemCount: viewModel.items.length +
-                            (viewModel.hasMoreData ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == viewModel.items.length) {
-                            if (viewModel.loadingState == LoadingState.error) {
-                              return Center(
-                                child: ElevatedButton(
-                                  onPressed: () => viewModel.loadItems(),
-                                  child: Text('Retry'),
-                                ),
-                              );
-                            }else if (viewModel.loadingState == LoadingState.loading) {
-                              return Center(child: CircularProgressIndicator());  // Show loader while loading
-                            } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
-                              // When idle and no items, show a message
-                              //return Center(child: Text("No items available"));
-                              return SizedBox.shrink();
-                            } else if (viewModel.loadingState == LoadingState.idle) {
-                              // Idle state but items are loaded, just return an empty container or nothing
-                              return SizedBox.shrink();  // No loader, no retry button
-                            }
-                            //return Center(child: CircularProgressIndicator());
-                          }
-
-                          final item = viewModel.items[index];
-                          return _buildStoreCard(item);
-                        },
-                      ),
+                      borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5), // Active (focused) color
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  );
-                },
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    filled: true,
+                    // This is necessary for fillColor to take effect
+                    fillColor: AppColor.colorWhite, // Set your desired background color here
+                  ),
+                  onChanged: (query) {
+                    viewModel.loadItems(refresh: true, query: query);
+                  },
+                ),
               ),
-            ),
-          ],
+              Expanded(
+                child: Consumer<ItemViewModel>(
+                  builder: (context, viewModel, child) {
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        await viewModel.loadItems(refresh: true);
+                      },
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
+                            return false;
+                          }
+                          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                            viewModel.loadItems();
+                          }
+                          return true;
+                        },
+                        child: ListView.builder(
+                          padding: EdgeInsets.only(bottom: 150.0),
+                          itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == viewModel.items.length) {
+                              if (viewModel.loadingState == LoadingState.error) {
+                                return Center(
+                                  child: ElevatedButton(
+                                    onPressed: () => viewModel.loadItems(),
+                                    child: Text('Retry'),
+                                  ),
+                                );
+                              } else if (viewModel.loadingState == LoadingState.loading) {
+                                return Center(child: CircularProgressIndicator()); // Show loader while loading
+                              } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
+                                // When idle and no items, show a message
+                                //return Center(child: Text("No items available"));
+                                return SizedBox.shrink();
+                              } else if (viewModel.loadingState == LoadingState.idle) {
+                                // Idle state but items are loaded, just return an empty container or nothing
+                                return SizedBox.shrink(); // No loader, no retry button
+                              }
+                              //return Center(child: CircularProgressIndicator());
+                            }
+                            final item = viewModel.items[index];
+                            return _buildStoreCard(item);
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -120,9 +126,7 @@ class _StoreFragmentState extends State<StoreFragment> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    StoreAddFragment(onDataChanged: _updateData)),
+            MaterialPageRoute(builder: (context) => StoreAddFragment(onDataChanged: _updateData)),
           );
         },
         backgroundColor: AppColor.colorToolbar,
@@ -132,127 +136,68 @@ class _StoreFragmentState extends State<StoreFragment> {
     );
   }
 
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      title: Center(
-        child: Text(
-          "Store",
-          style: TextStyle(color: AppColor.colorWhite, fontSize: 20),
-        ),
-      ),
-      backgroundColor: AppColor.colorToolbar,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.white),
-        // Back button on the left
-        onPressed: () {
-          Navigator.pop(context); // Navigate back
-        },
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.home, color: Colors.white), // Home icon on the right
-          onPressed: () {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          },
-        ),
-      ],
-    );
-  }
-
   Widget _buildStoreCard(StoreEntity store) {
     return Card(
       color: AppColor.colorWhite,
-      // Set the background color of the Card to white
-      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-      // Margin for the card (start margin)
-      elevation: 5.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
+      margin: AppStyle().cardMargin,
+      elevation: AppStyle().cardEvevation,
+      shape: AppStyle().cardShape,
       child: Padding(
-        padding: const EdgeInsets.only(
-            left: 10.0, right: 10.0, top: 5.0, bottom: 5.0),
-        // Set left padding to 5dp
+        padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0, bottom: 10.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row(
               children: [
-                _buildCircularIcon('assets/images/ic_store_color.jpg', 40, 10,
-                    AppColor.colorSmokeWhite),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    store.store_name,
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                _buildCircularIcon('assets/images/ic_store_color.jpg',35, 10, AppColor.colorSmokeWhite),
+                SizedBox(width: 10),
+                Expanded(child: Text(store.store_name, style: AppStyle().textHeaderStyle,)),
                 GestureDetector(
                   onTap: () async {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              StoreAddFragment(onDataChanged: _updateData,editStoreObj: store,)),
+                          builder: (context) => StoreAddFragment(
+                                onDataChanged: _updateData,
+                                editStoreObj: store,
+                              )),
                     );
                   },
-                  child: _buildCircularIcon('assets/images/ic_edit.png', 35, 10,
-                      AppColor.colorSmokeWhite),
+                  child: _buildCircularIcon('assets/images/ic_edit.png', 35, 10, AppColor.colorSmokeWhite),
                 ),
               ],
             ),
             SizedBox(height: 10.0),
             Row(
               children: [
-                _buildCircularIcon('assets/images/ic_location.png', 35, 15,
-                    AppColor.colorSmokeWhite), // Smaller icon size
-                const SizedBox(width: 8),
+                _buildCircularIcon('assets/images/ic_location.png', 35, 10, AppColor.colorSmokeWhite), // Smaller icon size
+                const SizedBox(width: 10),
                 Expanded(
                   child: GestureDetector(
                     onTap: () async {
-                      if (store.store_address != null && store.store_address!.isNotEmpty) {
-                        //openMap(store.store_address!);
                         if (store.store_lat != null && store.store_long != null) {
-                          openMapWithLatLng(store.store_lat , store.store_long);
+                          openMapWithLatLng(store.store_lat, store.store_long);
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Location not available")),
-                          );
+                          SnackBarUtils().showSnackBar(context,"Location not available");
                         }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Address not provided")),
-                        );
-                      }
                     },
-                    child: Text(
-                      store.store_address ?? "No Address Provided",
-                      style: TextStyle(color: AppColor.colorCharcoal),
-                    ),
+                    child: Text(store.store_address ?? "No Address Provided", style: AppStyle().textStyle,),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 10.0),
-            Container(
-              height: 1, // Adjust the thickness as needed
-              width: double.infinity, // Adjust the width as needed
+            Divider(
               color: AppColor.colorGreyLight,
+              thickness: 1, // Slim thickness for the grey line
+              height: 20,   // Reduced height for spacing around the line
             ),
-            SizedBox(height: 10.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               // This will space out the contact name and store type
               children: [
                 // Left side: Contact Name
                 Expanded(
-                  child: _buildContactInfo(
-                    'assets/images/ic_phone.png',
-                    "Contact Number",
-                    store.store_contact_number ?? "",
+                  child: _buildContactInfo('assets/images/ic_phone.png', "Contact Number", store.store_contact_number ?? "",
                     onTap: () {
                       if (store.store_contact_number != null && store.store_contact_number!.isNotEmpty) {
                         _launchPhoneDialer(store.store_contact_number!); // Launch the dialer with the contact number
@@ -265,26 +210,16 @@ class _StoreFragmentState extends State<StoreFragment> {
                   child: FutureBuilder<String?>(
                     future: appDatabase.storeTypeDao.getStoreTypeById(store.store_type.toString()),
                     // Fetch store type by store_id
-                    builder: (BuildContext context,
-                        AsyncSnapshot<String?> snapshot) {
+                    builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Text(
-                            "Loading..."); // Display while fetching data
+                        return Text("Loading..."); // Display while fetching data
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}'); // Handle error
                       } else if (snapshot.hasData && snapshot.data != null) {
                         String storeTypeName = snapshot.data!;
-                        return _buildContactInfo(
-                          'assets/images/ic_store_color.jpg',
-                          "Store Type",
-                          storeTypeName, // Display the store type name
-                        );
+                        return _buildContactInfo('assets/images/ic_store_color.jpg', "Store Type", storeTypeName);
                       } else {
-                        return _buildContactInfo(
-                          'assets/images/ic_store_color.jpg',
-                          "Store Type",
-                          "", // Default if no data found
-                        );
+                        return _buildContactInfo('assets/images/ic_store_color.jpg', "Store Type", "");
                       }
                     },
                   ),
@@ -298,44 +233,39 @@ class _StoreFragmentState extends State<StoreFragment> {
               children: [
                 // Left side: Contact Name
                 Expanded(
-                  child: _buildContactInfo(
-                    'assets/images/ic_whatsapp.png',
-                    "Whatsapp",
-                    store.store_whatsapp_number ?? "",
+                  child: _buildContactInfo('assets/images/ic_whatsapp.png', "Whatsapp", store.store_whatsapp_number ?? "",
                     onTap: () {},
                   ),
                 ),
                 // Right side: Store Type (Now wrapped with FutureBuilder)
                 Expanded(
-                  child: _buildContactInfo(
-                    'assets/images/ic_mail.png',
-                    "Email",
-                    store.store_email ?? "",
+                  child: _buildContactInfo('assets/images/ic_mail.png', "Email", store.store_email ?? "",
                     onTap: () {},
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20.0),
+            SizedBox(height: 10.0),
             Container(
               height: 75.0, // Adjust based on the height of your buttons
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    SizedBox(width: 10),
+                    SizedBox(width: 5),
                     _buildActionButton('assets/images/ic_operation.webp', "Operation"),
                     SizedBox(width: 10),
-                    _buildActionButton('assets/images/ic_order.webp', "Order",onTap: (){
-                      Navigator.push(context,
-                        MaterialPageRoute(
-                            builder: (context) => OrderFragment(storeObj: store)),);
+                    _buildActionButton('assets/images/ic_order.webp', "Order", onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => OrderFragment(storeObj: store)),
+                      );
                     }),
                     SizedBox(width: 10),
                     _buildActionButton('assets/images/ic_operation.webp', "Survey"),
                     SizedBox(width: 10),
                     _buildActionButton('assets/images/ic_order.webp', "Activity"),
-                    SizedBox(width: 10),
+                    SizedBox(width: 5),
                   ],
                 ),
               ),
@@ -346,8 +276,7 @@ class _StoreFragmentState extends State<StoreFragment> {
     );
   }
 
-  Widget _buildCircularIcon(
-      String imagePath, double circleSize, double iconSize, Color color) {
+  Widget _buildCircularIcon(String imagePath, double circleSize, double iconSize, Color color) {
     return Container(
       width: circleSize,
       height: circleSize,
@@ -355,12 +284,7 @@ class _StoreFragmentState extends State<StoreFragment> {
         shape: BoxShape.circle,
         color: color,
         boxShadow: [
-          BoxShadow(
-            color: AppColor.colorGreyLight, // Shadow color
-            spreadRadius: 1, // How far the shadow spreads
-            blurRadius: 1, // The blurriness of the shadow
-            offset: Offset(0, 1), // The position of the shadow (x, y)
-          ),
+          AppStyle().boxShadow,
         ],
       ),
       child: Padding(
@@ -393,12 +317,7 @@ class _StoreFragmentState extends State<StoreFragment> {
             ),
             borderRadius: BorderRadius.circular(8.0),
             boxShadow: [
-              BoxShadow(
-                color: AppColor.colorGreyLight, // Shadow color
-                spreadRadius: 1, // How far the shadow spreads
-                blurRadius: 1, // The blurriness of the shadow
-                offset: Offset(0, 1),// Slight shadow at the bottom
-              ),
+              AppStyle().boxShadow,
             ],
           ),
           child: Column(
@@ -439,7 +358,7 @@ class _StoreFragmentState extends State<StoreFragment> {
         children: [
           // Icon
           _buildCircularIcon(iconPath, 35, 10, AppColor.colorSmokeWhite),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           // Texts
           Expanded(
             child: Column(
@@ -447,11 +366,10 @@ class _StoreFragmentState extends State<StoreFragment> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  style: AppStyle().textStyle.copyWith(fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  content,
-                  style: TextStyle(fontSize: 14,color: AppColor.colorCharcoal),
+                Text(content,
+                  style: AppStyle().textStyle,
                   overflow: TextOverflow.ellipsis, // Ensures text truncates when too long
                   maxLines: 2, // Limits to one line
                   softWrap: false, // Prevents wrapping
@@ -491,9 +409,37 @@ class _StoreFragmentState extends State<StoreFragment> {
       debugPrint('Error opening map: $e');
     }
   }
+
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: Center(
+        child: Text(
+          "Store(s)",
+          style: AppStyle().toolbarTextStyle,
+        ),
+      ),
+      backgroundColor: AppColor.colorToolbar,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: Colors.white),
+        // Back button on the left
+        onPressed: () {
+          Navigator.pop(context); // Navigate back
+        },
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.home, color: Colors.white), // Home icon on the right
+          onPressed: () {
+            Navigator.popUntil(context, (route) => route.isFirst);
+          },
+        ),
+      ],
+    );
+  }
 }
 
 enum LoadingState { idle, loading, error }
+
 class ItemViewModel extends ChangeNotifier {
   final StoreDao _itemDao;
   List<StoreEntity> _items = [];
@@ -506,7 +452,9 @@ class ItemViewModel extends ChangeNotifier {
   ItemViewModel(this._itemDao);
 
   List<StoreEntity> get items => _filteredItems.isEmpty ? _items : _filteredItems;
+
   bool get hasMoreData => _hasMoreData;
+
   LoadingState get loadingState => _loadingState;
 
   Future<void> loadItems({bool refresh = false, String query = ""}) async {
@@ -524,7 +472,7 @@ class ItemViewModel extends ChangeNotifier {
 
     try {
       final offset = _page * _pageSize;
-      final newItems = await _itemDao.fetchPaginatedItemsSearch("%$query%",_pageSize, offset);
+      final newItems = await _itemDao.fetchPaginatedItemsSearch("%$query%", _pageSize, offset);
 
       if (newItems.isEmpty) {
         _hasMoreData = false;
@@ -535,14 +483,10 @@ class ItemViewModel extends ChangeNotifier {
 
       // Apply search filter if query is provided
       if (query.isNotEmpty) {
-        _filteredItems = _items
-            .where((item) =>
-            item.store_name.toLowerCase().contains(query.toLowerCase()))
-            .toList();
+        _filteredItems = _items.where((item) => item.store_name.toLowerCase().contains(query.toLowerCase())).toList();
       } else {
         _filteredItems.clear();
       }
-
     } catch (e) {
       _loadingState = LoadingState.error;
     } finally {

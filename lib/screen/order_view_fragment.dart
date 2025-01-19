@@ -9,6 +9,7 @@ import '../database/order_product_entity.dart';
 import '../database/order_save_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_style.dart';
 
 class OrderViewFragment extends StatefulWidget {
   final OrderSaveEntity orderObj;
@@ -41,13 +42,13 @@ class _OrderViewFragment extends State<OrderViewFragment> {
     if(storeObj!=null){
       final orderDtlsL = await appDatabase.orderSaveDtlsDao.getDtlsById(widget.orderObj.order_id);
       if(orderDtlsL.isNotEmpty){
-        var qty = 0;
+        var qty = 0.0;
         var amt = 0.0;
         for (var value in orderDtlsL) {
           _qtyControllers.add(TextEditingController(text: value.qty.toString()));
           _rateControllers.add(TextEditingController(text: value.rate.toString()));
-          qty = qty + double.parse(value.qty).toInt();
-          amt = amt + (double.parse(value.qty).toInt() * double.parse(value.rate));
+          qty = qty + value.qty;
+          amt = amt + (value.qty * value.rate);
         }
         setState(() {
           _totalQty = qty.toString();
@@ -332,7 +333,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
       title: Center(
         child: Text(
           "View Order",
-          style: TextStyle(color: AppColor.colorWhite, fontSize: 20),
+          style: AppStyle().toolbarTextStyle,
         ),
       ),
       backgroundColor: AppColor.colorToolbar,

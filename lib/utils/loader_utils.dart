@@ -18,13 +18,13 @@ class LoaderUtils {
           onWillPop: () async => false, // Prevent dismissing by back button
           child: Dialog(
             backgroundColor: Colors.transparent, // Make the dialog background transparent
-            insetPadding: const EdgeInsets.all(50), // Add padding around the dialog
+            insetPadding: const EdgeInsets.all(5), // Add padding around the dialog
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey[200], // Light grey background
+                color: AppColor.colorSmokeWhite, // Light grey background
                 borderRadius: BorderRadius.circular(22.0), // Rounded corners
               ),
-              padding: const EdgeInsets.all(20.0),
+              padding: EdgeInsets.all(20.0),
               child: Row(
                 mainAxisSize: MainAxisSize.min, // Wrap content horizontally
                 children: [

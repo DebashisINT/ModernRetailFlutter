@@ -5,6 +5,8 @@ import 'package:modern_retail/api/response/order_delete_request.dart';
 import 'package:modern_retail/database/order_save_entity.dart';
 import 'package:modern_retail/screen/order_edit_cart_fragment.dart';
 import 'package:modern_retail/screen/order_view_fragment.dart';
+import 'package:modern_retail/utils/app_message.dart';
+import 'package:modern_retail/utils/app_style.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -52,22 +54,18 @@ class _OrderFragment extends State<OrderFragment> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ItemViewModel>(
-      create: (_) => viewModel,//ItemViewModel(appDatabase.orderSaveDao),
-      child: Scaffold(
-        appBar: _buildAppBar(context),
-        body: Padding(
-          padding: const EdgeInsets.all(15.0),
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: Padding(
+        padding: EdgeInsets.all(5.0),
+        child: ChangeNotifierProvider<ItemViewModel>(
+          create: (_) => viewModel,
           child: Column(
             children: [
               _buildHeader(),
               Expanded(
                 child: Consumer<ItemViewModel>(
                   builder: (context, viewModel, child) {
-                    // Load items initially when the widget is built
-                   /* if (viewModel.items.isEmpty && viewModel.loadingState == LoadingState.idle) {
-                      viewModel.loadItems();
-                    }*/
                     return RefreshIndicator(
                       onRefresh: () async {
                         await viewModel.loadItems(refresh: true);
@@ -84,6 +82,7 @@ class _OrderFragment extends State<OrderFragment> {
                           return true;
                         },
                         child: ListView.builder(
+                          padding: EdgeInsets.only(bottom: 150.0),
                           itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == viewModel.items.length) {
@@ -104,13 +103,11 @@ class _OrderFragment extends State<OrderFragment> {
                                 // Idle state but items are loaded, just return an empty container or nothing
                                 return SizedBox.shrink(); // No loader, no retry button
                               }
-                              //return Center(child: CircularProgressIndicator());
                             }
 
                             final item = viewModel.items[index];
-                            return Container(
-                              margin: const EdgeInsets.only(top: 20.0),  // Top margin of 20 dp
-                              child: _buildStoreCard(item),
+                            return Container(margin: EdgeInsets.only(top: 20.0),
+                              child: _buildCard(item),
                             );
                           },
                         ),
@@ -122,216 +119,178 @@ class _OrderFragment extends State<OrderFragment> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          elevation: 5.0,
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => OrderAddFragment(storeObj: widget.storeObj)),
-            ).then((value) {
-              _updateData();
-            });
-          },
-          backgroundColor: AppColor.colorToolbar,
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
-        backgroundColor: AppColor.colorSmokeWhite,
       ),
+      floatingActionButton: FloatingActionButton(
+        elevation: 5.0,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => OrderAddFragment(storeObj: widget.storeObj)),
+          ).then((value) {
+            _updateData();
+          });
+        },
+        backgroundColor: AppColor.colorToolbar,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      backgroundColor: AppColor.colorSmokeWhite,
     );
   }
 
-  Widget _buildStoreCard(OrderSaveEntity item) {
+  Widget _buildCard(OrderSaveEntity item) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Green Header Box with Order ID and Date
-          Container(
-            decoration: BoxDecoration(
-              color: AppColor.colorGreenSteel,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(13),
-                topRight: Radius.circular(13),
+      color: AppColor.colorWhite,
+      margin: AppStyle().cardMargin.copyWith(left: 10,right: 10,top: 10,bottom: 10),
+      elevation: AppStyle().cardEvevation,
+      shape: AppStyle().cardShape,
+      child: Padding(
+        padding: const EdgeInsets.all(0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Green Header Box with Order ID and Date
+            Container(
+              decoration: BoxDecoration(
+                color: AppColor.colorGreenSteel,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                ),
+              ),
+              padding: EdgeInsets.all(10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Order Id : ",
+                          style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite),
+                        ),
+                        TextSpan(
+                          text: item.order_id,
+                          style: AppStyle().textStyle.copyWith(color: AppColor.colorCharcoal, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    AppUtils.getDateFromDateTime(item.order_date_time),
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite),
+                  ),
+                ],
               ),
             ),
-            padding: EdgeInsets.all(12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                RichText(
-                  text: TextSpan(
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TextSpan(
-                        text: "Order Id: ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white, // White color for "Order Id:"
+                      Text("Amount",style: AppStyle().textStyle,),
+                      Text(
+                        "₹${item.order_amount ?.toStringAsFixed(2) ?? '0.00'}",
+                        style: AppStyle().textStyle.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  Divider(
+                    color: AppColor.colorGreyLight,
+                    thickness: 1, // Slim thickness for the grey line
+                    height: 20,   // Reduced height for spacing around the line
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Status",
+                        style: AppStyle().textStyle,
+                      ),
+                      Text(
+                        item.order_status,
+                        style: AppStyle().textStyle.copyWith(color: item.order_status == "Delivered" ? Colors.green : AppColor.colorYellow,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 6), // Reduced space after Status
+                  // View and Delete Buttons in the right side
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end, // Align both buttons to the right
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    OrderEditCartFragment(orderObj: item)),
+                          ).then((value) {
+                            _updateData();
+                          });
+                        },
+                        icon: Icon(Icons.edit, color: Colors.white),
+                        label: Text("Edit", style: TextStyle(color: Colors.white)),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: AppColor.colorBlue, // Set the background color to blue
+                          side: BorderSide(color: AppColor.colorBlue),
+                          padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0), // Reduced top and bottom padding
+                          minimumSize: Size(0, 28), // Minimum height for the button
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Shrink button tap area
                         ),
                       ),
-                      TextSpan(
-                        text: "${item.order_id}",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColor.colorYellow, // Your desired color for order ID value
+                      SizedBox(width: 8),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    OrderViewFragment(orderObj: item)),
+                          );
+                        },
+                        icon: Icon(Icons.info, color: Colors.white),
+                        label: Text("View", style: TextStyle(color: Colors.white)),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: AppColor.colorBlue, // Set the background color to blue
+                          side: BorderSide(color: AppColor.colorBlue),
+                          padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0), // Reduced top and bottom padding
+                          minimumSize: Size(0, 28), // Minimum height for the button
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Shrink button tap area
+                        ),
+                      ),
+                      SizedBox(width: 8), // Add reduced spacing between View and Delete buttons
+
+                      // Smaller delete circle size
+                      CircleAvatar(
+                        radius: 18, // Smaller size for the delete circle
+                        backgroundColor: AppColor.colorRed, // Circular red background for delete button
+                        child: IconButton(
+                          onPressed: () {
+                            AppUtils().showCustomDialogOkCancel(context, "Delete Order!", "Hi ${pref.getString('user_name') ?? ""}, "
+                                "Are you sure you want to delete order?", () {
+                              _handleDeleteOrder(item.order_id);
+                            });
+                          },
+                          icon: Icon(Icons.delete, color: Colors.white), // White delete icon
+                          iconSize: 20, // Smaller icon size
                         ),
                       ),
                     ],
                   ),
-                ),
-                Text(
-                  AppUtils.getDateFromDateTime(item.order_date_time),
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          // Content below the header
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Reduced space between Amount and Price
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                   // Text("Amount (${item.order_amount} items)"),
-                    Text("Amount"),
-                    Text(
-                      "₹${double.tryParse(item.order_amount ?? '0')?.toStringAsFixed(2) ?? '0.00'}",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 2), // Reduced space between Amount and Status
-
-                // Grey slim line
-                Divider(
-                  color: Colors.grey,
-                  thickness: 1, // Slim thickness for the grey line
-                  height: 16,   // Reduced height for spacing around the line
-                ),
-                SizedBox(height: 2), // Reduced space below the line
-
-                // Status
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Status",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    Text(
-                      item.order_status,
-                      style: TextStyle(
-                        color: item.order_status == "Delivered" ? Colors.green : AppColor.colorYellow,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 6), // Reduced space after Status
-
-                // View and Delete Buttons in the right side
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end, // Align both buttons to the right
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  OrderEditCartFragment(orderObj: item)),
-                        ).then((value) {
-                          _updateData();
-                        });
-                      },
-                      icon: Icon(Icons.edit, color: Colors.white),
-                      label: Text("Edit", style: TextStyle(color: Colors.white)),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColor.colorBlue, // Set the background color to blue
-                        side: BorderSide(color: AppColor.colorBlue),
-                        padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0), // Reduced top and bottom padding
-                        minimumSize: Size(0, 28), // Minimum height for the button
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Shrink button tap area
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  OrderViewFragment(orderObj: item)),
-                        );
-                      },
-                      icon: Icon(Icons.info, color: Colors.white),
-                      label: Text("View", style: TextStyle(color: Colors.white)),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: AppColor.colorBlue, // Set the background color to blue
-                        side: BorderSide(color: AppColor.colorBlue),
-                        padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0), // Reduced top and bottom padding
-                        minimumSize: Size(0, 28), // Minimum height for the button
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Shrink button tap area
-                      ),
-                    ),
-                    SizedBox(width: 8), // Add reduced spacing between View and Delete buttons
-
-                    // Smaller delete circle size
-                    CircleAvatar(
-                      radius: 18, // Smaller size for the delete circle
-                      backgroundColor: AppColor.colorRed, // Circular red background for delete button
-                      child: IconButton(
-                        onPressed: () {
-                          // Add action for Delete button
-                          print("Delete order ${item.order_id}");
-
-                          AppUtils.showOrderDeleteDialog(
-                            context: context,
-                            title: 'Hi ${pref.getString('user_name') ?? ""}',
-                            msg: 'Are you sure you want to delete order?',
-                            orderId: item.order_id,
-                            onCancel: () {
-                              // Use the context of the dialog to close it
-                              Navigator.of(context).pop(); // This only dismisses the dialog
-                              print('Cancel button clicked'); // Optional logging
-                            },
-                            onDelete: () => _onDelete(item.order_id),
-                          );
-
-                          //_showOrderDeleteDialog(item.order_id);
-                        },
-                        icon: Icon(Icons.delete, color: Colors.white), // White delete icon
-                        iconSize: 20, // Smaller icon size
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  void _onDelete(String orderId) {
-    // Handle delete functionality here
-    print('Deleting order with ID: $orderId');
-    Navigator.of(context).pop(); // Close the dialog
-    // Pass the value back to the caller
-    _handleDeleteOrder(orderId);
-  }
-
   Future<void> _handleDeleteOrder(String order_id) async {
-
     LoaderUtils().showLoader(context);
 
     List<OrderDelete> orderDeleteList = [];
@@ -342,192 +301,109 @@ class _OrderFragment extends State<OrderFragment> {
       final request = OrderDeleteRequest(user_id: pref.getString('user_id')!,order_delete_list: orderDeleteList);
       final response = await apiService.deleteOrder(request);
       if (response.status == "200") {
-        LoaderUtils().dismissLoader(context);
         await appDatabase.orderSaveDao.deleteById(order_id);
         await appDatabase.orderSaveDtlsDao.deleteById(order_id);
-
-        showSuccessDialog();
+        LoaderUtils().dismissLoader(context);
+        _updateData();
       } else {
         LoaderUtils().dismissLoader(context);
-        SnackBarUtils().showSnackBar(context, 'Something went wrong.');
+        SnackBarUtils().showSnackBar(context, AppMessage().wrong);
       }
     }
     else {
       LoaderUtils().dismissLoader(context);
-      SnackBarUtils().showSnackBar(context,'Please connect to internet.',imagePath: "assets/images/ic_no_internet.png");
+      SnackBarUtils().showSnackBar(context,AppMessage().no_internet,imagePath: "assets/images/ic_no_internet.png");
     }
-
   }
 
   Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Row for Store Image and Store Name
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start, // Align everything at the top
-          children: [
-            Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                color: Colors.white, // Background color
-                borderRadius: BorderRadius.circular(12), // Rounded corners
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5), // Shadow color
-                    blurRadius: 10, // Blur radius
-                    spreadRadius: 2, // Spread radius
-                    offset: Offset(4, 4), // Shadow offset
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center, // Align everything at the top
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: Colors.white, // Background color
+              borderRadius: BorderRadius.circular(12), // Rounded corners
+              boxShadow: [
+                AppStyle().boxShadow,
+              ],
+              image: DecorationImage(
+                image: AssetImage("assets/images/store_dummy.jpg"), // Replace with your image path
+                fit: BoxFit.fill, // Adjust image scaling
+              ),
+            ),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.storeObj.store_name, style: AppStyle().textHeaderStyle,),
+                SizedBox(height: 5), // Small space below store name before address and phone number
+                GestureDetector(
+                  onTap: () {
+                    if (widget.storeObj.store_lat != null && widget.storeObj.store_long != null) {
+                      openMapWithLatLng(widget.storeObj.store_lat, widget.storeObj.store_long);
+                    } else {
+                      SnackBarUtils().showSnackBar(context,"Location not available");
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        "assets/images/ic_location.png",
+                        width: 20,
+                        height: 20,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(width: 5),
+                      Expanded(
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(widget.storeObj.store_address == null ? "" : widget.storeObj.store_address!,
+                            style: AppStyle().textStyle,
+                            maxLines: 2, // Ensure the address stays in one line
+                            overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-                image: DecorationImage(
-                  image: AssetImage("assets/images/store_dummy.jpg"), // Replace with your image path
-                  fit: BoxFit.fill, // Adjust image scaling
                 ),
-              ),
+                SizedBox(height: 5), // Small space between address and phone number
+                GestureDetector(
+                  onTap: () {
+                    _launchPhoneDialer(widget.storeObj.store_contact_number);
+                  },
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        "assets/images/ic_phone.png",
+                        width: 20,
+                        height: 20,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(width: 5),
+                      Expanded(
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          child: Text(widget.storeObj.store_contact_number,
+                            style: AppStyle().textStyle,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: 10),
-            // Store Name aligned at the top right side of the image
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${widget.storeObj.store_name}",
-                    style: TextStyle(
-                      color: AppColor.colorBlack,
-                      fontSize: 17.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 4), // Small space below store name before address and phone number
-                  // Address Row with icon
-                  GestureDetector(
-                    onTap: () {
-                      // Launch the address in Google Maps
-                      openMapWithLatLng(widget.storeObj.store_lat,widget.storeObj.store_long);
-                    },
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.transparent, // Background color
-                            borderRadius: BorderRadius.circular(12), // Rounded corners
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3), // Shadow color
-                                blurRadius: 10, // Blur radius
-                                spreadRadius: 2, // Spread radius
-                                offset: Offset(4, 4), // Shadow offset
-                              ),
-                            ],
-                            image: DecorationImage(
-                              image: AssetImage("assets/images/ic_location.png"), // Icon for location
-                              fit: BoxFit.fill, // Adjust image scaling
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        Expanded(
-                          child: Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "${widget.storeObj.store_address}",
-                              style: TextStyle(
-                                color: AppColor.colorBlack,
-                                fontSize: 13.0,
-                                fontWeight: FontWeight.normal,
-                              ),
-                              maxLines: 1, // Ensure the address stays in one line
-                              overflow: TextOverflow.ellipsis, // Add ellipsis if text overflows
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 4), // Small space between address and phone number
-                  // Phone Number Row with icon
-                  GestureDetector(
-                    onTap: () {
-                      // Action when phone number is clicked (e.g., initiate a call)
-                      _launchPhoneDialer(widget.storeObj.store_contact_number);
-                    },
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: Colors.transparent, // Background color
-                            borderRadius: BorderRadius.circular(12), // Rounded corners
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3), // Shadow color
-                                blurRadius: 10, // Blur radius
-                                spreadRadius: 2, // Spread radius
-                                offset: Offset(4, 4), // Shadow offset
-                              ),
-                            ],
-                            image: DecorationImage(
-                              image: AssetImage("assets/images/ic_phone.png"), // Icon for phone
-                              fit: BoxFit.fill, // Adjust image scaling
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        Expanded(
-                          child: Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "${widget.storeObj.store_contact_number}",
-                              style: TextStyle(
-                                color: AppColor.colorBlack,
-                                fontSize: 13.0,
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      title: Center(
-        child: Text(
-          "Order Details",
-          style: TextStyle(color: AppColor.colorWhite, fontSize: 20),
-        ),
+          ),
+        ],
       ),
-      backgroundColor: AppColor.colorToolbar,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.white),
-        // Back button on the left
-        onPressed: () {
-          Navigator.pop(context); // Navigate back
-        },
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.home, color: Colors.white), // Home icon on the right
-          onPressed: () {
-            Navigator.popUntil(context, (route) => route.isFirst);
-          },
-        ),
-      ],
     );
   }
 
@@ -559,10 +435,31 @@ class _OrderFragment extends State<OrderFragment> {
     }
   }
 
-  void showSuccessDialog() {
-    AppUtils().showCustomDialog(context, "Hi ${pref.getString('user_name') ?? ""}", "Your Order has been deleted successfully.", () {
-      _updateData();
-    });
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: Center(
+        child: Text(
+          "Order Details",
+          style: AppStyle().toolbarTextStyle,
+        ),
+      ),
+      backgroundColor: AppColor.colorToolbar,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: Colors.white),
+        // Back button on the left
+        onPressed: () {
+          Navigator.pop(context); // Navigate back
+        },
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.home, color: Colors.white), // Home icon on the right
+          onPressed: () {
+            Navigator.popUntil(context, (route) => route.isFirst);
+          },
+        ),
+      ],
+    );
   }
 }
 

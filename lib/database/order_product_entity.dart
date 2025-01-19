@@ -19,7 +19,7 @@ class OrderProductEntity {
   String UOM;
   String product_pic_url;
   int state_id;
-  int qty;
+  double qty;
   double rate;
   bool isAdded = false;
 
@@ -58,7 +58,7 @@ abstract class OrderProductDao {
   Future<void> setSlNo();
 
   @Query('update mr_order_product set qty =:qty ,rate=:rate ,isAdded=:isAdded where product_id=:product_id')
-  Future<void> updateAdded(int qty,double rate,bool isAdded,int product_id);
+  Future<void> updateAdded(double qty,double rate,bool isAdded,int product_id);
 
   @Query('SELECT * FROM mr_order_product WHERE product_name LIKE :query LIMIT :limit OFFSET :offset')
   Future<List<OrderProductEntity>> fetchPaginatedItemsSearch(String query, int limit, int offset);
@@ -76,13 +76,13 @@ abstract class OrderProductDao {
   Future<void> discardProduct(bool isAdded,int product_id);
 
   @Query('Select COALESCE(sum(qty),0) as qty from mr_order_product WHERE isAdded=1')
-  Future<int?> getTotalQty();
+  Future<double?> getTotalQty();
 
   @Query('select COALESCE(sum(qty * rate), 0.0) as totalAmt from mr_order_product where isAdded = 1')
   Future<double?> getTotalAmt();
 
   @Query('update mr_order_product set qty =:qty , rate=:rate where product_id=:product_id')
-  Future<void> updateAddedInCart(int qty,double rate,int product_id);
+  Future<void> updateAddedInCart(double qty,double rate,int product_id);
 
 
 }

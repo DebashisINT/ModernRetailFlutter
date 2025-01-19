@@ -13,6 +13,7 @@ import '../database/order_save_dtls_entity.dart';
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_style.dart';
 import '../utils/app_utils.dart';
 import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
@@ -55,14 +56,14 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
 
     final orderDtls = await appDatabase.orderSaveDtlsDao.getDtlsById(widget.orderObj.order_id);
     for(var value in orderDtls){
-      await appDatabase.orderProductDao.updateAdded(double.parse(value.qty).toInt(), double.parse(value.rate), true, int.parse(value.product_id));
+      await appDatabase.orderProductDao.updateAdded(value.qty, value.rate, true, value.product_id);
     }
     loadData();
   }
 
   Future<void> loadData() async {
     orderProductL = await appDatabase.orderProductDao.getAllAdded();
-    var qty = 0;
+    var qty = 0.0;
     var amt = 0.0;
     for (var value in orderProductL) {
       _qtyControllers.add(TextEditingController(text: value.qty.toString()));
@@ -498,7 +499,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
   }
 
   Future<void> commitChange(OrderProductEntity product,String qty,String rate) async {
-    await appDatabase.orderProductDao.updateAddedInCart(int.parse(qty), double.parse(rate), product.product_id);
+    await appDatabase.orderProductDao.updateAddedInCart(double.parse(qty), double.parse(rate), product.product_id);
     var totalQty =await appDatabase.orderProductDao.getTotalQty();
     var totalAmt =await appDatabase.orderProductDao.getTotalAmt();
     setState(() {
@@ -591,7 +592,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
       orderObj.store_id =  widget.orderObj.store_id;
       orderObj.order_id = widget.orderObj.order_id;
       orderObj.order_date_time = formattedDate;
-      orderObj.order_amount = ordAmt.toString();
+      orderObj.order_amount = ordAmt!;
       orderObj.order_status = "";
       orderObj.remarks = remarks;
 
@@ -599,10 +600,10 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
       for (var value in productL) {
         OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
         obj.order_id = orderObj.order_id;
-        obj.product_id = value.product_id.toString();
+        obj.product_id = value.product_id;
         obj.product_name = value.product_name.toString();
-        obj.qty = value.qty.toString();
-        obj.rate = value.rate.toString();
+        obj.qty = value.qty;
+        obj.rate = value.rate;
         orderDtlsL.add(obj);
       }
 
@@ -646,7 +647,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
       title: Center(
         child: Text(
           "Edit Order",
-          style: TextStyle(color: AppColor.colorWhite, fontSize: 20),
+          style: AppStyle().toolbarTextStyle,
         ),
       ),
       backgroundColor: AppColor.colorToolbar,

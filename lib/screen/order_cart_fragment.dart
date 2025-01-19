@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:modern_retail/database/order_save_entity.dart';
+import 'package:modern_retail/utils/app_message.dart';
 import 'package:provider/provider.dart';
 
 import '../api/api_service.dart';
@@ -15,7 +16,9 @@ import '../database/order_save_dtls_entity.dart';
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_style.dart';
 import '../utils/app_utils.dart';
+import '../utils/input_formatter.dart';
 import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
 import 'order_fragment.dart';
@@ -53,7 +56,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
 
   Future<void> loadData() async {
     orderProductL = await appDatabase.orderProductDao.getAllAdded();
-    var qty = 0;
+    var qty = 0.0;
     var amt = 0.0;
     for (var value in orderProductL) {
       _qtyControllers.add(TextEditingController(text: value.qty.toString()));
@@ -148,9 +151,10 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                         children: [
                           Expanded(
                             child: Container(
-                              color: AppColor.colorButton,
+                              color: AppColor.colorBlue,
                               child: Center(
-                                child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + _totalQty, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                                child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + _totalQty,
+                                    style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
                               ),
                             ),
                           ),
@@ -159,9 +163,10 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                           ),
                           Expanded(
                             child: Container(
-                              color: AppColor.colorButton,
+                              color: AppColor.colorBlue,
                               child: Center(
-                                child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + _totalAmount, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                                child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + _totalAmount,
+                                    style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
                               ),
                             ),
                           ),
@@ -172,10 +177,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       height: 50,
                       child: GestureDetector(
                         onTap: () async {
-                          // Handle the Place Order click event here
-                          print("Place Order button clicked!");
                           final getCount = await appDatabase.orderProductDao.getProductAddedCount();
-
                           if (getCount! > 0) {
                             _showRemarksDialog();
                           } else {
@@ -190,11 +192,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                             children: [
                               Text(
                                 "Place Order",
-                                style: TextStyle(
-                                  color: AppColor.colorWhite,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorWhite,fontWeight: FontWeight.bold),
                               ),
                               SizedBox(
                                 width: 15,
@@ -224,54 +222,39 @@ class _OrderCartFragment extends State<OrderCartFragment> {
 
   Widget _buildProductCard(OrderProductEntity product, int index) {
     return Card(
-      color: product.isAdded ? AppColor.colorWhite : AppColor.colorWhite,
-      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-      elevation: 5.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
+      color: AppColor.colorWhite,
+      margin: AppStyle().cardMargin.copyWith(left: 10,right: 10,top: 10,bottom: 10),
+      elevation:AppStyle().cardEvevation,
+      shape: AppStyle().cardShape,
       child: Padding(
-        padding: const EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0, bottom: 5.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 5.0), // Add 5 pixels of left margin
+              padding: const EdgeInsets.only(left: 0), // Add 5 pixels of left margin
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distributes space between text and icon
                 children: [
                   Expanded(
                     child: Text(
                       product.product_name,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColor.colorButton,
-                      ),
+                      style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorBlue),
                       overflow: TextOverflow.clip, // Ensures the text wraps properly
                       softWrap: true,
                     ),
                   ),
                   GestureDetector(
                     onTap: () async {
-                      print("Container clicked");
-                      // Perform the delete operation
                       await appDatabase.orderProductDao.discardProduct(false, product.product_id);
                       _qtyControllers.clear();
                       _rateControllers.clear();
                       _qtyFocusNode.clear();
                       _rateFocusNode.clear();
                       loadData();
-                      // Fetch updated product list from the database
                       List<OrderProductEntity> updatedProducts = await appDatabase.orderProductDao.getAllAdded();
-                      /*// Update the UI to reflect the changes
-                      var totalQty =await appDatabase.orderProductDao.getTotalQty();
-                      var totalAmt =await appDatabase.orderProductDao.getTotalAmt();*/
                       setState(() {
-                        product.isAdded = false; // Update product state
-                        viewModel._items = updatedProducts; // Update the product list
-                        /*_totalQty = totalQty.toString();
-                        _totalAmount = totalAmt.toString();*/
+                        viewModel._items = updatedProducts;
                       });
                     },
                     child: Container(
@@ -281,12 +264,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                         color: AppColor.colorRed, // Background color
                         borderRadius: BorderRadius.circular(200), // Rounded corners
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(1), // Shadow color
-                            blurRadius: 1, // Blur radius
-                            spreadRadius: 1, // Spread radius
-                            offset: Offset(1, 1), // Shadow offset
-                          ),
+                          AppStyle().boxShadow,
                         ],
                       ),
                       child: Padding(
@@ -305,7 +283,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             Row(
               children: [
                 Container(
@@ -315,12 +293,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     color: AppColor.colorGreyLight, // Background color
                     borderRadius: BorderRadius.circular(200), // Rounded corners
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(1), // Shadow color
-                        blurRadius: 1, // Blur radius
-                        spreadRadius: 1, // Spread radius
-                        offset: Offset(1, 1), // Shadow offset
-                      ),
+                      AppStyle().boxShadow,
                     ],
                   ),
                   child: Padding(
@@ -342,20 +315,14 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
                     mainAxisAlignment: MainAxisAlignment.start, // Ensure text starts from the top
                     children: [
-                      Text(
-                        "MRP",
-                        style: TextStyle(color: AppColor.colorGrey, fontSize: 15.0),
-                      ),
-                      Text(
-                        product.product_mrp.toString(),
-                        style: TextStyle(color: AppColor.colorBlue, fontSize: 15.0),
-                      ),
+                      Text("MRP", style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey)),
+                      Text(product.product_mrp.toString(), style: AppStyle().textStyle.copyWith(color: AppColor.colorBlue)),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 1),
+            SizedBox(height: 5),
             Padding(
                 padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
                 child: Row(
@@ -383,15 +350,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                 Container(
                   height: 30,
                   alignment: Alignment.center,
-                  child: Text(
-                    'Quantity',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: AppColor.colorGrey,
-                    ),
-                  ),
+                  child: Text('Quantity', textAlign: TextAlign.center, style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),),
                 ),
                 Container(
                   height: 30, // Fixed height for text box
@@ -406,14 +365,13 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       ),
                       textAlign: TextAlign.center,
                       inputFormatters: [
-                        LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                        InputFormatter(decimalRange: 2, beforeDecimal: 5,)
                       ],
                       onChanged: (text) {
                         // Handle text changes here
                         setState(() {
                           _visibilityControllers[index] = true;
                         });
-                        print('tag_Text_changed: $text'); // Example: Print the current text
                       }),
                 ),
               ],
@@ -428,15 +386,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                 Container(
                   height: 30,
                   alignment: Alignment.center,
-                  child: Text(
-                    'Rate',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: AppColor.colorGrey,
-                    ),
-                  ),
+                  child: Text('Rate', textAlign: TextAlign.center, style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),),
                 ),
                 Container(
                   height: 30, // Fixed height for text box
@@ -451,14 +401,12 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     ),
                     textAlign: TextAlign.center,
                     inputFormatters: [
-                      LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                      InputFormatter(decimalRange: 2, beforeDecimal: 5,)
                     ],
                       onChanged: (text) {
-                        // Handle text changes here
                         setState(() {
                           _visibilityControllers[index] = true;
                         });
-                        print('tag_Text_changed: $text'); // Example: Print the current text
                       }
                   ),
                 ),
@@ -490,7 +438,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
   }
 
   Future<void> commitChange(OrderProductEntity product,String qty,String rate) async {
-    await appDatabase.orderProductDao.updateAddedInCart(int.parse(qty), double.parse(rate), product.product_id);
+    await appDatabase.orderProductDao.updateAddedInCart(double.parse(qty), double.parse(rate), product.product_id);
     var totalQty =await appDatabase.orderProductDao.getTotalQty();
     var totalAmt =await appDatabase.orderProductDao.getTotalAmt();
     setState(() {
@@ -504,7 +452,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       title: Center(
         child: Text(
           "Cart",
-          style: TextStyle(color: AppColor.colorWhite, fontSize: 20),
+          style: AppStyle().toolbarTextStyle,
         ),
       ),
       backgroundColor: AppColor.colorToolbar,
@@ -537,7 +485,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Enter Details'),
+              title: Text('Enter Details',style: AppStyle().textHeaderStyle,),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -547,46 +495,31 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     controller: textController,
                     decoration: InputDecoration(
                       labelText: 'Remarks',
+                      labelStyle: AppStyle().labelStyle,
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 2),
                   // Attachment Selection
                 ],
               ),
               actions: [
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black87,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorGrey,
-                  ),
+                  style: AppStyle().buttonStyle.copyWith(backgroundColor: MaterialStateProperty.all(AppColor.colorGrey)),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
-                    onSubmit_handlePlaceOrder(widget.storeObj, "");
+                    //onSubmit_handlePlaceOrder(widget.storeObj, "");
                   },
-                  child: Text('Cancel', style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
+                  child: Text('Cancel', style: AppStyle().textStyle.copyWith(color: AppColor.colorBlack)),
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black87,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorButton,
-                  ),
+                  style: AppStyle().buttonStyle.copyWith(backgroundColor: MaterialStateProperty.all(AppColor.colorButton)),
                   onPressed: () {
                     String userInput = textController.text;
-
                     Navigator.of(context).pop(); // Close the dialog
-                    // Pass the value back to the caller
                     onSubmit_handlePlaceOrder(widget.storeObj, userInput);
                   },
-                  child: Text('Submit', style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
+                  child: Text('Submit', style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
                 ),
               ],
             );
@@ -612,7 +545,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       orderObj.store_id = storeObj.store_id;
       orderObj.order_id = orderID;
       orderObj.order_date_time = formattedDate;
-      orderObj.order_amount = ordAmt.toString();
+      orderObj.order_amount = ordAmt!;
       orderObj.order_status = "";
       orderObj.remarks = remarks;
 
@@ -620,10 +553,10 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       for (var value in productL) {
         OrderSaveDtlsEntity obj = OrderSaveDtlsEntity();
         obj.order_id = orderID;
-        obj.product_id = value.product_id.toString();
+        obj.product_id = value.product_id;
         obj.product_name = value.product_name.toString();
-        obj.qty = value.qty.toString();
-        obj.rate = value.rate.toString();
+        obj.qty = value.qty;
+        obj.rate = value.rate;
         orderDtlsL.add(obj);
       }
 
@@ -640,7 +573,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
           showSuccessDialog(storeObj, orderID);
         } else {
           LoaderUtils().dismissLoader(context);
-          SnackBarUtils().showSnackBar(context, 'Something went wrong.');
+          SnackBarUtils().showSnackBar(context, AppMessage().wrong);
         }
       } else {
         LoaderUtils().dismissLoader(context);
@@ -648,7 +581,8 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       }
     } catch (e) {
       print(e);
-      Navigator.of(context).pop();
+      LoaderUtils().dismissLoader(context);
+      SnackBarUtils().showSnackBar(context, AppMessage().wrong);
     }
   }
 

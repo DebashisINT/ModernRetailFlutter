@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:modern_retail/database/order_save_dtls_entity.dart';
 import 'package:modern_retail/database/stock_save_dtls_entity.dart';
+import 'package:modern_retail/utils/app_message.dart';
+import 'package:modern_retail/utils/app_style.dart';
 import 'package:modern_retail/utils/app_utils.dart';
 import 'package:modern_retail/utils/loader_utils.dart';
 import 'package:modern_retail/utils/snackbar_utils.dart';
@@ -98,15 +100,14 @@ class _LoginScreen extends State<LoginScreen> {
               fit: BoxFit.fill,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 35,vertical: 1),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height:10),
                   Image.asset(
                     "assets/images/ic_logo.webp",
-                    height: 55,
-                    width: 135,
+                    height: 50,
+                    width: 130,
                     fit: BoxFit.fill,
                   ),
                   SizedBox(height:20),
@@ -114,25 +115,28 @@ class _LoginScreen extends State<LoginScreen> {
                     controller: usernameController,
                     focusNode: usernameFocusNode,
                     decoration: InputDecoration(
-                      hintText: "Username",
+                      labelText: "Username",
+                      hintText: "Enter Username",
+                      labelStyle: AppStyle().labelStyle,
+                      hintStyle: AppStyle().hintStyle,
                       prefixIcon:  Padding(
                         padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
                         child: Image.asset(
                           'assets/images/ic_user.png', // Your custom icon image
                           width: 14, // You can set width and height to fit
                           height: 14,
-                          fit: BoxFit.contain,
+                          fit: BoxFit.fill,
                         ),
                       ),
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10)
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0),
+                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey, width: 1.0), // Inactive (unfocused) color
+                        borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -143,7 +147,10 @@ class _LoginScreen extends State<LoginScreen> {
                     focusNode: passwordFocusNode,
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
-                      hintText: "Password",
+                      labelText: "Password",
+                      hintText: "Enter Password",
+                      labelStyle: AppStyle().labelStyle,
+                      hintStyle: AppStyle().hintStyle,
                       prefixIcon:  Padding(
                         padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
                         child: Image.asset(
@@ -167,11 +174,11 @@ class _LoginScreen extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(10)
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue, width: 1.0), // Active (focused) color
+                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5), // Active (focused) color
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey, width: 1.0), // Inactive (unfocused) color
+                        borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -186,31 +193,24 @@ class _LoginScreen extends State<LoginScreen> {
                         activeColor: AppColor.colorButton, // Change the color when selected
                         checkColor: Colors.white,
                       ),
-                      Text('Remember Me'),
+                      Text('Remember Me',style: AppStyle().textStyle),
                     ],
                   ),
                   SizedBox(height: 5),
                   SizedBox(
-                    height: 55, // 20% of screen height
+                    height: 55,
                     width: MediaQuery.of(context).size.width * 1, // 50% of screen width
                     child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        elevation: 5,
-                        shadowColor: Colors.black87,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        side: const BorderSide(color: Colors.black26, width: 0),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        backgroundColor: AppColor.colorButton,
-                      ),
+                      style : AppStyle().buttonStyle,
                       onPressed: () async {
                         usernameFocusNode.unfocus();
                         passwordFocusNode.unfocus();
                         String loginID = usernameController.text;
                         String password = passwordController.text;
                         if(loginID == ""){
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Username')));
+                          SnackBarUtils().showSnackBar(context,'Please enter Username');
                         }else if(password == ""){
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Password')));
+                          SnackBarUtils().showSnackBar(context,'Please enter Password');
                         }else{
                           if(_isChecked){
                             await pref.setString('userLoginID', loginID);
@@ -226,31 +226,28 @@ class _LoginScreen extends State<LoginScreen> {
                           if(isOnline){
                             doLogin(loginID,password);
                           }else{
-                            SnackBarUtils().showSnackBar(context,'Please connect to internet.',imagePath: "assets/images/ic_no_internet.png");
+                            SnackBarUtils().showSnackBar(context,AppMessage().no_internet,imagePath: "assets/images/ic_no_internet.png");
                           }
                         }
                       },
-                      child: const Text('Login', style: TextStyle(color: AppColor.colorWhite)),
+                      child: Text('Login'),
                     ),
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 20),
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
                       'App Version: $_appVersion',
-                      style: TextStyle(
-                        fontSize: 14.0, fontWeight: FontWeight.normal, // Bold font weight
-                      ),
+                      style: AppStyle().textStyle,
                     ),
                   ),
-                  SizedBox(height: 0),
                 ],
               ),
             ),
             Image.asset(
               'assets/images/login_bottom.webp', // Path to the bottom image asset
               //width: double.infinity, // Makes the image stretch across the width
-              height: MediaQuery.of(context).size.height * .30,
+              height: MediaQuery.of(context).size.height * .35,
               width: MediaQuery.of(context).size.width,
               fit: BoxFit.fill, // You can adjust this as needed
             )
@@ -272,11 +269,12 @@ class _LoginScreen extends State<LoginScreen> {
         fetchData();
       }else{
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loginResponse.message)),);
+        SnackBarUtils().showSnackBar(context,loginResponse.message);
       }
     } catch (error) {
       LoaderUtils().dismissLoader(context);
       print('Error: $error');
+      SnackBarUtils().showSnackBar(context,AppMessage().wrong);
     }
   }
 
@@ -310,7 +308,7 @@ class _LoginScreen extends State<LoginScreen> {
       final itemDao = appDatabase.storeTypeDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty) {
-        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id')!);
         final response = await apiService.getStoreType(userRequest);
         if (response.status == "200") {
           await itemDao.deleteAll();
@@ -327,11 +325,12 @@ class _LoginScreen extends State<LoginScreen> {
       final itemDao = appDatabase.storeDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty) {
-        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id')!);
         final response = await apiService.getStore(userRequest);
         if (response.status == "200") {
           await itemDao.deleteAll();
           await itemDao.insertAll(response.storeList);
+          await itemDao.updateIsUploadedAll();
         }
       }
     } catch (error) {
@@ -344,7 +343,7 @@ class _LoginScreen extends State<LoginScreen> {
       final itemDao = appDatabase.statePinDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty){
-        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id')!);
         final response = await apiService.getStatePin(userRequest);
         if(response.status == "200"){
           await itemDao.deleteAll();
@@ -361,7 +360,7 @@ class _LoginScreen extends State<LoginScreen> {
       final itemDao = appDatabase.productDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty){
-        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id')!);
         final response = await apiService.getProduct(userRequest);
         if(response.status == "200"){
           await itemDao.deleteAll();
@@ -378,7 +377,7 @@ class _LoginScreen extends State<LoginScreen> {
       final itemDao = appDatabase.productRateDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty){
-        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id')!);
         final response = await apiService.getProductRate(userRequest);
         if(response.status == "200"){
           await itemDao.deleteAll();
@@ -395,7 +394,7 @@ class _LoginScreen extends State<LoginScreen> {
       final itemDao = appDatabase.productUOMDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty){
-        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id')!);
         final response = await apiService.getProductUOM(userRequest);
         if(response.status == "200"){
           await itemDao.deleteAll();
@@ -412,7 +411,7 @@ class _LoginScreen extends State<LoginScreen> {
       final itemDao = appDatabase.branchDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty){
-        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id')!);
         final response = await apiService.getBranch(userRequest);
         if(response.status == "200"){
           await itemDao.deleteAll();
@@ -430,7 +429,7 @@ class _LoginScreen extends State<LoginScreen> {
       final itemDtlsDao = appDatabase.stockSaveDtlsDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty){
-        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id')!);
         final response = await apiService.fetchStockHistory(userRequest);
         if(response.status == "200"){
           await itemDao.deleteAll();
@@ -467,7 +466,7 @@ class _LoginScreen extends State<LoginScreen> {
       final itemDtlsDao = appDatabase.orderSaveDtlsDao;
       final dataL = await itemDao.getAll();
       if(dataL.isEmpty){
-        final userRequest = UserIdRequest(user_id: pref.getString('user_id') ?? "");
+        final userRequest = UserIdRequest(user_id: pref.getString('user_id')!);
         final response = await apiService.fetchOrderHistory(userRequest);
         if(response.status == "200"){
           await itemDao.deleteAll();
@@ -478,16 +477,16 @@ class _LoginScreen extends State<LoginScreen> {
             obj.store_id = order.store_id;
             obj.order_id = order.order_id;
             obj.order_date_time = order.order_date_time;
-            obj.order_amount = order.order_amount.toString();
+            obj.order_amount = order.order_amount;
             obj.order_status = order.order_status;
             obj.remarks = order.remarks;
             await itemDao.insert(obj);
             for(var orderDtls in order.order_details_list){
               objDtls.order_id = orderDtls.order_id;
-              objDtls.product_id = orderDtls.product_id.toString();
+              objDtls.product_id = orderDtls.product_id;
               objDtls.product_name = orderDtls.product_name.toString();
-              objDtls.qty = orderDtls.qty.toString();
-              objDtls.rate = orderDtls.rate.toString();
+              objDtls.qty = orderDtls.qty;
+              objDtls.rate = orderDtls.rate;
               await itemDtlsDao.insert(objDtls);
             }
           }

@@ -5,12 +5,12 @@ class OrderSaveDtlsEntity{
   @PrimaryKey(autoGenerate: true)
   int? sl_no;
   String order_id;
-  String product_id;
+  int product_id;
   String product_name;
-  String qty;
-  String rate;
+  double qty;
+  double rate;
 
-  OrderSaveDtlsEntity({this.sl_no,this.order_id="", this.product_id="",this.product_name="", this.qty="", this.rate=""});
+  OrderSaveDtlsEntity({this.sl_no,this.order_id="", this.product_id=0,this.product_name="", this.qty=0.0, this.rate=0.0});
 
   factory OrderSaveDtlsEntity.fromJson(Map<String, dynamic> json) {
     return OrderSaveDtlsEntity(

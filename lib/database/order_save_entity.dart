@@ -6,11 +6,11 @@ class OrderSaveEntity{
   String order_id;
   String store_id;
   String order_date_time;
-  String order_amount;
+  double order_amount;
   String order_status;
   String remarks;
 
-  OrderSaveEntity({this.order_id="", this.store_id="", this.order_date_time="", this.order_amount="", this.order_status="",this.remarks=""});
+  OrderSaveEntity({this.order_id="", this.store_id="", this.order_date_time="", this.order_amount=0.0, this.order_status="",this.remarks=""});
 
   factory OrderSaveEntity.fromJson(Map<String, dynamic> json) {
     return OrderSaveEntity(

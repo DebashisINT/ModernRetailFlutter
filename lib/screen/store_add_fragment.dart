@@ -17,6 +17,7 @@ import '../database/store_entity.dart';
 import '../database/store_type_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_style.dart';
 import '../utils/app_utils.dart';
 import '../utils/snackbar_utils.dart';
 
@@ -741,7 +742,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
       title: Center(
         child: Text(
           widget.editStoreObj != null ? "Edit Store" : "Add Store",
-          style: TextStyle(color: AppColor.colorWhite, fontSize: 20),
+          style: AppStyle().toolbarTextStyle,
         ),
       ),
       backgroundColor: AppColor.colorToolbar,

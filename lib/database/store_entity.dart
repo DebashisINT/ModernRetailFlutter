@@ -6,8 +6,8 @@ class StoreEntity{
   final String store_id;
   final int branch_id;
   final String store_name;
-  final String store_address;
-  final String store_pincode;
+  final String? store_address;
+  final String? store_pincode;
   final String? store_lat;
   final String? store_long;
   final String store_contact_name;
@@ -17,7 +17,7 @@ class StoreEntity{
   final String? store_email;
   final int store_type;
   final String? store_size_area;
-  final int store_state_id;
+  final int? store_state_id;
   final String? remarks;
   final String? create_date_time;
   final String store_pic_url;
@@ -81,6 +81,9 @@ abstract class StoreDao{
 
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertAll(List<StoreEntity> list);
+
+  @Query('update mr_store set isUploaded = 1')
+  Future<void> updateIsUploadedAll();
 
   @Query('SELECT * FROM mr_store LIMIT :limit OFFSET :offset')
   Future<List<StoreEntity>> fetchPaginatedItems(int limit, int offset);

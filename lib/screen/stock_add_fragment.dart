@@ -20,6 +20,7 @@ import '../database/stock_save_entity.dart';
 import '../database/store_entity.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_style.dart';
 import '../utils/app_utils.dart';
 import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
@@ -731,7 +732,7 @@ class _StockAddFragment extends State<StockAddFragment> {
       title: Center(
         child: Text(
           "Stock",
-          style: TextStyle(color: AppColor.colorWhite, fontSize: 20),
+          style: AppStyle().toolbarTextStyle,
         ),
       ),
       backgroundColor: AppColor.colorToolbar,

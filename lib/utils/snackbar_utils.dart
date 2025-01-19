@@ -27,16 +27,16 @@ class SnackBarUtils {
               child: Text(
                 msg,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontSize: 16.0,
                 ), // Customize text color
               ),
             ),
           ],
         ),
-        backgroundColor: AppColor.colorCharcoal,
+        backgroundColor: AppColor.colorGreenPastel,
         behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(16),
+        margin: EdgeInsets.only(left: 30,right: 30,bottom: 100),// EdgeInsets.all(16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),

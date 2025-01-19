@@ -122,7 +122,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_store_type` (`type_id` INTEGER NOT NULL, `type_name` TEXT NOT NULL, PRIMARY KEY (`type_id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_store` (`store_id` TEXT NOT NULL, `branch_id` INTEGER NOT NULL, `store_name` TEXT NOT NULL, `store_address` TEXT NOT NULL, `store_pincode` TEXT NOT NULL, `store_lat` TEXT, `store_long` TEXT, `store_contact_name` TEXT NOT NULL, `store_contact_number` TEXT NOT NULL, `store_alternet_contact_number` TEXT, `store_whatsapp_number` TEXT, `store_email` TEXT, `store_type` INTEGER NOT NULL, `store_size_area` TEXT, `store_state_id` INTEGER NOT NULL, `remarks` TEXT, `create_date_time` TEXT, `store_pic_url` TEXT NOT NULL, `isUploaded` INTEGER NOT NULL, PRIMARY KEY (`store_id`))');
+            'CREATE TABLE IF NOT EXISTS `mr_store` (`store_id` TEXT NOT NULL, `branch_id` INTEGER NOT NULL, `store_name` TEXT NOT NULL, `store_address` TEXT, `store_pincode` TEXT, `store_lat` TEXT, `store_long` TEXT, `store_contact_name` TEXT NOT NULL, `store_contact_number` TEXT NOT NULL, `store_alternet_contact_number` TEXT, `store_whatsapp_number` TEXT, `store_email` TEXT, `store_type` INTEGER NOT NULL, `store_size_area` TEXT, `store_state_id` INTEGER, `remarks` TEXT, `create_date_time` TEXT, `store_pic_url` TEXT NOT NULL, `isUploaded` INTEGER NOT NULL, PRIMARY KEY (`store_id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_state_pin` (`pin_id` INTEGER NOT NULL, `pincode` TEXT NOT NULL, `city_id` INTEGER NOT NULL, `city_name` TEXT NOT NULL, `state_id` INTEGER NOT NULL, `state_name` TEXT NOT NULL, PRIMARY KEY (`pin_id`))');
         await database.execute(
@@ -140,11 +140,11 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `mr_stock_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM_id` INTEGER NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `qty` TEXT NOT NULL, `mfgDate` TEXT NOT NULL, `expDate` TEXT NOT NULL, `isAdded` INTEGER NOT NULL, PRIMARY KEY (`sl_no`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_order_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `state_id` INTEGER NOT NULL, `qty` INTEGER NOT NULL, `rate` REAL NOT NULL, `isAdded` INTEGER NOT NULL, PRIMARY KEY (`sl_no`))');
+            'CREATE TABLE IF NOT EXISTS `mr_order_product` (`sl_no` INTEGER NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `product_description` TEXT NOT NULL, `brand_id` INTEGER NOT NULL, `brand_name` TEXT NOT NULL, `category_id` INTEGER NOT NULL, `category_name` TEXT NOT NULL, `watt_id` INTEGER NOT NULL, `watt_name` TEXT NOT NULL, `product_mrp` REAL NOT NULL, `UOM` TEXT NOT NULL, `product_pic_url` TEXT NOT NULL, `state_id` INTEGER NOT NULL, `qty` REAL NOT NULL, `rate` REAL NOT NULL, `isAdded` INTEGER NOT NULL, PRIMARY KEY (`sl_no`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_order_save` (`order_id` TEXT NOT NULL, `store_id` TEXT NOT NULL, `order_date_time` TEXT NOT NULL, `order_amount` TEXT NOT NULL, `order_status` TEXT NOT NULL, `remarks` TEXT NOT NULL, PRIMARY KEY (`order_id`))');
+            'CREATE TABLE IF NOT EXISTS `mr_order_save` (`order_id` TEXT NOT NULL, `store_id` TEXT NOT NULL, `order_date_time` TEXT NOT NULL, `order_amount` REAL NOT NULL, `order_status` TEXT NOT NULL, `remarks` TEXT NOT NULL, PRIMARY KEY (`order_id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `mr_order_save_dtls` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `order_id` TEXT NOT NULL, `product_id` TEXT NOT NULL, `product_name` TEXT NOT NULL, `qty` TEXT NOT NULL, `rate` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `mr_order_save_dtls` (`sl_no` INTEGER PRIMARY KEY AUTOINCREMENT, `order_id` TEXT NOT NULL, `product_id` INTEGER NOT NULL, `product_name` TEXT NOT NULL, `qty` REAL NOT NULL, `rate` REAL NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -260,14 +260,14 @@ class _$StoreTypeDao extends StoreTypeDao {
   @override
   Future<String?> getStoreTypeById(String type_id) async {
     return _queryAdapter.query(
-        'SELECT type_name FROM mr_store_type WHERE type_id = ?1',
+        'SELECT type_name FROM mr_store_type WHERE type_id =?1',
         mapper: (Map<String, Object?> row) => row.values.first as String,
         arguments: [type_id]);
   }
 
   @override
   Future<StoreTypeEntity?> getStoreTypeDtls(String type_id) async {
-    return _queryAdapter.query('SELECT * FROM mr_store_type WHERE type_id = ?1',
+    return _queryAdapter.query('SELECT * FROM mr_store_type WHERE type_id =?1',
         mapper: (Map<String, Object?> row) => StoreTypeEntity(
             type_id: row['type_id'] as int,
             type_name: row['type_name'] as String),
@@ -636,8 +636,8 @@ class _$StoreDao extends StoreDao {
             store_id: row['store_id'] as String,
             branch_id: row['branch_id'] as int,
             store_name: row['store_name'] as String,
-            store_address: row['store_address'] as String,
-            store_pincode: row['store_pincode'] as String,
+            store_address: row['store_address'] as String?,
+            store_pincode: row['store_pincode'] as String?,
             store_lat: row['store_lat'] as String?,
             store_long: row['store_long'] as String?,
             store_contact_name: row['store_contact_name'] as String,
@@ -648,7 +648,7 @@ class _$StoreDao extends StoreDao {
             store_email: row['store_email'] as String?,
             store_type: row['store_type'] as int,
             store_size_area: row['store_size_area'] as String?,
-            store_state_id: row['store_state_id'] as int,
+            store_state_id: row['store_state_id'] as int?,
             remarks: row['remarks'] as String?,
             create_date_time: row['create_date_time'] as String?,
             store_pic_url: row['store_pic_url'] as String,
@@ -662,8 +662,8 @@ class _$StoreDao extends StoreDao {
             store_id: row['store_id'] as String,
             branch_id: row['branch_id'] as int,
             store_name: row['store_name'] as String,
-            store_address: row['store_address'] as String,
-            store_pincode: row['store_pincode'] as String,
+            store_address: row['store_address'] as String?,
+            store_pincode: row['store_pincode'] as String?,
             store_lat: row['store_lat'] as String?,
             store_long: row['store_long'] as String?,
             store_contact_name: row['store_contact_name'] as String,
@@ -674,7 +674,7 @@ class _$StoreDao extends StoreDao {
             store_email: row['store_email'] as String?,
             store_type: row['store_type'] as int,
             store_size_area: row['store_size_area'] as String?,
-            store_state_id: row['store_state_id'] as int,
+            store_state_id: row['store_state_id'] as int?,
             remarks: row['remarks'] as String?,
             create_date_time: row['create_date_time'] as String?,
             store_pic_url: row['store_pic_url'] as String,
@@ -688,6 +688,11 @@ class _$StoreDao extends StoreDao {
   }
 
   @override
+  Future<void> updateIsUploadedAll() async {
+    await _queryAdapter.queryNoReturn('update mr_store set isUploaded = 1');
+  }
+
+  @override
   Future<List<StoreEntity>> fetchPaginatedItems(
     int limit,
     int offset,
@@ -697,8 +702,8 @@ class _$StoreDao extends StoreDao {
             store_id: row['store_id'] as String,
             branch_id: row['branch_id'] as int,
             store_name: row['store_name'] as String,
-            store_address: row['store_address'] as String,
-            store_pincode: row['store_pincode'] as String,
+            store_address: row['store_address'] as String?,
+            store_pincode: row['store_pincode'] as String?,
             store_lat: row['store_lat'] as String?,
             store_long: row['store_long'] as String?,
             store_contact_name: row['store_contact_name'] as String,
@@ -709,7 +714,7 @@ class _$StoreDao extends StoreDao {
             store_email: row['store_email'] as String?,
             store_type: row['store_type'] as int,
             store_size_area: row['store_size_area'] as String?,
-            store_state_id: row['store_state_id'] as int,
+            store_state_id: row['store_state_id'] as int?,
             remarks: row['remarks'] as String?,
             create_date_time: row['create_date_time'] as String?,
             store_pic_url: row['store_pic_url'] as String,
@@ -729,8 +734,8 @@ class _$StoreDao extends StoreDao {
             store_id: row['store_id'] as String,
             branch_id: row['branch_id'] as int,
             store_name: row['store_name'] as String,
-            store_address: row['store_address'] as String,
-            store_pincode: row['store_pincode'] as String,
+            store_address: row['store_address'] as String?,
+            store_pincode: row['store_pincode'] as String?,
             store_lat: row['store_lat'] as String?,
             store_long: row['store_long'] as String?,
             store_contact_name: row['store_contact_name'] as String,
@@ -741,7 +746,7 @@ class _$StoreDao extends StoreDao {
             store_email: row['store_email'] as String?,
             store_type: row['store_type'] as int,
             store_size_area: row['store_size_area'] as String?,
-            store_state_id: row['store_state_id'] as int,
+            store_state_id: row['store_state_id'] as int?,
             remarks: row['remarks'] as String?,
             create_date_time: row['create_date_time'] as String?,
             store_pic_url: row['store_pic_url'] as String,
@@ -914,7 +919,7 @@ class _$OrderProductDao extends OrderProductDao {
             UOM: row['UOM'] as String,
             product_pic_url: row['product_pic_url'] as String,
             state_id: row['state_id'] as int,
-            qty: row['qty'] as int,
+            qty: row['qty'] as double,
             rate: row['rate'] as double,
             isAdded: (row['isAdded'] as int) != 0));
   }
@@ -938,7 +943,7 @@ class _$OrderProductDao extends OrderProductDao {
             UOM: row['UOM'] as String,
             product_pic_url: row['product_pic_url'] as String,
             state_id: row['state_id'] as int,
-            qty: row['qty'] as int,
+            qty: row['qty'] as double,
             rate: row['rate'] as double,
             isAdded: (row['isAdded'] as int) != 0));
   }
@@ -962,7 +967,7 @@ class _$OrderProductDao extends OrderProductDao {
 
   @override
   Future<void> updateAdded(
-    int qty,
+    double qty,
     double rate,
     bool isAdded,
     int product_id,
@@ -980,7 +985,7 @@ class _$OrderProductDao extends OrderProductDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM mr_order_product WHERE product_name LIKE ?1 LIMIT ?2 OFFSET ?3',
-        mapper: (Map<String, Object?> row) => OrderProductEntity(sl_no: row['sl_no'] as int, product_id: row['product_id'] as int, product_name: row['product_name'] as String, product_description: row['product_description'] as String, brand_id: row['brand_id'] as int, brand_name: row['brand_name'] as String, category_id: row['category_id'] as int, category_name: row['category_name'] as String, watt_id: row['watt_id'] as int, watt_name: row['watt_name'] as String, product_mrp: row['product_mrp'] as double, UOM: row['UOM'] as String, product_pic_url: row['product_pic_url'] as String, state_id: row['state_id'] as int, qty: row['qty'] as int, rate: row['rate'] as double, isAdded: (row['isAdded'] as int) != 0),
+        mapper: (Map<String, Object?> row) => OrderProductEntity(sl_no: row['sl_no'] as int, product_id: row['product_id'] as int, product_name: row['product_name'] as String, product_description: row['product_description'] as String, brand_id: row['brand_id'] as int, brand_name: row['brand_name'] as String, category_id: row['category_id'] as int, category_name: row['category_name'] as String, watt_id: row['watt_id'] as int, watt_name: row['watt_name'] as String, product_mrp: row['product_mrp'] as double, UOM: row['UOM'] as String, product_pic_url: row['product_pic_url'] as String, state_id: row['state_id'] as int, qty: row['qty'] as double, rate: row['rate'] as double, isAdded: (row['isAdded'] as int) != 0),
         arguments: [query, limit, offset]);
   }
 
@@ -1006,7 +1011,7 @@ class _$OrderProductDao extends OrderProductDao {
             UOM: row['UOM'] as String,
             product_pic_url: row['product_pic_url'] as String,
             state_id: row['state_id'] as int,
-            qty: row['qty'] as int,
+            qty: row['qty'] as double,
             rate: row['rate'] as double,
             isAdded: (row['isAdded'] as int) != 0),
         arguments: [limit, offset]);
@@ -1034,7 +1039,7 @@ class _$OrderProductDao extends OrderProductDao {
             UOM: row['UOM'] as String,
             product_pic_url: row['product_pic_url'] as String,
             state_id: row['state_id'] as int,
-            qty: row['qty'] as int,
+            qty: row['qty'] as double,
             rate: row['rate'] as double,
             isAdded: (row['isAdded'] as int) != 0),
         arguments: [limit, offset]);
@@ -1058,10 +1063,10 @@ class _$OrderProductDao extends OrderProductDao {
   }
 
   @override
-  Future<int?> getTotalQty() async {
+  Future<double?> getTotalQty() async {
     return _queryAdapter.query(
         'Select COALESCE(sum(qty),0) as qty from mr_order_product WHERE isAdded=1',
-        mapper: (Map<String, Object?> row) => row.values.first as int);
+        mapper: (Map<String, Object?> row) => row.values.first as double);
   }
 
   @override
@@ -1073,7 +1078,7 @@ class _$OrderProductDao extends OrderProductDao {
 
   @override
   Future<void> updateAddedInCart(
-    int qty,
+    double qty,
     double rate,
     int product_id,
   ) async {
@@ -1121,7 +1126,7 @@ class _$OrderSaveDao extends OrderSaveDao {
             order_id: row['order_id'] as String,
             store_id: row['store_id'] as String,
             order_date_time: row['order_date_time'] as String,
-            order_amount: row['order_amount'] as String,
+            order_amount: row['order_amount'] as double,
             order_status: row['order_status'] as String,
             remarks: row['remarks'] as String));
   }
@@ -1138,7 +1143,7 @@ class _$OrderSaveDao extends OrderSaveDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM mr_order_save ORDER BY order_date_time ASC LIMIT ?1 OFFSET ?2',
-        mapper: (Map<String, Object?> row) => OrderSaveEntity(order_id: row['order_id'] as String, store_id: row['store_id'] as String, order_date_time: row['order_date_time'] as String, order_amount: row['order_amount'] as String, order_status: row['order_status'] as String, remarks: row['remarks'] as String),
+        mapper: (Map<String, Object?> row) => OrderSaveEntity(order_id: row['order_id'] as String, store_id: row['store_id'] as String, order_date_time: row['order_date_time'] as String, order_amount: row['order_amount'] as double, order_status: row['order_status'] as String, remarks: row['remarks'] as String),
         arguments: [limit, offset]);
   }
 
@@ -1194,10 +1199,10 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
         mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(
             sl_no: row['sl_no'] as int?,
             order_id: row['order_id'] as String,
-            product_id: row['product_id'] as String,
+            product_id: row['product_id'] as int,
             product_name: row['product_name'] as String,
-            qty: row['qty'] as String,
-            rate: row['rate'] as String));
+            qty: row['qty'] as double,
+            rate: row['rate'] as double));
   }
 
   @override
@@ -1212,7 +1217,7 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
   ) async {
     return _queryAdapter.queryList(
         'SELECT * FROM mr_order_save_dtls ORDER BY order_date_time ASC LIMIT ?1 OFFSET ?2',
-        mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(sl_no: row['sl_no'] as int?, order_id: row['order_id'] as String, product_id: row['product_id'] as String, product_name: row['product_name'] as String, qty: row['qty'] as String, rate: row['rate'] as String),
+        mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(sl_no: row['sl_no'] as int?, order_id: row['order_id'] as String, product_id: row['product_id'] as int, product_name: row['product_name'] as String, qty: row['qty'] as double, rate: row['rate'] as double),
         arguments: [limit, offset]);
   }
 
@@ -1238,10 +1243,10 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
         mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(
             sl_no: row['sl_no'] as int?,
             order_id: row['order_id'] as String,
-            product_id: row['product_id'] as String,
+            product_id: row['product_id'] as int,
             product_name: row['product_name'] as String,
-            qty: row['qty'] as String,
-            rate: row['rate'] as String),
+            qty: row['qty'] as double,
+            rate: row['rate'] as double),
         arguments: [order_id]);
   }
 
@@ -1256,10 +1261,10 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
         mapper: (Map<String, Object?> row) => OrderSaveDtlsEntity(
             sl_no: row['sl_no'] as int?,
             order_id: row['order_id'] as String,
-            product_id: row['product_id'] as String,
+            product_id: row['product_id'] as int,
             product_name: row['product_name'] as String,
-            qty: row['qty'] as String,
-            rate: row['rate'] as String),
+            qty: row['qty'] as double,
+            rate: row['rate'] as double),
         arguments: [order_id, limit, offset]);
   }
 

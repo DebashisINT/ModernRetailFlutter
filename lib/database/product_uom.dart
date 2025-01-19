@@ -11,17 +11,11 @@ class ProductUOMEntity{
   ProductUOMEntity({this.sl_no,this.product_id=0, this.uom_id=0, this.uom_name=""});
 
   factory ProductUOMEntity.fromJson(Map<String, dynamic> json) {
-    return ProductUOMEntity(
-        product_id: json['product_id'],uom_id: json['uom_id'] ,
-        uom_name: json['uom_name']);
+    return ProductUOMEntity(product_id: json['product_id'],uom_id: json['uom_id'],uom_name: json['uom_name']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'product_id': product_id,
-      'uom_id': uom_id,
-      'uom_name': uom_name,
-    };
+    return {'product_id': product_id, 'uom_id': uom_id, 'uom_name': uom_name};
   }
 }
 
