@@ -232,7 +232,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 0), // Add 5 pixels of left margin
+              padding: const EdgeInsets.all(0), // Add 5 pixels of left margin
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distributes space between text and icon
                 children: [

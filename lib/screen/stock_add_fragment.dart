@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:modern_retail/utils/app_message.dart';
 import 'package:provider/provider.dart';
 
 import '../api/api_service.dart';
@@ -287,9 +288,8 @@ class _StockAddFragment extends State<StockAddFragment> {
 
   Future<void> submitData() async {
     try {
-      List<MapEntry<int, TextEditingController>> qtyList = getNonEmptyControllersWithIndices(_qtyControllers);
       LoaderUtils().showLoader(context);
-
+      List<MapEntry<int, TextEditingController>> qtyList = getNonEmptyControllersWithIndices(_qtyControllers);
       final StockSaveEntity stock = StockSaveEntity();
       final List<StockSaveDtlsEntity> stockL = [];
 
@@ -330,7 +330,7 @@ class _StockAddFragment extends State<StockAddFragment> {
           }
         }else{
           LoaderUtils().dismissLoader(context);
-          SnackBarUtils().showSnackBar(context,'Something went wrong.');
+          SnackBarUtils().showSnackBar(context,AppMessage().wrong);
         }
       }else{
         LoaderUtils().dismissLoader(context);
@@ -338,7 +338,7 @@ class _StockAddFragment extends State<StockAddFragment> {
       }
     } catch (e) {
       print(e);
-      Navigator.of(context).pop();
+      SnackBarUtils().showSnackBar(context,AppMessage().wrong);
     }
   }
 

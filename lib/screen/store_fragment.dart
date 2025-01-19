@@ -109,7 +109,7 @@ class _StoreFragmentState extends State<StoreFragment> {
                               //return Center(child: CircularProgressIndicator());
                             }
                             final item = viewModel.items[index];
-                            return _buildStoreCard(item);
+                            return _buildCard(item);
                           },
                         ),
                       ),
@@ -136,7 +136,7 @@ class _StoreFragmentState extends State<StoreFragment> {
     );
   }
 
-  Widget _buildStoreCard(StoreEntity store) {
+  Widget _buildCard(StoreEntity store) {
     return Card(
       color: AppColor.colorWhite,
       margin: AppStyle().cardMargin,

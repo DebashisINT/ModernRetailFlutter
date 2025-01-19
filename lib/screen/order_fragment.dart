@@ -190,7 +190,26 @@ class _OrderFragment extends State<OrderFragment> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Amount",style: AppStyle().textStyle,),
+                      FutureBuilder<int?>(
+                        future: appDatabase.orderSaveDtlsDao.getItemCount(item.order_id),
+                        builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
+                          String itemText;
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            itemText = "Loading...";
+                          } else if (snapshot.hasError) {
+                            itemText = "Error";
+                          } else {
+                            itemText = " (${snapshot.data} item)";
+                          }
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("Amount", style: AppStyle().textStyle),
+                              Text(itemText, style: AppStyle().textStyle,),
+                            ],
+                          );
+                        },
+                      ),
                       Text(
                         "₹${item.order_amount ?.toStringAsFixed(2) ?? '0.00'}",
                         style: AppStyle().textStyle.copyWith(fontWeight: FontWeight.bold),

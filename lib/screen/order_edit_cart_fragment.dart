@@ -15,6 +15,7 @@ import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_style.dart';
 import '../utils/app_utils.dart';
+import '../utils/input_formatter.dart';
 import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
 
@@ -159,7 +160,8 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                             child: Container(
                               color: AppColor.colorButton,
                               child: Center(
-                                child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + _totalQty, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                                child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + _totalQty,
+                                    style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
                               ),
                             ),
                           ),
@@ -170,7 +172,8 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                             child: Container(
                               color: AppColor.colorButton,
                               child: Center(
-                                child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + _totalAmount, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                                child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + _totalAmount,
+                                    style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
                               ),
                             ),
                           ),
@@ -181,8 +184,6 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                       height: 50,
                       child: GestureDetector(
                         onTap: () async {
-                          // Handle the Place Order click event here
-                          print("Place Order button clicked!");
                           final getCount = await appDatabase.orderProductDao.getProductAddedCount();
 
                           if (getCount! > 0) {
@@ -199,11 +200,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                             children: [
                               Text(
                                 "Edit Order",
-                                style: TextStyle(
-                                  color: AppColor.colorWhite,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorWhite),
                               ),
                               SizedBox(
                                 width: 15,
@@ -233,30 +230,24 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
 
   Widget _buildProductCard(OrderProductEntity product, int index) {
     return Card(
-      color: product.isAdded ? AppColor.colorWhite : AppColor.colorWhite,
-      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-      elevation: 5.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
+      color: AppColor.colorWhite,
+      margin: AppStyle().cardMargin.copyWith(left: 15,right: 15,top: 15,bottom: 15),
+      elevation: AppStyle().cardEvevation,
+      shape: AppStyle().cardShape,
       child: Padding(
-        padding: const EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0, bottom: 5.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 5.0), // Add 5 pixels of left margin
+              padding: const EdgeInsets.all(0), // Add 5 pixels of left margin
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distributes space between text and icon
                 children: [
                   Expanded(
                     child: Text(
                       product.product_name,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColor.colorButton,
-                      ),
+                      style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorBlue),
                       overflow: TextOverflow.clip, // Ensures the text wraps properly
                       softWrap: true,
                     ),
@@ -271,16 +262,10 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                       _qtyFocusNode.clear();
                       _rateFocusNode.clear();
                       loadData();
-                      // Fetch updated product list from the database
                       List<OrderProductEntity> updatedProducts = await appDatabase.orderProductDao.getAllAdded();
-                      /*// Update the UI to reflect the changes
-                      var totalQty =await appDatabase.orderProductDao.getTotalQty();
-                      var totalAmt =await appDatabase.orderProductDao.getTotalAmt();*/
                       setState(() {
                         product.isAdded = false; // Update product state
                         viewModel._items = updatedProducts; // Update the product list
-                        /*_totalQty = totalQty.toString();
-                        _totalAmount = totalAmt.toString();*/
                       });
                     },
                     child: Container(
@@ -290,12 +275,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                         color: AppColor.colorRed, // Background color
                         borderRadius: BorderRadius.circular(200), // Rounded corners
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(1), // Shadow color
-                            blurRadius: 1, // Blur radius
-                            spreadRadius: 1, // Spread radius
-                            offset: Offset(1, 1), // Shadow offset
-                          ),
+                          AppStyle().boxShadow,
                         ],
                       ),
                       child: Padding(
@@ -324,12 +304,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                     color: AppColor.colorGreyLight, // Background color
                     borderRadius: BorderRadius.circular(200), // Rounded corners
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(1), // Shadow color
-                        blurRadius: 1, // Blur radius
-                        spreadRadius: 1, // Spread radius
-                        offset: Offset(1, 1), // Shadow offset
-                      ),
+                      AppStyle().boxShadow,
                     ],
                   ),
                   child: Padding(
@@ -353,11 +328,11 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                     children: [
                       Text(
                         "MRP",
-                        style: TextStyle(color: AppColor.colorGrey, fontSize: 15.0),
+                        style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
                       ),
                       Text(
                         product.product_mrp.toString(),
-                        style: TextStyle(color: AppColor.colorBlue, fontSize: 15.0),
+                        style: AppStyle().textStyle,
                       ),
                     ],
                   ),
@@ -395,11 +370,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                   child: Text(
                     'Quantity',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: AppColor.colorGrey,
-                    ),
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
                   ),
                 ),
                 Container(
@@ -415,14 +386,12 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                       ),
                       textAlign: TextAlign.center,
                       inputFormatters: [
-                        LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                        InputFormatter(decimalRange: 2, beforeDecimal: 5,) // Maximum of 5 digits
                       ],
                       onChanged: (text) {
-                        // Handle text changes here
                         setState(() {
                           _visibilityControllers[index] = true;
                         });
-                        print('tag_Text_changed: $text'); // Example: Print the current text
                       }),
                 ),
               ],
@@ -440,11 +409,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                   child: Text(
                     'Rate',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: AppColor.colorGrey,
-                    ),
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
                   ),
                 ),
                 Container(
@@ -460,14 +425,13 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                       ),
                       textAlign: TextAlign.center,
                       inputFormatters: [
-                        LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                        InputFormatter(decimalRange: 2, beforeDecimal: 5,), // Maximum of 5 digits
                       ],
                       onChanged: (text) {
                         // Handle text changes here
                         setState(() {
                           _visibilityControllers[index] = true;
                         });
-                        print('tag_Text_changed: $text'); // Example: Print the current text
                       }
                   ),
                 ),
@@ -486,8 +450,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                   }else if(rateController.text.isEmpty || rateController.text == "0" || rateController.text == "0.0"){
                     SnackBarUtils().showSnackBar(context, 'Enter rate');
                   }else {
-                    commitChange(
-                        product, qtyController.text, rateController.text);
+                    commitChange(product, qtyController.text, rateController.text);
                     setState(() {
                       _visibilityControllers[index] = false;
                     });
@@ -525,7 +488,7 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Enter Details'),
+              title: Text('Enter Details',style: AppStyle().textStyle,),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -544,37 +507,21 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
               ),
               actions: [
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black87,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorGrey,
-                  ),
+                  style: AppStyle().buttonStyle.copyWith(backgroundColor: MaterialStateProperty.all(AppColor.colorGrey)),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
-                    onSubmit_handlePlaceOrder("");
+                    //onSubmit_handlePlaceOrder("");
                   },
-                  child: Text('Cancel', style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
+                  child: Text('Cancel', style: AppStyle().textStyle),
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black87,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorButton,
-                  ),
+                  style: AppStyle().buttonStyle,
                   onPressed: () {
                     String userInput = textController.text;
-
                     Navigator.of(context).pop(); // Close the dialog
-                    // Pass the value back to the caller
                     onSubmit_handlePlaceOrder(userInput);
                   },
-                  child: Text('Submit', style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
+                  child: Text('Submit', style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
                 ),
               ],
             );
