@@ -242,7 +242,7 @@ class _OrderFragment extends State<OrderFragment> {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Shrink button tap area
                         ),
                       ),
-                      SizedBox(width: 8),
+                      SizedBox(width: 10),
                       OutlinedButton.icon(
                         onPressed: () {
                           Navigator.push(
@@ -262,21 +262,35 @@ class _OrderFragment extends State<OrderFragment> {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap, // Shrink button tap area
                         ),
                       ),
-                      SizedBox(width: 8), // Add reduced spacing between View and Delete buttons
-
-                      // Smaller delete circle size
-                      CircleAvatar(
-                        radius: 18, // Smaller size for the delete circle
-                        backgroundColor: AppColor.colorRed, // Circular red background for delete button
-                        child: IconButton(
-                          onPressed: () {
-                            AppUtils().showCustomDialogOkCancel(context, "Delete Order!", "Hi ${pref.getString('user_name') ?? ""}, "
-                                "Are you sure you want to delete order?", () {
-                              _handleDeleteOrder(item.order_id);
-                            });
-                          },
-                          icon: Icon(Icons.delete, color: Colors.white), // White delete icon
-                          iconSize: 20, // Smaller icon size
+                      SizedBox(width: 10), // Add reduced spacing between View and Delete buttons
+                      GestureDetector(
+                        onTap: () async {
+                          AppUtils().showCustomDialogOkCancel(context, "Delete Order!", "Hi ${pref.getString('user_name') ?? ""}, "
+                              "Are you sure you want to delete order?", () {
+                            _handleDeleteOrder(item.order_id);
+                          });
+                        },
+                        child: Container(
+                          width: 35, // Increase container width to accommodate padding
+                          height: 35, // Increase container height to accommodate padding
+                          decoration: BoxDecoration(
+                            color: AppColor.colorRed, // Background color
+                            borderRadius: BorderRadius.circular(200), // Rounded corners
+                            boxShadow: [
+                              AppStyle().boxShadow,
+                            ],
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(5.0), // Padding inside the container
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(200),
+                              child: Image.asset(
+                                "assets/images/ic_delete.png", // Replace with your image path
+                                fit: BoxFit.fill,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ],

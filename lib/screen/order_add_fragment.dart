@@ -93,13 +93,13 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     hintText: "Search Product",
                     prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
                     filled: true,
                     // Enable filling the background color
                     fillColor: AppColor.colorWhite,
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                      borderRadius: BorderRadius.circular(10.0),
                       borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: blue border when focused
                     )),
                 onChanged: (query) {
@@ -224,7 +224,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
   Widget _buildProductCard(OrderProductEntity product, int index) {
     return Card(
       color: product.isAdded ? AppColor.colorGreenLight : AppColor.colorWhite,
-      margin: AppStyle().cardMargin.copyWith(left: 10,right: 10,top: 10,bottom: 10),
+      margin: AppStyle().cardMargin.copyWith(left: 15,right: 15,top: 15,bottom: 15),
       elevation:AppStyle().cardEvevation,
       shape: AppStyle().cardShape,
       child: Padding(

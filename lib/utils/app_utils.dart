@@ -70,41 +70,44 @@ class AppUtils {
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Center(
-            child: Text(
-              title,
-              textAlign: TextAlign.center, // Center the title
-              style: const TextStyle(fontSize: 18),
-            ),
-          ),
-          content: Container(
-            constraints: BoxConstraints(
-              minHeight: 100, // Minimum height for content
-            ),
-            child: Center(
+        return Container(
+          color: AppColor.colorTransparent75,
+          child: CupertinoAlertDialog(
+            title: Center(
               child: Text(
-                msg,
-                textAlign: TextAlign.center, // Center the content
-                style: const TextStyle(fontSize: 16),
+                title,
+                textAlign: TextAlign.center, // Center the title
+                style: const TextStyle(fontSize: 18),
               ),
             ),
+            content: Container(
+              constraints: BoxConstraints(
+                minHeight: 100, // Minimum height for content
+              ),
+              child: Center(
+                child: Text(
+                  msg,
+                  textAlign: TextAlign.center, // Center the content
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            actions: [
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColor.colorButton, // Background color for the button
+                  borderRadius: BorderRadius.circular(0), // Rounded corners
+                ),
+                child: CupertinoDialogAction(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                    callback();
+                  },
+                  child: const Text("OK", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
           ),
-          actions: [
-            Container(
-              decoration: BoxDecoration(
-                color: AppColor.colorButton, // Background color for the button
-                borderRadius: BorderRadius.circular(0), // Rounded corners
-              ),
-              child: CupertinoDialogAction(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                  callback();
-                },
-                child: const Text("OK", style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          ],
         );
       },
     );
@@ -114,45 +117,48 @@ class AppUtils {
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Center(
-            child: Text(
-              title,
-              textAlign: TextAlign.center, // Center the title
-              style: const TextStyle(fontSize: 18),
-            ),
-          ),
-          content: Container(
-            constraints: BoxConstraints(
-              minHeight: 100, // Minimum height for content
-            ),
-            child: Center(
+        return Container(
+          color: AppColor.colorTransparent75,
+          child: CupertinoAlertDialog(
+            title: Center(
               child: Text(
-                msg,
-                textAlign: TextAlign.center, // Center the content
-                style: const TextStyle(fontSize: 16),
+                title,
+                textAlign: TextAlign.center, // Center the title
+                style: AppStyle().textHeaderStyle,
               ),
             ),
+            content: Container(
+              constraints: BoxConstraints(
+                minHeight: 100, // Minimum height for content
+              ),
+              child: Center(
+                child: Text(
+                  msg,
+                  textAlign: TextAlign.center, // Center the content
+                  style: AppStyle().textStyle,
+                ),
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                style: AppStyle().buttonStyle.copyWith(backgroundColor: MaterialStateProperty.all(AppColor.colorGrey),
+                    shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)))),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Cancel',style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
+              ),
+              ElevatedButton(
+                style: AppStyle().buttonStyle.copyWith(backgroundColor: MaterialStateProperty.all(AppColor.colorButton),
+                    shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)))),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  callback();
+                },
+                child: Text('Ok',style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
+              ),
+            ],
           ),
-          actions: [
-            ElevatedButton(
-              style: AppStyle().buttonStyle.copyWith(backgroundColor: MaterialStateProperty.all(AppColor.colorGrey),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)))),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text('Cancel',style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
-            ),
-            ElevatedButton(
-              style: AppStyle().buttonStyle.copyWith(backgroundColor: MaterialStateProperty.all(AppColor.colorButton),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)))),
-              onPressed: () {
-                Navigator.of(context).pop();
-                callback();
-              },
-              child: Text('Ok',style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
-            ),
-          ],
         );
       },
     );
@@ -162,63 +168,66 @@ class AppUtils {
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Center(
-            child: Text(
-              title,
-              textAlign: TextAlign.center, // Center the title
-              style: const TextStyle(fontSize: 18),
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min, // Adjust to content size
-            children: [
-              Container(
-                constraints: BoxConstraints(
-                  minHeight: 50, // Minimum height for the main message
-                ),
-                child: Center(
-                  child: Text(
-                    msg,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ),
+        return Container(
+          color: AppColor.colorTransparent75,
+          child: CupertinoAlertDialog(
+            title: Center(
+              child: Text(
+                title,
+                textAlign: TextAlign.center, // Center the title
+                style: const TextStyle(fontSize: 18),
               ),
-              const SizedBox(height: 10), // Add spacing between the message and the Order ID
-              Container(
-                constraints: BoxConstraints(
-                  minHeight: 30, // Minimum height for the Order ID
-                ),
-                child: Center(
-                  child: Text(
-                    "Order ID: #$orderId",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: AppColor.colorGreenLeaf, // Set the color of the Order ID text here
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min, // Adjust to content size
+              children: [
+                Container(
+                  constraints: BoxConstraints(
+                    minHeight: 50, // Minimum height for the main message
+                  ),
+                  child: Center(
+                    child: Text(
+                      msg,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ),
+                ),
+                const SizedBox(height: 10), // Add spacing between the message and the Order ID
+                Container(
+                  constraints: BoxConstraints(
+                    minHeight: 30, // Minimum height for the Order ID
+                  ),
+                  child: Center(
+                    child: Text(
+                      "Order ID: #$orderId",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: AppColor.colorGreenLeaf, // Set the color of the Order ID text here
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColor.colorButton, // Background color for the button
+                  borderRadius: BorderRadius.circular(0), // Rounded corners
+                ),
+                child: CupertinoDialogAction(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                    callback();
+                  },
+                  child: const Text("OK", style: TextStyle(color: Colors.white)),
                 ),
               ),
             ],
           ),
-          actions: [
-            Container(
-              decoration: BoxDecoration(
-                color: AppColor.colorButton, // Background color for the button
-                borderRadius: BorderRadius.circular(0), // Rounded corners
-              ),
-              child: CupertinoDialogAction(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                  callback();
-                },
-                child: const Text("OK", style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          ],
         );
       },
     );

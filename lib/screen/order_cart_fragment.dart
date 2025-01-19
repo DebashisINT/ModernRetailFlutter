@@ -223,7 +223,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
   Widget _buildProductCard(OrderProductEntity product, int index) {
     return Card(
       color: AppColor.colorWhite,
-      margin: AppStyle().cardMargin.copyWith(left: 10,right: 10,top: 10,bottom: 10),
+      margin: AppStyle().cardMargin.copyWith(left: 15,right: 15,top: 15,bottom: 15),
       elevation:AppStyle().cardEvevation,
       shape: AppStyle().cardShape,
       child: Padding(

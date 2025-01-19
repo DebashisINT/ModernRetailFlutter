@@ -68,116 +68,121 @@ class _OrderViewFragment extends State<OrderViewFragment> {
       },
       child: Scaffold(
         appBar: _buildAppBar(context),
-        body: ChangeNotifierProvider<ItemViewModel>(
-          create: (_) => viewModel,
-          child: Column(
-            children: [
-              Container(
-                color: Colors.transparent, // Example bottom widget
-                height: 50,
-                width: double.infinity,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 20.0, right: 0.0, top: 0.0, bottom: 0.0),
-                        child: Container(
-                          color: AppColor.colorTransparent,
-                          child: Text(storeObj == null ? "Store Name" : storeObj!.store_name ,style: TextStyle(color: AppColor.colorBlack,fontSize: 20,fontWeight: FontWeight.bold), ),
+        body: Padding(
+          padding: EdgeInsets.all(0),
+          child: ChangeNotifierProvider<ItemViewModel>(
+            create: (_) => viewModel,
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.transparent, // Example bottom widget
+                  height: 50,
+                  width: double.infinity,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 20.0, right: 0.0, top: 0.0, bottom: 0.0),
+                          child: Container(
+                            color: AppColor.colorTransparent,
+                            child: Text(storeObj == null ? "Store Name" : storeObj!.store_name ,style: AppStyle().textHeaderStyle, ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Consumer<ItemViewModel>(
-                  builder: (context, viewModel, child) {
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        await viewModel.loadItems(widget.orderObj.order_id,refresh: true);
-                      },
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (ScrollNotification scrollInfo) {
-                          if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
-                            return false;
-                          }
-                          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                            viewModel.loadItems(widget.orderObj.order_id);
-                          }
-                          return true;
+                Expanded(
+                  child: Consumer<ItemViewModel>(
+                    builder: (context, viewModel, child) {
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          await viewModel.loadItems(widget.orderObj.order_id,refresh: true);
                         },
-                        child: ListView.builder(
-                          padding: EdgeInsets.only(bottom: 150.0),
-                          itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
-                          itemBuilder: (context, index) {
-                            if (index == viewModel.items.length) {
-                              if (viewModel.loadingState == LoadingState.error) {
-                                return Center(
-                                  child: ElevatedButton(
-                                    onPressed: () => viewModel.loadItems(widget.orderObj.order_id),
-                                    child: Text('Retry'),
-                                  ),
-                                );
-                              } else if (viewModel.loadingState == LoadingState.loading) {
-                                return Center(child: CircularProgressIndicator()); // Show loader while loading
-                              } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
-                                // When idle and no items, show a message
-                                //return Center(child: Text("No items available"));
-                                return SizedBox.shrink();
-                              } else if (viewModel.loadingState == LoadingState.idle) {
-                                // Idle state but items are loaded, just return an empty container or nothing
-                                return SizedBox.shrink(); // No loader, no retry button
-                              }
-                              //return Center(child: CircularProgressIndicator());
+                        child: NotificationListener<ScrollNotification>(
+                          onNotification: (ScrollNotification scrollInfo) {
+                            if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
+                              return false;
                             }
-
-                            var item = viewModel.items[index];
-                            return _buildProductCard(item, index);
+                            if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                              viewModel.loadItems(widget.orderObj.order_id);
+                            }
+                            return true;
                           },
+                          child: ListView.builder(
+                            padding: EdgeInsets.only(bottom: 150.0),
+                            itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if (index == viewModel.items.length) {
+                                if (viewModel.loadingState == LoadingState.error) {
+                                  return Center(
+                                    child: ElevatedButton(
+                                      onPressed: () => viewModel.loadItems(widget.orderObj.order_id),
+                                      child: Text('Retry'),
+                                    ),
+                                  );
+                                } else if (viewModel.loadingState == LoadingState.loading) {
+                                  return Center(child: CircularProgressIndicator()); // Show loader while loading
+                                } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
+                                  // When idle and no items, show a message
+                                  //return Center(child: Text("No items available"));
+                                  return SizedBox.shrink();
+                                } else if (viewModel.loadingState == LoadingState.idle) {
+                                  // Idle state but items are loaded, just return an empty container or nothing
+                                  return SizedBox.shrink(); // No loader, no retry button
+                                }
+                                //return Center(child: CircularProgressIndicator());
+                              }
+
+                              var item = viewModel.items[index];
+                              return _buildProductCard(item, index);
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                  color: Colors.white, // Example bottom widget
+                  //height: 100,
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 50,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                color: AppColor.colorBlue,
+                                child: Center(
+                                  child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + _totalQty,
+                                      style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 2,
+                            ),
+                            Expanded(
+                              child: Container(
+                                color: AppColor.colorBlue,
+                                child: Center(
+                                  child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + _totalAmount,
+                                      style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                color: Colors.white, // Example bottom widget
-                //height: 100,
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 50,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              color: AppColor.colorButton,
-                              child: Center(
-                                child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + _totalQty, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 2,
-                          ),
-                          Expanded(
-                            child: Container(
-                              color: AppColor.colorButton,
-                              child: Center(
-                                child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + _totalAmount, style: TextStyle(color: AppColor.colorWhite), textAlign: TextAlign.center),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         backgroundColor: AppColor.colorSmokeWhite,
@@ -188,11 +193,9 @@ class _OrderViewFragment extends State<OrderViewFragment> {
   Widget _buildProductCard(OrderSaveDtlsEntity product, int index) {
     return Card(
       color: AppColor.colorWhite,
-      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-      elevation: 5.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
+      margin: AppStyle().cardMargin.copyWith(left: 15,right: 15,top: 15,bottom: 15),
+      elevation: AppStyle().cardEvevation,
+      shape: AppStyle().cardShape,
       child: Padding(
         padding: const EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0, bottom: 5.0),
         child: Column(
@@ -206,11 +209,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
                   Expanded(
                     child: Text(
                       product.product_name,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColor.colorButton,
-                      ),
+                      style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorBlue),
                       overflow: TextOverflow.clip, // Ensures the text wraps properly
                       softWrap: true,
                     ),
@@ -249,11 +248,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
                   child: Text(
                     'Quantity',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: AppColor.colorGrey,
-                    ),
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
                   ),
                 ),
                 Container(
@@ -261,10 +256,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
                   alignment: Alignment.center,
                   child: TextFormField(
                     enabled: false,
-                      style: TextStyle(
-                        color: Colors.black, // Set the text color
-                        fontSize: 16,       // Optional: Adjust font size
-                      ),
+                      style: AppStyle().textStyle,
                       controller: qtyController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
@@ -291,11 +283,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
                   child: Text(
                     'Rate',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: AppColor.colorGrey,
-                    ),
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
                   ),
                 ),
                 Container(
@@ -303,10 +291,7 @@ class _OrderViewFragment extends State<OrderViewFragment> {
                   alignment: Alignment.center,
                   child: TextFormField(
                       enabled: false,
-                      style: TextStyle(
-                        color: Colors.black, // Set the text color
-                        fontSize: 16,       // Optional: Adjust font size
-                      ),
+                      style: AppStyle().textStyle,
                       controller: rateController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(

@@ -8,6 +8,7 @@ class AppColor{
   static const Color colorRed = Color(0xFFB71C1C);
 
   static const Color colorTransparent = Color(0x00000000);
+  static const Color colorTransparent75 = Color(0xBF000000);
 
   static const Color color1= Color(0xFF95B9C7);
   static const Color color2= Color(0xFF98D1EC);
