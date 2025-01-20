@@ -19,6 +19,7 @@ import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_style.dart';
 import '../utils/app_utils.dart';
+import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
 
 class StoreAddFragment extends StatefulWidget {
@@ -509,12 +510,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
 
   Future<void> validation() async {
     try {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return Center(child: CircularProgressIndicator());
-        },
-      );
+      LoaderUtils().showLoader(context);
 
       String storeName = storeNameController.text;
       String storeAddress = storeAddressController.text;
@@ -539,27 +535,25 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
       }
 
       if (selectedStoreType.type_name == "") {
-        Navigator.of(context).pop();
-        //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Store type')));
+        LoaderUtils().dismissLoader(context);
         SnackBarUtils().showSnackBar(context,'Please select Store type');
       } else if (selectedBranch.branch_name == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Branch')));
       } else if (storeName == "") {
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Store Name')));
       } else if (storeAddress == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Address')));
       } else if (storePinCode == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Pincode')));
       } else if (contactName == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
       } else if (contactNumber == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Number')));
       } else {
         DateTime currentDateTime = DateTime.now();
@@ -597,31 +591,26 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
             if (_imageFile == null) {
               showMsg("Store saved successfully.");
             } else {
-              uploadImageApi(storeObj.store_id.toString() , "Store saved successfully");
+              uploadImageApi(storeObj.store_id.toString() , "Store saved successfully.");
             }
           } else {
             showMsg("Failed to save store.");
           }
         } catch (e) {
-          Navigator.of(context).pop();
+          LoaderUtils().dismissLoader(context);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something went wrong.")));
           print('Erroraddstore: $e');
         }
       }
     } catch (e) {
       print(e);
-      Navigator.of(context).pop();
+      LoaderUtils().dismissLoader(context);
     }
   }
 
   Future<void> validationEdit() async {
     try {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return Center(child: CircularProgressIndicator());
-        },
-      );
+      LoaderUtils().showLoader(context);
 
       String storeName = storeNameController.text;
       String storeAddress = storeAddressController.text;
@@ -646,25 +635,25 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
       }
 
       if (selectedStoreType == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Store type')));
       } else if (selectedBranch.branch_name == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Branch')));
       } else if (storeName == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Store Name')));
       } else if (storeAddress == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Address')));
       } else if (storePinCode == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Pincode')));
       } else if (contactName == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
       } else if (contactNumber == "") {
-        Navigator.of(context).pop();
+        LoaderUtils().dismissLoader(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Number')));
       } else {
         DateTime currentDateTime = DateTime.now();
@@ -707,14 +696,14 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
             showMsg("Failed to edit store.");
           }
         } catch (e) {
-          Navigator.of(context).pop();
+          LoaderUtils().dismissLoader(context);
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something went wrong.")));
           print('Erroraddstore: $e');
         }
       }
     } catch (e) {
       print(e);
-      Navigator.of(context).pop();
+      LoaderUtils().dismissLoader(context);
     }
   }
 
@@ -727,15 +716,15 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         showMsg(msg);
       }
     } catch (e) {
-      print(e);
-      Navigator.of(context).pop();
+      print("tag_image_upload_error: $e");
+      LoaderUtils().dismissLoader(context);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something went wrong.")));
     }
   }
 
 
   void showMsg(String msg) {
-    Navigator.of(context).pop();
+    LoaderUtils().dismissLoader(context);
     AppUtils().showCustomDialog(context, "Hi ${pref.getString('user_name') ?? ""}", msg, () {
       widget.onDataChanged();
       Navigator.of(context).pop();
