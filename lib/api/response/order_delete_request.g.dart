@@ -8,7 +8,7 @@ part of 'order_delete_request.dart';
 
 OrderDeleteRequest _$OrderDeleteRequestFromJson(Map<String, dynamic> json) =>
     OrderDeleteRequest(
-      user_id: json['user_id'] as String,
+      user_id: json['user_id'] as String? ?? "",
       order_delete_list: (json['order_delete_list'] as List<dynamic>)
           .map((e) => OrderDelete.fromJson(e as Map<String, dynamic>))
           .toList(),

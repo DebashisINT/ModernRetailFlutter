@@ -1224,7 +1224,7 @@ class _$OrderSaveDtlsDao extends OrderSaveDtlsDao {
   @override
   Future<int?> getItemCount(String order_id) async {
     return _queryAdapter.query(
-        'select count(*) as itemCount from mr_order_save_dtls where mr_order_save_dtls.order_id = ?1',
+        'select count(*) as itemCount from mr_order_save_dtls where order_id = ?1',
         mapper: (Map<String, Object?> row) => row.values.first as int,
         arguments: [order_id]);
   }

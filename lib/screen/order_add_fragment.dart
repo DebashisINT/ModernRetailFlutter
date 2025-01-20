@@ -168,7 +168,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     child: Container(
                       color: AppColor.colorBlue,
                       child: Center(
-                        child: Text(_amount == "" ? "Amount" : "Amt : "+_amount, style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
+                        child: Text(_amount == "" ? "Amount" : "Amt : "+ (double.parse(_amount) ?.toStringAsFixed(2) ?? 0.00).toString(), style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
                       ),
                     ),
                   ),

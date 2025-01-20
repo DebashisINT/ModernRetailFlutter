@@ -170,7 +170,7 @@ class _OrderFragment extends State<OrderFragment> {
                         ),
                         TextSpan(
                           text: item.order_id,
-                          style: AppStyle().textStyle.copyWith(color: AppColor.colorCharcoal, fontWeight: FontWeight.bold),
+                          style: AppStyle().textStyle.copyWith(color: AppColor.colorYellow, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -290,8 +290,8 @@ class _OrderFragment extends State<OrderFragment> {
                           });
                         },
                         child: Container(
-                          width: 35, // Increase container width to accommodate padding
-                          height: 35, // Increase container height to accommodate padding
+                          width: 30, // Increase container width to accommodate padding
+                          height: 30, // Increase container height to accommodate padding
                           decoration: BoxDecoration(
                             color: AppColor.colorRed, // Background color
                             borderRadius: BorderRadius.circular(200), // Rounded corners
