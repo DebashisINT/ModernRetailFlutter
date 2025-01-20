@@ -234,7 +234,9 @@ class _StoreFragmentState extends State<StoreFragment> {
                 // Left side: Contact Name
                 Expanded(
                   child: _buildContactInfo('assets/images/ic_whatsapp.png', "Whatsapp", store.store_whatsapp_number ?? "",
-                    onTap: () {},
+                    onTap: () {
+                      _openWhatsApp(store.store_whatsapp_number!);
+                    },
                   ),
                 ),
                 // Right side: Store Type (Now wrapped with FutureBuilder)
@@ -388,6 +390,16 @@ class _StoreFragmentState extends State<StoreFragment> {
       await launchUrl(url);
     } else {
       throw 'Could not launch $url';
+    }
+  }
+
+  void _openWhatsApp(String phoneNumber) async {
+    // Replace with the phone number you want to use
+    final whatsappUrl = "https://wa.me/$phoneNumber";
+    if (await canLaunchUrl(Uri.parse(whatsappUrl))) {
+    await launchUrl(Uri.parse(whatsappUrl), mode: LaunchMode.externalApplication);
+    } else {
+    throw "Could not launch $whatsappUrl";
     }
   }
 
