@@ -23,6 +23,7 @@ import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_style.dart';
 import '../utils/app_utils.dart';
+import '../utils/input_formatter.dart';
 import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
 
@@ -618,7 +619,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                     ),
                     textAlign: TextAlign.center,
                     inputFormatters: [
-                      LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
+                      InputFormatter(decimalRange: 0, beforeDecimal: 5,)
                     ],
                   ),
                 ),
