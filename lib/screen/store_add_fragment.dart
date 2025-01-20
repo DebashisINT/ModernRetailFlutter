@@ -597,7 +597,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
             if (_imageFile == null) {
               showMsg("Store saved successfully.");
             } else {
-              uploadImageApi(storeObj.store_id.toString());
+              uploadImageApi(storeObj.store_id.toString() , "Store saved successfully");
             }
           } else {
             showMsg("Failed to save store.");
@@ -698,7 +698,11 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         try {
           final response = await apiService.editStoreInfo(storeSaveRequest);
           if (response.status == "200") {
-            showMsg("Store edited successfully.");
+            if (_imageFile == null) {
+              showMsg("Store edited successfully.");
+            } else {
+              uploadImageApi(storeObj.store_id.toString() ,"Store edited successfully");
+            }
           } else {
             showMsg("Failed to edit store.");
           }
@@ -714,13 +718,13 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
     }
   }
 
-  Future<void> uploadImageApi(String storeID) async {
+  Future<void> uploadImageApi(String storeID, String msg) async {
     try {
       final jsonData = '{"store_id":"$storeID","user_id":"${pref.getString('user_id')!}"}';
       final imageFile = _imageFile;
       final response = await apiServiceMultipart.uploadImage(jsonData, imageFile!);
       if (response.status == "200") {
-        showMsg("Store saved successfully.");
+        showMsg(msg);
       }
     } catch (e) {
       print(e);
@@ -728,6 +732,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something went wrong.")));
     }
   }
+
 
   void showMsg(String msg) {
     Navigator.of(context).pop();
