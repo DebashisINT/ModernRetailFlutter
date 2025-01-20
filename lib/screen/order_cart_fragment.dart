@@ -153,7 +153,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                             child: Container(
                               color: AppColor.colorBlue,
                               child: Center(
-                                child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + _totalQty,
+                                child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + (double.parse(_totalQty) ?.toStringAsFixed(2) ?? 0.00).toString(),
                                     style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
                               ),
                             ),
@@ -165,7 +165,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                             child: Container(
                               color: AppColor.colorBlue,
                               child: Center(
-                                child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + _totalAmount,
+                                child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + (double.parse(_totalAmount) ?.toStringAsFixed(2) ?? 0.00).toString(),
                                     style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
                               ),
                             ),
@@ -501,7 +501,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                   TextField(
                     controller: textController,
                     decoration: InputDecoration(
-                      labelText: 'Remarks',
+                      labelText: 'Remarks(optional)',
                       labelStyle: AppStyle().labelStyle,
                       border: OutlineInputBorder(),
                     ),
