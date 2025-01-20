@@ -303,13 +303,21 @@ class _StockAddFragment extends State<StockAddFragment> {
       stock.store_id = selectedStore.store_id;
       stock.remarks = remarks;
 
+      DateFormat inputFormat = DateFormat('dd-MM-yyyy');
+
       for (var i = 0; i < qtyList.length; i++) {
         final selected_product_id = stockProductL[qtyList[i].key].product_id.toString();
         final selected_qty = qtyList[i].value.text.toString();
         final selected_UOMID = _uomIDControllers[qtyList[i].key].text.toString();
         final selected_UOM = _uomControllers[qtyList[i].key].text.toString();
-        final selected_mfg_date = _mfgDatecontrollers[qtyList[i].key].text.toString();
-        final selected_expire_date = _expDatecontrollers[qtyList[i].key].text.toString();
+
+        DateTime mfgDate = inputFormat.parse(_mfgDatecontrollers[qtyList[i].key].text.toString());
+        DateTime expDate = inputFormat.parse(_expDatecontrollers[qtyList[i].key].text.toString());
+        String mfgOutputDate = '${mfgDate.year}-${mfgDate.month.toString().padLeft(2, '0')}-${mfgDate.day.toString().padLeft(2, '0')}';
+        String expOutputDate = '${expDate.year}-${expDate.month.toString().padLeft(2, '0')}-${expDate.day.toString().padLeft(2, '0')}';
+
+        final selected_mfg_date = mfgOutputDate;//_mfgDatecontrollers[qtyList[i].key].text.toString();
+        final selected_expire_date = expOutputDate;//_expDatecontrollers[qtyList[i].key].text.toString();
         final obj = StockSaveDtlsEntity(stock_id: stockID, product_id: int.parse(selected_product_id), product_dtls_id: i + 1, qty: double.parse(selected_qty), uom_id: int.parse(selected_UOMID), uom: selected_UOM, mfg_date: selected_mfg_date, expire_date: selected_expire_date);
         stockL.add(obj);
       }
@@ -653,7 +661,8 @@ class _StockAddFragment extends State<StockAddFragment> {
                       readOnly: true,
                       controller: mfgDateController,
                       decoration: InputDecoration(
-                        hintText: '',
+                        hintText: 'MM-DD-YYYY',
+                        hintStyle: AppStyle().hintStyle,
                         border: UnderlineInputBorder(),
                       ),
                       textAlign: TextAlign.center,
@@ -666,7 +675,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                           lastDate: DateTime(2100),
                         );
                         if (selectedDate != null) {
-                          String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+                          String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
                           mfgDateController.text = formattedDate;
                         }
                       }),
@@ -683,20 +692,33 @@ class _StockAddFragment extends State<StockAddFragment> {
                       readOnly: true,
                       controller: expDateController,
                       decoration: InputDecoration(
-                        hintText: '',
+                        hintText: 'MM-DD-YYYY',
+                        hintStyle: AppStyle().hintStyle,
                         border: UnderlineInputBorder(),
                       ),
                       textAlign: TextAlign.center,
                       onTap: () async {
-                        // Open date picker when the field is tapped
+                        if(mfgDateController.text == ""){
+                          SnackBarUtils().showSnackBar(context, 'Select Mfg. Date');
+                          return;
+                        }
+                        DateTime mfgDate = DateFormat('dd-MM-yyyy').parse(mfgDateController.text);
                         DateTime? selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: mfgDate.add(const Duration(days: 1)),
+                          firstDate: mfgDate.add(const Duration(days: 1)),
+                          lastDate: DateTime(2100),
+                        );
+
+                        // Open date picker when the field is tapped
+                       /* DateTime? selectedDate = await showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2100),
-                        );
+                        );*/
                         if (selectedDate != null) {
-                          String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+                          String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
                           expDateController.text = formattedDate;
                         }
                       }),
