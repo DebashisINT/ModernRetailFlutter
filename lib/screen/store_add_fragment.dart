@@ -539,22 +539,22 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
         SnackBarUtils().showSnackBar(context,'Please select Store type');
       } else if (selectedBranch.branch_name == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Branch')));
+        SnackBarUtils().showSnackBar(context,'Please select Branch');
       } else if (storeName == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Store Name')));
+        SnackBarUtils().showSnackBar(context,'Please enter Store Name');
       } else if (storeAddress == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Address')));
+        SnackBarUtils().showSnackBar(context,'Please enter Address');
       } else if (storePinCode == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Pincode')));
+        SnackBarUtils().showSnackBar(context,'Please enter Pincode');
       } else if (contactName == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
+        SnackBarUtils().showSnackBar(context,'Please enter Contact Name');
       } else if (contactNumber == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Number')));
+        SnackBarUtils().showSnackBar(context,'Please enter Contact Number');
       } else {
         DateTime currentDateTime = DateTime.now();
         String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
@@ -598,7 +598,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
           }
         } catch (e) {
           LoaderUtils().dismissLoader(context);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something went wrong.")));
+          SnackBarUtils().showSnackBar(context,'Something went wrong.');
           print('Erroraddstore: $e');
         }
       }
@@ -636,25 +636,25 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
 
       if (selectedStoreType == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Store type')));
+        SnackBarUtils().showSnackBar(context,'Please select Store type');
       } else if (selectedBranch.branch_name == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please select Branch')));
+        SnackBarUtils().showSnackBar(context,'Please select Branch');
       } else if (storeName == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Store Name')));
+        SnackBarUtils().showSnackBar(context,'Please enter Store Name');
       } else if (storeAddress == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Address')));
+        SnackBarUtils().showSnackBar(context,'Please enter Address');
       } else if (storePinCode == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Pincode')));
+        SnackBarUtils().showSnackBar(context,'Please enter Pincode');
       } else if (contactName == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Name')));
+        SnackBarUtils().showSnackBar(context,'Please enter Contact Name');
       } else if (contactNumber == "") {
         LoaderUtils().dismissLoader(context);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter Contact Number')));
+        SnackBarUtils().showSnackBar(context,'Please enter Contact Number');
       } else {
         DateTime currentDateTime = DateTime.now();
         String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
@@ -697,7 +697,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
           }
         } catch (e) {
           LoaderUtils().dismissLoader(context);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something went wrong.")));
+          SnackBarUtils().showSnackBar(context,'Something went wrong.');
           print('Erroraddstore: $e');
         }
       }
@@ -718,7 +718,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
     } catch (e) {
       print("tag_image_upload_error: $e");
       LoaderUtils().dismissLoader(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something went wrong.")));
+      SnackBarUtils().showSnackBar(context,'Something went wrong.');
     }
   }
 

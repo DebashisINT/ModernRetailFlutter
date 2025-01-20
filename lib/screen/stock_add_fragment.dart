@@ -282,7 +282,7 @@ class _StockAddFragment extends State<StockAddFragment> {
     } catch (e) {
       print(e);
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Something went wrong.")));
+      SnackBarUtils().showSnackBar(context,'Something went wrong.');
     }
   }
 
