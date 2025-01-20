@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_advanced_drawer/flutter_advanced_drawer.dart';
+import 'package:modern_retail/screen/planogram_self_fragment.dart';
 import 'package:modern_retail/screen/stock_add_fragment.dart';
 import 'package:modern_retail/screen/store_fragment.dart';
 
@@ -253,7 +254,7 @@ class _DashboardScreen extends State<DashboardScreen> {
                             buildRow(context, [
                               GestureDetector(
                                 onTap: () {
-
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => PlanogramSelfFragment()),);
                                 },
                                 child: buildCustomCard(
                                   context,
