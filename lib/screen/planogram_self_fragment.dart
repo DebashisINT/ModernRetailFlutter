@@ -120,25 +120,22 @@ class _PlanogramSelfFragment extends State<PlanogramSelfFragment> {
     );
   }
 
-  Widget _buildCard(OrderSaveEntity store) {
+  Widget _buildCard(OrderSaveEntity item) {
     return Card(
       color: AppColor.colorWhite,
-      margin: AppStyle().cardMargin,
+      margin: AppStyle().cardMargin.copyWith(left: 0,right: 0,top: 0,bottom: 0),
       elevation: AppStyle().cardEvevation,
       shape: AppStyle().cardShape,
       child: Padding(
-        padding: const EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0, bottom: 0.0),
+        padding: const EdgeInsets.all(0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              //height: 120,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/login_bottom.webp') as ImageProvider,
-                  fit: BoxFit.fill,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(left: 5.0), // Add 16 pixels of left margin
+              child: Text(
+                "xyz\nopsjod",
+                style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorBlue),
               ),
             )
           ],

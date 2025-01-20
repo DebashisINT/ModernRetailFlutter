@@ -57,7 +57,7 @@ class _OrderFragment extends State<OrderFragment> {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: Padding(
-        padding: EdgeInsets.all(5.0),
+        padding: EdgeInsets.all(0.0),
         child: ChangeNotifierProvider<ItemViewModel>(
           create: (_) => viewModel,
           child: Column(
@@ -106,7 +106,8 @@ class _OrderFragment extends State<OrderFragment> {
                             }
 
                             final item = viewModel.items[index];
-                            return Container(margin: EdgeInsets.only(top: 20.0),
+                            return Padding(
+                              padding: const EdgeInsets.all(10.0),
                               child: _buildCard(item),
                             );
                           },
@@ -140,7 +141,7 @@ class _OrderFragment extends State<OrderFragment> {
   Widget _buildCard(OrderSaveEntity item) {
     return Card(
       color: AppColor.colorWhite,
-      margin: AppStyle().cardMargin.copyWith(left: 10,right: 10,top: 10,bottom: 10),
+      margin: AppStyle().cardMargin.copyWith(left: 0,right: 0,top: 0,bottom: 0),
       elevation: AppStyle().cardEvevation,
       shape: AppStyle().cardShape,
       child: Padding(
