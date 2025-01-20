@@ -170,7 +170,7 @@ class _OrderFragment extends State<OrderFragment> {
                         ),
                         TextSpan(
                           text: item.order_id,
-                          style: AppStyle().textStyle.copyWith(color: AppColor.colorCharcoal, fontWeight: FontWeight.bold),
+                          style: AppStyle().textStyle.copyWith(color: AppColor.colorYellow, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),

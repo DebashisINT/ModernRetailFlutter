@@ -46,7 +46,7 @@ abstract class OrderSaveDtlsDao{
   @Query('SELECT * FROM mr_order_save_dtls ORDER BY order_date_time ASC LIMIT :limit OFFSET :offset')
   Future<List<OrderSaveDtlsEntity>> fetchPaginatedItems(int limit, int offset);
 
-  @Query('select count(*) as itemCount from mr_order_save_dtls where mr_order_save_dtls.order_id = :order_id')
+  @Query('select count(*) as itemCount from mr_order_save_dtls where order_id = :order_id')
   Future<int?> getItemCount(String order_id);
 
   @Query('delete from mr_order_save_dtls where order_id=:order_id ')
