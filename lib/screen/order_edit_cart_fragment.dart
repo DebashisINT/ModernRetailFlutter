@@ -40,7 +40,6 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
 
   String _totalQty = "";
   String _totalAmount = "";
-  bool _isTickVisible = false;
 
   List<OrderProductEntity> orderProductL = [];
 
