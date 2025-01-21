@@ -218,11 +218,11 @@ class _OrderFragment extends State<OrderFragment> {
                     ],
                   ),
                   Divider(
-                    color: AppColor.colorGreyLight,
+                    color: AppColor.colorWhite,
                     thickness: 1, // Slim thickness for the grey line
                     height: 20,   // Reduced height for spacing around the line
                   ),
-                  Row(
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
@@ -235,7 +235,7 @@ class _OrderFragment extends State<OrderFragment> {
                             fontWeight: FontWeight.bold),
                       ),
                     ],
-                  ),
+                  ),*/
                   SizedBox(height: 6), // Reduced space after Status
                   // View and Delete Buttons in the right side
                   Row(
