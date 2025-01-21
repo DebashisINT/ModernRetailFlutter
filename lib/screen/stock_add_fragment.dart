@@ -470,13 +470,13 @@ class _StockAddFragment extends State<StockAddFragment> {
   Widget _buildProductCard(StockProductEntity product, int index) {
     return Card(
       color: AppColor.colorWhite,
-      margin: const EdgeInsets.only(left: 10,right: 10,top: 5, bottom: 5,),
+      margin: const EdgeInsets.only(left: 15,right: 15,top: 5, bottom: 5,),
       elevation: 5.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(left: 5.0, right: 5.0, top: 5.0, bottom: 5.0),
+        padding: const EdgeInsets.only(left: 5.0, right: 5.0, top: 1, bottom: 1),
         // Set left padding to 5dp
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
