@@ -364,11 +364,10 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                   prefixIcon: Padding(
                     padding: const EdgeInsets.all(15.0), // Optional: to add padding around the image
                     child: Image.asset(
-                      'assets/images/ic_rate_icon.png', // Your custom icon image
+                      'assets/images/ic_qty.webp', // Your custom icon image
                       width: 12, // You can set width and height to fit
                       height: 12,
                       fit: BoxFit.fill,
-                      color: AppColor.colorBlack,
                     ),
                   ),
                   border: OutlineInputBorder(
@@ -418,7 +417,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                       width: 12, // You can set width and height to fit
                       height: 12,
                       fit: BoxFit.fill,
-                      color: AppColor.colorBlack,
+                      color: AppColor.colorDeepGreen,
                     ),
                   ),
                   border: OutlineInputBorder(
