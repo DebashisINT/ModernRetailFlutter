@@ -326,12 +326,8 @@ class _OrderEditCartFragment extends State<OrderEditCartFragment> {
                     mainAxisAlignment: MainAxisAlignment.start, // Ensure text starts from the top
                     children: [
                       Text(
-                        "MRP",
+                        "MRP : ₹ ${product.product_mrp.toString()}",
                         style: AppStyle().textStyle.copyWith(color: AppColor.colorBlack),
-                      ),
-                      Text(
-                        product.product_mrp.toString(),
-                        style: AppStyle().textStyle,
                       ),
                     ],
                   ),
