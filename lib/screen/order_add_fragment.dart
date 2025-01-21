@@ -296,17 +296,17 @@ class _OrderAddFragment extends State<OrderAddFragment> {
               padding: const EdgeInsets.only(left: 5.0), // Add 16 pixels of left margin
               child: Text(
                 product.product_name,
-                style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorBlue),
+                style: AppStyle().orderHeaderStyle.copyWith(color: AppColor.colorDeepGreen),
               ),
             ),
             SizedBox(height: 5),
             Row(
               children: [
                 Container(
-                  width: 30, // Increase container width to accommodate padding
-                  height: 30, // Increase container height to accommodate padding
+                  width: 25, // Increase container width to accommodate padding
+                  height: 25, // Increase container height to accommodate padding
                   decoration: BoxDecoration(
-                    color: AppColor.colorGreyLight, // Background color
+                    color: AppColor.colorLightYellow, // Background color
                     borderRadius: BorderRadius.circular(200), // Rounded corners
                     boxShadow: [
                       AppStyle().boxShadow,
@@ -317,7 +317,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(200),
                       child: Image.asset(
-                        "assets/images/ic_mrp.png", // Replace with your image path
+                        "assets/images/ic_mrp_icon.png", // Replace with your image path
                         fit: BoxFit.fill, // Adjust image scaling
                       ),
                     ),
@@ -331,8 +331,8 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
                     mainAxisAlignment: MainAxisAlignment.start, // Ensure text starts from the top
                     children: [
-                      Text("MRP", style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey)),
-                      Text(product.product_mrp.toString(), style: AppStyle().textStyle.copyWith(color: AppColor.colorBlue)),
+                      Text("MRP", style: AppStyle().textStyle.copyWith(color: AppColor.colorBlack)),
+                      Text("₹ "+product.product_mrp.toString(), style: AppStyle().textStyle.copyWith(color: AppColor.colorDeepGreen)),
                     ],
                   ),
                 ),
@@ -361,86 +361,132 @@ class _OrderAddFragment extends State<OrderAddFragment> {
             width: 5,
           ),
           Expanded(
-            child: Column(
-              children: [
-                Container(
-                  //height: 30,
-                  alignment: Alignment.center,
-                  child: Text('Quantity', textAlign: TextAlign.center,
-                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
-                  ),
-                ),
-                Container(
-                  height: 30, // Fixed height for text box
-                  alignment: Alignment.center,
-                  child: TextFormField(
-                    controller: qtyController,
-                    focusNode: qtyFocusNode,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: '',
-                      border: UnderlineInputBorder(),
+            child: SizedBox(
+              height: 50,
+              child: TextField(
+                controller: qtyController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  InputFormatter(decimalRange: 2, beforeDecimal: 5), // Custom formatter for decimals
+                ],
+                decoration: InputDecoration(
+                  labelText: "QTY",
+                  hintText: "QTY",
+                  labelStyle: AppStyle().labelStyle,
+                  hintStyle: AppStyle().hintStyle,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(15.0), // Optional: to add padding around the image
+                    child: Image.asset(
+                      'assets/images/ic_rate_icon.png', // Your custom icon image
+                      width: 12, // You can set width and height to fit
+                      height: 12,
+                      fit: BoxFit.fill,
+                      color: AppColor.colorBlack,
                     ),
-                    textAlign: TextAlign.center,
-                    inputFormatters: [
-                      InputFormatter(decimalRange: 2, beforeDecimal: 5,)
-                    ],
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 16.0, // Increase vertical padding
+                    horizontal: 12.0, // Adjust horizontal padding if needed
                   ),
                 ),
-              ],
+                style: TextStyle(
+                  fontSize: 16.0, // Adjust font size to your design
+                  height: 1.5, // Line height to ensure proper spacing
+                ),
+              ),
             ),
           ),
           SizedBox(
             width: 15,
           ),
           Expanded(
-            child: Column(
-              children: [
-                Container(
-                  //height: 30,
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Rate',
-                    textAlign: TextAlign.center,
-                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
-                  ),
-                ),
-                Container(
-                  height: 30, // Fixed height for text box
-                  alignment: Alignment.center,
-                  child: TextFormField(
-                    controller: rateController,
-                    focusNode: rateFocusNode,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: '',
-                      border: UnderlineInputBorder(),
+            child: SizedBox(
+              height: 50,
+              child: TextField(
+                controller: qtyController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  InputFormatter(decimalRange: 2, beforeDecimal: 5), // Custom formatter for decimals
+                ],
+                decoration: InputDecoration(
+                  labelText: "Rate",
+                  hintText: "Rate",
+                  labelStyle: AppStyle().labelStyle,
+                  hintStyle: AppStyle().hintStyle,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(15.0), // Optional: to add padding around the image
+                    child: Image.asset(
+                      'assets/images/ic_rate_icon.png', // Your custom icon image
+                      width: 12, // You can set width and height to fit
+                      height: 12,
+                      fit: BoxFit.fill,
+                      color: AppColor.colorBlack,
                     ),
-                    textAlign: TextAlign.center,
-                    inputFormatters: [
-                      InputFormatter(decimalRange: 2, beforeDecimal: 5,)
-                    ],
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 16.0, // Increase vertical padding
+                    horizontal: 12.0, // Adjust horizontal padding if needed
                   ),
                 ),
-              ],
+                style: TextStyle(
+                  fontSize: 16.0, // Adjust font size to your design
+                  height: 1.5, // Line height to ensure proper spacing
+                ),
+              ),
             ),
           ),
+
           SizedBox(
             width: 5,
           ),
           ElevatedButton(
-            style: AppStyle().buttonStyle.copyWith(backgroundColor: product.isAdded ? MaterialStateProperty.all(AppColor.colorGreen) : MaterialStateProperty.all(AppColor.colorButton)),
+            style: AppStyle().buttonStyle.copyWith(
+              backgroundColor: product.isAdded
+                  ? MaterialStateProperty.all(AppColor.colorGreen)
+                  : MaterialStateProperty.all(AppColor.colorButton),
+              padding: MaterialStateProperty.all(
+                EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0), // Adjust padding here
+              ),
+            ),
             onPressed: () async {
               final q = _qtyControllers[product.sl_no].text;
               final r = _rateControllers[product.sl_no].text;
               _qtyFocusNode[product.sl_no].unfocus();
               _rateFocusNode[product.sl_no].unfocus();
+
               if (q == "" || q == "0" || q == "0.0") {
                 SnackBarUtils().showSnackBar(context, 'Enter quantity');
               } else if (r == "" || r == "0" || r == "0.0") {
                 SnackBarUtils().showSnackBar(context, 'Enter rate');
               } else {
-                await appDatabase.orderProductDao.updateAdded(double.parse(q), double.parse(r), true, product.product_id);
+                await appDatabase.orderProductDao.updateAdded(
+                  double.parse(q),
+                  double.parse(r),
+                  true,
+                  product.product_id,
+                );
                 final ordAmt = await appDatabase.orderProductDao.getTotalAmt();
                 setState(() {
                   product.isAdded = true;
@@ -448,8 +494,24 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                 });
               }
             },
-            child: Text(product.isAdded ? 'Added' : 'Add', style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min, // Ensures the button shrinks to fit its content
+              children: [
+                Image.asset(
+                  'assets/images/icon_shopping.png', // Replace with your asset path
+                  width: 16, // Width of the image
+                  height: 16, // Height of the image
+                  //color: AppColor.colorWhite, // Optional: Tint color for the icon
+                ),
+                SizedBox(width: 8), // Adds some spacing between the image and text
+                Text(
+                  product.isAdded ? 'Added' : 'Add',
+                  style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite),
+                ),
+              ],
+            ),
           ),
+
           SizedBox(
             width: 5,
           ),
