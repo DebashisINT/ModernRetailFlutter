@@ -108,7 +108,7 @@ class _StockAddFragment extends State<StockAddFragment> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.only(left: 15,right: 15,top: 5,bottom: 1),
               child: Container(
                 height: 50, // Set your desired height here
                 decoration: BoxDecoration(
@@ -128,7 +128,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(15),
+                  padding: EdgeInsets.only(left: 20,right: 0,top: 0,bottom: 0),
                   child: DropdownButton<StoreEntity>(
                     isExpanded: true,
                     underline: SizedBox(),
@@ -158,7 +158,7 @@ class _StockAddFragment extends State<StockAddFragment> {
             Visibility(
               visible: _visibilityController,
               child: Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: EdgeInsets.only(left: 15,right: 15,top: 10,bottom: 1),
                 child: SizedBox(
                   height: 50, // Fixed height for the TextField
                   child: TextField(
@@ -977,11 +977,10 @@ class _StockAddFragment extends State<StockAddFragment> {
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
                         child: Image.asset(
-                          'assets/images/ic_qty_icon.png', // Your custom icon image
+                          'assets/images/ic_qty.webp', // Your custom icon image
                           width: 12, // You can set width and height to fit
                           height: 12,
                           fit: BoxFit.fill,
-                          color: AppColor.colorBlack,
                         ),
                       ),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -1017,7 +1016,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(15.0),
                         child: Image.asset(
-                          'assets/images/ic_arrow_down.png', // Your custom icon image
+                          'assets/images/ic_uom.webp', // Your custom icon image
                           width: 12, // You can set width and height to fit
                           height: 12,
                           fit: BoxFit.fill,
@@ -1063,7 +1062,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
                         child: Image.asset(
-                          'assets/images/ic_calender.png', // Your custom icon image
+                          'assets/images/ic_calender_1.webp', // Your custom icon image
                           width: 12, // You can set width and height to fit
                           height: 12,
                           fit: BoxFit.fill,
@@ -1111,7 +1110,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                       prefixIcon: Padding(
                         padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
                         child: Image.asset(
-                          'assets/images/ic_calender.png', // Your custom icon image
+                          'assets/images/ic_calender_2.webp', // Your custom icon image
                           width: 12, // You can set width and height to fit
                           height: 12,
                           fit: BoxFit.fill,

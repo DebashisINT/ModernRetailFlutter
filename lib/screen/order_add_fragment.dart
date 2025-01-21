@@ -157,10 +157,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                             }
 
                             var item = viewModel.items[index];
-                            return Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: _buildProductCard(item, item.sl_no),
-                            );
+                            return _buildProductCard(item, item.sl_no);
                           },
                         ),
                       ),
@@ -232,7 +229,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
   Widget _buildProductCard(OrderProductEntity product, int index) {
     return Card(
       color: product.isAdded ? AppColor.colorGreenLight : AppColor.colorWhite,
-      margin: AppStyle().cardMargin.copyWith(left: 0,right: 0,top: 0,bottom: 0),
+      margin: const EdgeInsets.only(left: 15,right: 15,top: 5, bottom: 5,),
       elevation:AppStyle().cardEvevation,
       shape: AppStyle().cardShape,
       child: Padding(
@@ -462,7 +459,6 @@ class _OrderAddFragment extends State<OrderAddFragment> {
               ),
             ),
           ),
-
           SizedBox(
             width: 5,
           ),
