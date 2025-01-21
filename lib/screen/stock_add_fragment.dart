@@ -661,7 +661,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                       readOnly: true,
                       controller: mfgDateController,
                       decoration: InputDecoration(
-                        hintText: 'MM-DD-YYYY',
+                        hintText: 'DD-MM-YYYY',
                         hintStyle: AppStyle().hintStyle,
                         border: UnderlineInputBorder(),
                       ),
@@ -692,7 +692,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                       readOnly: true,
                       controller: expDateController,
                       decoration: InputDecoration(
-                        hintText: 'MM-DD-YYYY',
+                        hintText: 'DD-MM-YYYY',
                         hintStyle: AppStyle().hintStyle,
                         border: UnderlineInputBorder(),
                       ),
