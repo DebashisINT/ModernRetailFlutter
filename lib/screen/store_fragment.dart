@@ -191,7 +191,7 @@ class _StoreFragmentState extends State<StoreFragment> {
                     store.store_contact_number ?? "",
                     onTap: () {
                       if (store.store_contact_number != null && store.store_contact_number!.isNotEmpty) {
-                        _launchPhoneDialer(store.store_contact_number!); // Launch the dialer with the contact number
+                        _launchPhoneDialer(store.store_contact_number!);
                       }
                     },
                   ),

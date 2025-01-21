@@ -158,7 +158,7 @@ class _StockAddFragment extends State<StockAddFragment> {
             Visibility(
               visible: _visibilityController,
               child: Padding(
-                padding: EdgeInsets.only(left: 15,right: 15,top: 15,bottom: 5),
+                padding: EdgeInsets.only(left: 15,right: 15,top: 5,bottom: 5),
                 child: SizedBox(
                   height: 50, // Fixed height for the TextField
                   child: TextField(
@@ -267,7 +267,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                       }
                     }
                   },
-                  child: const Text('Submit', style: TextStyle(fontSize: 18, color: AppColor.colorWhite)),
+                  child: Text('Submit', style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
                 ),
               ),
             ),
@@ -414,9 +414,8 @@ class _StockAddFragment extends State<StockAddFragment> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      ElevatedButton(
-                        style: AppStyle().buttonStyle,
-                        onPressed: () async {
+                      GestureDetector(
+                        onTap: () async {
                           FilePickerResult? result = await FilePicker.platform.pickFiles();
                           if (result != null && result.files.isNotEmpty) {
                             setState(() {
@@ -425,7 +424,26 @@ class _StockAddFragment extends State<StockAddFragment> {
                             });
                           }
                         },
-                        child: Text('Attach', style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColor.colorCharcoal,
+                            boxShadow: [
+                              AppStyle().boxShadow,
+                            ],
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Image.asset(
+                              'assets/images/ic_clip.webp',
+                              width: 10,
+                              height: 10,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -959,15 +977,16 @@ class _StockAddFragment extends State<StockAddFragment> {
         children: [
           Row(
             children: [
-              SizedBox(
-                width: 5,),
               Expanded(
                 child: SizedBox(
-                  height: 45,
+                  height: 50,
                   child: TextField(
                     controller: qtyController,
                     keyboardType: TextInputType.number,
-                    maxLines: 1,
+                    style: AppStyle().textStyle, // Optional: Custom text style
+                    inputFormatters: [
+                      InputFormatter(decimalRange: 2, beforeDecimal: 5),
+                    ],
                     decoration: InputDecoration(
                       labelText: "Quantity",
                       hintText: "Quantity",
@@ -992,10 +1011,6 @@ class _StockAddFragment extends State<StockAddFragment> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    style: AppStyle().textStyle, // Optional: Custom text style
-                    textAlignVertical: TextAlignVertical.center,
-                    scrollPhysics: const BouncingScrollPhysics(), // Enables smooth scrolling
-                    scrollPadding: const EdgeInsets.all(8.0), // Adds padding during scroll
                   ),
                 ),
               ),
@@ -1004,7 +1019,7 @@ class _StockAddFragment extends State<StockAddFragment> {
               ),
               Expanded(
                 child: SizedBox(
-                  height: 45,
+                  height: 50,
                   child: TextField(
                     controller: uomController,
                     readOnly: true,
@@ -1035,9 +1050,6 @@ class _StockAddFragment extends State<StockAddFragment> {
                   ),
                 ),
               ),
-              SizedBox(
-                width: 5,
-              ),
             ],
           ),
           SizedBox(
@@ -1045,12 +1057,9 @@ class _StockAddFragment extends State<StockAddFragment> {
           ),
           Row(
             children: [
-              SizedBox(
-                width: 5,
-              ),
               Expanded(
                 child: SizedBox(
-                  height: 45,
+                  height: 50,
                   child: TextField(
                     controller: mfgDateController,
                     readOnly: true,
@@ -1098,7 +1107,7 @@ class _StockAddFragment extends State<StockAddFragment> {
               ),
               Expanded(
                 child: SizedBox(
-                  height: 45,
+                  height: 50,
                   child: TextField(
                     controller: expDateController,
                     readOnly: true,
@@ -1153,9 +1162,6 @@ class _StockAddFragment extends State<StockAddFragment> {
                       }
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 5,
               ),
             ],
           ),

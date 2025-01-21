@@ -359,7 +359,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                 controller: qtyController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
-                  InputFormatter(decimalRange: 2, beforeDecimal: 5), // Custom formatter for decimals
+                  //InputFormatter(decimalRange: 2, beforeDecimal: 5), // Custom formatter for decimals
                 ],
                 decoration: InputDecoration(
                   labelText: "QTY",
