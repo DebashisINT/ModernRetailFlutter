@@ -108,7 +108,7 @@ class _StockAddFragment extends State<StockAddFragment> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.only(left: 15,right: 15,top: 5,bottom: 1),
+              padding: EdgeInsets.only(left: 15,right: 15,top: 5,bottom: 5),
               child: Container(
                 height: 50, // Set your desired height here
                 decoration: BoxDecoration(
@@ -158,7 +158,7 @@ class _StockAddFragment extends State<StockAddFragment> {
             Visibility(
               visible: _visibilityController,
               child: Padding(
-                padding: EdgeInsets.only(left: 15,right: 15,top: 10,bottom: 1),
+                padding: EdgeInsets.only(left: 15,right: 15,top: 15,bottom: 5),
                 child: SizedBox(
                   height: 50, // Fixed height for the TextField
                   child: TextField(
@@ -532,7 +532,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                 style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorBlue),
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             Padding(
                 padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
                 child: Row(
@@ -960,8 +960,7 @@ class _StockAddFragment extends State<StockAddFragment> {
           Row(
             children: [
               SizedBox(
-                width: 5,
-              ),
+                width: 5,),
               Expanded(
                 child: SizedBox(
                   height: 45,
@@ -985,11 +984,11 @@ class _StockAddFragment extends State<StockAddFragment> {
                       ),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: .5),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
+                        borderSide: BorderSide(color: AppColor.colorGrey, width: .5), // Inactive (unfocused) color
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -1008,6 +1007,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                   height: 45,
                   child: TextField(
                     controller: uomController,
+                    readOnly: true,
                     decoration: InputDecoration(
                       labelText: "UOM",
                       hintText: "UOM",
@@ -1024,11 +1024,11 @@ class _StockAddFragment extends State<StockAddFragment> {
                       ),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                          borderSide: BorderSide(color: AppColor.colorBlueSteel, width: .5),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
+                          borderSide: BorderSide(color: AppColor.colorGrey, width: .5), // Inactive (unfocused) color
                           borderRadius: BorderRadius.circular(10),
                         )
                     ),
@@ -1041,7 +1041,7 @@ class _StockAddFragment extends State<StockAddFragment> {
             ],
           ),
           SizedBox(
-            height: 15,
+            height: 10,
           ),
           Row(
             children: [
@@ -1070,11 +1070,11 @@ class _StockAddFragment extends State<StockAddFragment> {
                       ),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: .5),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
+                        borderSide: BorderSide(color: AppColor.colorGrey, width: .5), // Inactive (unfocused) color
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -1118,11 +1118,11 @@ class _StockAddFragment extends State<StockAddFragment> {
                       ),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: .5),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
+                        borderSide: BorderSide(color: AppColor.colorGrey, width: .5), // Inactive (unfocused) color
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
