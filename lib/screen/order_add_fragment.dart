@@ -230,7 +230,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
       elevation:AppStyle().cardEvevation,
       shape: AppStyle().cardShape,
       child: Padding(
-        padding: const EdgeInsets.only(left: 5,right: 5,top: 1,bottom: 1),
+        padding: const EdgeInsets.only(left: 5,right: 5,top: 5,bottom: 5),
         // Set left padding to 5dp
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

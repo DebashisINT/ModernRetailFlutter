@@ -84,140 +84,134 @@ class _OrderCartFragment extends State<OrderCartFragment> {
       },
       child: Scaffold(
         appBar: _buildAppBar(context),
-        body: Padding(
-          padding: const EdgeInsets.all(0.0),
-          child: ChangeNotifierProvider<ItemViewModel>(
-            create: (_) => viewModel,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Consumer<ItemViewModel>(
-                    builder: (context, viewModel, child) {
-                      return RefreshIndicator(
-                        onRefresh: () async {
-                          await viewModel.loadItems(refresh: true);
+        body: ChangeNotifierProvider<ItemViewModel>(
+          create: (_) => viewModel,
+          child: Column(
+            children: [
+              Expanded(
+                child: Consumer<ItemViewModel>(
+                  builder: (context, viewModel, child) {
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        await viewModel.loadItems(refresh: true);
+                      },
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
+                            return false;
+                          }
+                          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                            viewModel.loadItems();
+                          }
+                          return true;
                         },
-                        child: NotificationListener<ScrollNotification>(
-                          onNotification: (ScrollNotification scrollInfo) {
-                            if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
-                              return false;
-                            }
-                            if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                              viewModel.loadItems();
-                            }
-                            return true;
-                          },
-                          child: ListView.builder(
-                            padding: EdgeInsets.only(bottom: 100.0),
-                            itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              if (index == viewModel.items.length) {
-                                if (viewModel.loadingState == LoadingState.error) {
-                                  return Center(
-                                    child: ElevatedButton(
-                                      onPressed: () => viewModel.loadItems(),
-                                      child: Text('Retry'),
-                                    ),
-                                  );
-                                } else if (viewModel.loadingState == LoadingState.loading) {
-                                  return Center(child: CircularProgressIndicator()); // Show loader while loading
-                                } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
-                                  // When idle and no items, show a message
-                                  //return Center(child: Text("No items available"));
-                                  return SizedBox.shrink();
-                                } else if (viewModel.loadingState == LoadingState.idle) {
-                                  // Idle state but items are loaded, just return an empty container or nothing
-                                  return SizedBox.shrink(); // No loader, no retry button
-                                }
-                                //return Center(child: CircularProgressIndicator());
+                        child: ListView.builder(
+                          padding: EdgeInsets.only(bottom: 100.0),
+                          itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == viewModel.items.length) {
+                              if (viewModel.loadingState == LoadingState.error) {
+                                return Center(
+                                  child: ElevatedButton(
+                                    onPressed: () => viewModel.loadItems(),
+                                    child: Text('Retry'),
+                                  ),
+                                );
+                              } else if (viewModel.loadingState == LoadingState.loading) {
+                                return Center(child: CircularProgressIndicator()); // Show loader while loading
+                              } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
+                                // When idle and no items, show a message
+                                //return Center(child: Text("No items available"));
+                                return SizedBox.shrink();
+                              } else if (viewModel.loadingState == LoadingState.idle) {
+                                // Idle state but items are loaded, just return an empty container or nothing
+                                return SizedBox.shrink(); // No loader, no retry button
                               }
-
-                              var item = viewModel.items[index];
-                              return Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: _buildProductCard(item, index),
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                Container(
-                  color: Colors.white, // Example bottom widget
-                  width: double.infinity,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 55,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                color: AppColor.colorBlue,
-                                child: Center(
-                                  child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + (double.parse(_totalQty) ?.toStringAsFixed(2) ?? 0.00).toString(),
-                                      style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 2,
-                            ),
-                            Expanded(
-                              child: Container(
-                                color: AppColor.colorBlue,
-                                child: Center(
-                                  child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + (double.parse(_totalAmount) ?.toStringAsFixed(2) ?? 0.00).toString(),
-                                      style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 50,
-                        child: GestureDetector(
-                          onTap: () async {
-                            final getCount = await appDatabase.orderProductDao.getProductAddedCount();
-                            if (getCount! > 0) {
-                              _showRemarksDialog();
-                            } else {
-                              SnackBarUtils().showSnackBar(context, 'There is no product in Cart');
+                              //return Center(child: CircularProgressIndicator());
                             }
+
+                            var item = viewModel.items[index];
+                            return _buildProductCard(item, index);
                           },
-                          child: Container(
-                            color: AppColor.colorGreenLeaf,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center, // Centers horizontally
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Place Order",
-                                  style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorWhite,fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(
-                                  width: 15,
-                                ),
-                                Image.asset(
-                                  "assets/images/ic_arrow.png",
-                                  height: 30,
-                                  width: 30,
-                                  fit: BoxFit.fill,
-                                  color: AppColor.colorWhite,
-                                ),
-                              ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Container(
+                color: Colors.white, // Example bottom widget
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 55,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              color: AppColor.colorBlue,
+                              child: Center(
+                                child: Text(_totalQty == "" ? "Total Qty(s)" : "Total Qty(s)\n" + (double.parse(_totalQty) ?.toStringAsFixed(2) ?? 0.00).toString(),
+                                    style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                              ),
                             ),
+                          ),
+                          SizedBox(
+                            width: 2,
+                          ),
+                          Expanded(
+                            child: Container(
+                              color: AppColor.colorBlue,
+                              child: Center(
+                                child: Text(_totalAmount == "" ? "Total Value" : "Total Value\n" + (double.parse(_totalAmount) ?.toStringAsFixed(2) ?? 0.00).toString(),
+                                    style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite), textAlign: TextAlign.center),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 50,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final getCount = await appDatabase.orderProductDao.getProductAddedCount();
+                          if (getCount! > 0) {
+                            _showRemarksDialog();
+                          } else {
+                            SnackBarUtils().showSnackBar(context, 'There is no product in Cart');
+                          }
+                        },
+                        child: Container(
+                          color: AppColor.colorGreenLeaf,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center, // Centers horizontally
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Place Order",
+                                style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorWhite,fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Image.asset(
+                                "assets/images/ic_arrow.png",
+                                height: 30,
+                                width: 30,
+                                fit: BoxFit.fill,
+                                color: AppColor.colorWhite,
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         backgroundColor: AppColor.colorSmokeWhite,
@@ -228,7 +222,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
   Widget _buildProductCard(OrderProductEntity product, int index) {
     return Card(
       color: AppColor.colorWhite,
-      margin: AppStyle().cardMargin.copyWith(left: 0,right: 0,top: 0,bottom: 0),
+      margin: const EdgeInsets.only(left: 15,right: 15,top: 5, bottom: 5,),
       elevation:AppStyle().cardEvevation,
       shape: AppStyle().cardShape,
       child: Padding(
@@ -399,11 +393,10 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                   prefixIcon: Padding(
                     padding: const EdgeInsets.all(15.0), // Optional: to add padding around the image
                     child: Image.asset(
-                      'assets/images/ic_qty_icon.png', // Your custom icon image
+                      'assets/images/ic_qty.webp', // Your custom icon image
                       width: 12, // You can set width and height to fit
                       height: 12,
                       fit: BoxFit.fill,
-                      color: AppColor.colorBlack,
                     ),
                   ),
                   border: OutlineInputBorder(
@@ -494,7 +487,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                       width: 12, // You can set width and height to fit
                       height: 12,
                       fit: BoxFit.fill,
-                      color: AppColor.colorBlack,
+                      color: AppColor.colorDeepGreen,
                     ),
                   ),
                   border: OutlineInputBorder(
