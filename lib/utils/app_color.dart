@@ -26,6 +26,7 @@ class AppColor{
   static const Color colorGreenSteel= Color(0xFF0b9ba8);
 
   static const Color colorBlue= Color(0xFF162E92);
+  static const Color colorDeepGreen= Color(0xFF013446);
   static const Color colorBlueLight= Color(0xFFBBDEFB);
   static const Color colorBluePeacock= Color(0xFF005F69);
   static const Color colorBlueBaby= Color(0xFF95B9C7);
@@ -34,6 +35,7 @@ class AppColor{
   static const Color colorCharcoal = Color(0xFF36454F);
   static const Color colorGrey = Color(0xFF9E9E9E);
   static const Color colorGreyLight = Color(0xFFCDCCCC);
+  static const Color colorLightYellow = Color(0xFFfdb75b);
 
   static const Color colorYellow= Color(0xFFcf971f);
 

@@ -27,6 +27,11 @@ class AppStyle {
     color: AppColor.colorBlack,
   );
 
+  TextStyle orderHeaderStyle = TextStyle(
+    fontSize: 16,
+    color: AppColor.colorBlack,
+  );
+
   TextStyle labelStyle = TextStyle(
     color: AppColor.colorGrey, // Color for the label text
     fontSize: 15, // Optional: adjust font size
