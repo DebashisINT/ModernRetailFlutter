@@ -314,8 +314,10 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
                     mainAxisAlignment: MainAxisAlignment.start, // Ensure text starts from the top
                     children: [
-                      Text("MRP", style: AppStyle().textStyle.copyWith(color: AppColor.colorBlack)),
-                      Text(product.product_mrp.toString(), style: AppStyle().textStyle.copyWith(color: AppColor.colorDeepGreen)),
+                      Text(
+                        "MRP : ₹ ${product.product_mrp.toString()}",
+                        style: AppStyle().textStyle.copyWith(color: AppColor.colorBlack),
+                      ),
                     ],
                   ),
                 ),
