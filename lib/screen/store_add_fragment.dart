@@ -467,7 +467,7 @@ class _StoreAddFragmentState extends State<StoreAddFragment> {
 
   Future<void> _loadStoreTypes({int? defaultTypeId}) async {
     final storeTypeDao = appDatabase.storeTypeDao;
-    List<StoreTypeEntity> storeTypes = await storeTypeDao.getAll(); //await getStoreTypes();
+    List<StoreTypeEntity> storeTypes = await storeTypeDao.getAll();
     setState(() {
       dropdownStoreType = storeTypes.map((storeType) {
         return DropdownMenuItem<StoreTypeEntity>(

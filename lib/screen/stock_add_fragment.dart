@@ -23,6 +23,7 @@ import '../main.dart';
 import '../utils/app_color.dart';
 import '../utils/app_style.dart';
 import '../utils/app_utils.dart';
+import '../utils/input_formatter.dart';
 import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
 
@@ -61,7 +62,7 @@ class _StockAddFragment extends State<StockAddFragment> {
   Future<void> loadData() async {
     Future<void> stockProduct = loadStockProduct();
     Future<void> stores = loadStores();
-    List<void> results = await Future.wait([stockProduct,stores]);
+    List<void> results = await Future.wait([stockProduct, stores]);
     viewModel.loadItems();
   }
 
@@ -236,14 +237,14 @@ class _StockAddFragment extends State<StockAddFragment> {
                 ),
                 onPressed: () async {
                   if (selectedStore.store_id == "") {
-                    SnackBarUtils().showSnackBar(context,'Select Store');
+                    SnackBarUtils().showSnackBar(context, 'Select Store');
                   } else {
                     final qtyList = getNonEmptyControllersWithIndices(_qtyControllers);
                     //final uomList =getNonEmptyControllersWithIndices(_uomControllers);
                     //final mfgList =getNonEmptyControllersWithIndices(_mfgDatecontrollers);
                     //final expList =getNonEmptyControllersWithIndices(_expDatecontrollers);
                     if (qtyList.isEmpty) {
-                      SnackBarUtils().showSnackBar(context,'Select a product');
+                      SnackBarUtils().showSnackBar(context, 'Select a product');
                     } else {
                       _showInputDialog();
                     }
@@ -275,7 +276,7 @@ class _StockAddFragment extends State<StockAddFragment> {
 
       final response = await apiServiceMultipart.uploadStockFile(jsonData, file!);
       if (response.status == "200") {
-        final a =123;
+        final a = 123;
         LoaderUtils().dismissLoader(context);
         showSuccessDialog();
       }
@@ -295,21 +296,29 @@ class _StockAddFragment extends State<StockAddFragment> {
 
       DateTime currentDateTime = DateTime.now();
       String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(currentDateTime);
-      final stockID = "STK_"+pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
+      final stockID = "STK_" + pref.getString('user_id')! + formattedDate.replaceAll(" ", "").replaceAll("-", "").replaceAll(":", "");
 
       stock.stock_id = stockID;
       stock.save_date_time = formattedDate;
       stock.store_id = selectedStore.store_id;
       stock.remarks = remarks;
 
+      DateFormat inputFormat = DateFormat('dd-MM-yyyy');
+
       for (var i = 0; i < qtyList.length; i++) {
         final selected_product_id = stockProductL[qtyList[i].key].product_id.toString();
         final selected_qty = qtyList[i].value.text.toString();
         final selected_UOMID = _uomIDControllers[qtyList[i].key].text.toString();
         final selected_UOM = _uomControllers[qtyList[i].key].text.toString();
-        final selected_mfg_date = _mfgDatecontrollers[qtyList[i].key].text.toString();
-        final selected_expire_date = _expDatecontrollers[qtyList[i].key].text.toString();
-        final obj = StockSaveDtlsEntity(stock_id: stockID, product_id: int.parse(selected_product_id),product_dtls_id: i+1, qty: double.parse(selected_qty), uom_id: int.parse(selected_UOMID),uom: selected_UOM, mfg_date: selected_mfg_date, expire_date: selected_expire_date);
+
+        DateTime mfgDate = inputFormat.parse(_mfgDatecontrollers[qtyList[i].key].text.toString());
+        DateTime expDate = inputFormat.parse(_expDatecontrollers[qtyList[i].key].text.toString());
+        String mfgOutputDate = '${mfgDate.year}-${mfgDate.month.toString().padLeft(2, '0')}-${mfgDate.day.toString().padLeft(2, '0')}';
+        String expOutputDate = '${expDate.year}-${expDate.month.toString().padLeft(2, '0')}-${expDate.day.toString().padLeft(2, '0')}';
+
+        final selected_mfg_date = mfgOutputDate;//_mfgDatecontrollers[qtyList[i].key].text.toString();
+        final selected_expire_date = expOutputDate;//_expDatecontrollers[qtyList[i].key].text.toString();
+        final obj = StockSaveDtlsEntity(stock_id: stockID, product_id: int.parse(selected_product_id), product_dtls_id: i + 1, qty: double.parse(selected_qty), uom_id: int.parse(selected_UOMID), uom: selected_UOM, mfg_date: selected_mfg_date, expire_date: selected_expire_date);
         stockL.add(obj);
       }
       await appDatabase.stockSaveDao.insertStock(stock);
@@ -317,32 +326,31 @@ class _StockAddFragment extends State<StockAddFragment> {
       await Future.delayed(Duration(seconds: 2));
 
       bool isOnline = await AppUtils().checkConnectivity();
-      if(isOnline){
-        final request = StockSaveRequest(user_id: pref.getString('user_id')!,stock_id: stock.stock_id,save_date_time: stock.save_date_time,remarks: stock.remarks,
-            store_id: stock.store_id,product_list: stockL);
+      if (isOnline) {
+        final request = StockSaveRequest(user_id: pref.getString('user_id')!, stock_id: stock.stock_id, save_date_time: stock.save_date_time, remarks: stock.remarks, store_id: stock.store_id, product_list: stockL);
         final response = await apiService.saveStock(request);
-        if(response.status == "200"){
-          if(filePath!=""){
+        if (response.status == "200") {
+          if (filePath != "") {
             uploadFileApi(stock.stock_id);
-          }else{
+          } else {
             LoaderUtils().dismissLoader(context);
             showSuccessDialog();
           }
-        }else{
+        } else {
           LoaderUtils().dismissLoader(context);
-          SnackBarUtils().showSnackBar(context,AppMessage().wrong);
+          SnackBarUtils().showSnackBar(context, AppMessage().wrong);
         }
-      }else{
+      } else {
         LoaderUtils().dismissLoader(context);
         showSuccessDialog();
       }
     } catch (e) {
       print(e);
-      SnackBarUtils().showSnackBar(context,AppMessage().wrong);
+      SnackBarUtils().showSnackBar(context, AppMessage().wrong);
     }
   }
 
-  void showSuccessDialog(){
+  void showSuccessDialog() {
     AppUtils().showCustomDialog(context, "Congrats!", "Hi ${pref.getString('user_name') ?? ""}, Your Stock for ${selectedStore.store_name} has been updated successfully.", () {
       Navigator.of(context).pop();
     });
@@ -369,7 +377,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                   TextField(
                     controller: textController,
                     decoration: InputDecoration(
-                      labelText: 'Remarks',
+                      labelText: 'Remarks(optional)',
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -380,7 +388,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                     children: [
                       Expanded(
                         child: Text(
-                          selectedFileName ?? 'No file selected',
+                          selectedFileName ?? 'No file selected(optional)',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -389,14 +397,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                         ),
                       ),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          elevation: 5,
-                          shadowColor: Colors.black87,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          side: const BorderSide(color: Colors.black26, width: 0),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                          backgroundColor: AppColor.colorButton,
-                        ),
+                        style: AppStyle().buttonStyle,
                         onPressed: () async {
                           FilePickerResult? result = await FilePicker.platform.pickFiles();
                           if (result != null && result.files.isNotEmpty) {
@@ -406,7 +407,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                             });
                           }
                         },
-                        child: Text('Attach',style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
+                        child: Text('Attach',style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
                       ),
                     ],
                   ),
@@ -414,19 +415,12 @@ class _StockAddFragment extends State<StockAddFragment> {
               ),
               actions: [
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    elevation: 5,
-                    shadowColor: Colors.black87,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    side: const BorderSide(color: Colors.black26, width: 0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    backgroundColor: AppColor.colorGrey,
-                  ),
+                  style: AppStyle().buttonStyle.copyWith(backgroundColor: MaterialStateProperty.all(AppColor.colorGrey)),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
-                    submitData();
+                    //submitData();
                   },
-                  child: Text('Cancel',style: TextStyle(fontSize: 14, color: AppColor.colorBlack)),
+                  child: Text('Cancel',style: AppStyle().textStyle),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -445,7 +439,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                     Navigator.of(context).pop(); // Close the dialog
                     submitData();
                   },
-                  child: Text('Submit',style: TextStyle(fontSize: 14, color: AppColor.colorWhite)),
+                  child: Text('Submit',style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
                 ),
               ],
             );
@@ -541,9 +535,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                 padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildDetails(_qtyControllers[product.sl_no],_uomControllers[product.sl_no],_mfgDatecontrollers[product.sl_no],_expDatecontrollers[product.sl_no])
-                  ],
+                  children: [_buildDetails(_qtyControllers[product.sl_no], _uomControllers[product.sl_no], _mfgDatecontrollers[product.sl_no], _expDatecontrollers[product.sl_no])],
                 )),
             SizedBox(height: 10),
           ],
@@ -552,8 +544,7 @@ class _StockAddFragment extends State<StockAddFragment> {
     );
   }
 
-  Widget _buildDetails(TextEditingController qtyController,TextEditingController uomController,TextEditingController mfgDateController,
-      TextEditingController expDateController) {
+  Widget _buildDetails(TextEditingController qtyController, TextEditingController uomController, TextEditingController mfgDateController, TextEditingController expDateController) {
     return Flexible(
       child: Column(
         children: [
@@ -636,8 +627,8 @@ class _StockAddFragment extends State<StockAddFragment> {
                     ),
                     textAlign: TextAlign.center,
                     inputFormatters: [
-                        LengthLimitingTextInputFormatter(5), // Maximum of 5 digits
-                      ],
+                      InputFormatter(decimalRange: 0, beforeDecimal: 5,)
+                    ],
                   ),
                 ),
               ),
@@ -667,13 +658,14 @@ class _StockAddFragment extends State<StockAddFragment> {
                   height: 45, // Fixed height for text box
                   alignment: Alignment.center,
                   child: TextFormField(
-                    readOnly: true,
-                    controller: mfgDateController,
-                    decoration: InputDecoration(
-                      hintText: '',
-                      border: UnderlineInputBorder(),
-                    ),
-                    textAlign: TextAlign.center,
+                      readOnly: true,
+                      controller: mfgDateController,
+                      decoration: InputDecoration(
+                        hintText: 'MM-DD-YYYY',
+                        hintStyle: AppStyle().hintStyle,
+                        border: UnderlineInputBorder(),
+                      ),
+                      textAlign: TextAlign.center,
                       onTap: () async {
                         // Open date picker when the field is tapped
                         DateTime? selectedDate = await showDatePicker(
@@ -683,11 +675,10 @@ class _StockAddFragment extends State<StockAddFragment> {
                           lastDate: DateTime(2100),
                         );
                         if (selectedDate != null) {
-                          String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+                          String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
                           mfgDateController.text = formattedDate;
                         }
-                      }
-                  ),
+                      }),
                 ),
               ),
               SizedBox(
@@ -701,20 +692,33 @@ class _StockAddFragment extends State<StockAddFragment> {
                       readOnly: true,
                       controller: expDateController,
                       decoration: InputDecoration(
-                        hintText: '',
+                        hintText: 'MM-DD-YYYY',
+                        hintStyle: AppStyle().hintStyle,
                         border: UnderlineInputBorder(),
                       ),
                       textAlign: TextAlign.center,
                       onTap: () async {
-                        // Open date picker when the field is tapped
+                        if(mfgDateController.text == ""){
+                          SnackBarUtils().showSnackBar(context, 'Select Mfg. Date');
+                          return;
+                        }
+                        DateTime mfgDate = DateFormat('dd-MM-yyyy').parse(mfgDateController.text);
                         DateTime? selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: mfgDate.add(const Duration(days: 1)),
+                          firstDate: mfgDate.add(const Duration(days: 1)),
+                          lastDate: DateTime(2100),
+                        );
+
+                        // Open date picker when the field is tapped
+                       /* DateTime? selectedDate = await showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2100),
-                        );
+                        );*/
                         if (selectedDate != null) {
-                          String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
+                          String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
                           expDateController.text = formattedDate;
                         }
                       }),

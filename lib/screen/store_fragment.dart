@@ -37,7 +37,7 @@ class _StoreFragmentState extends State<StoreFragment> {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: Padding(
-        padding: EdgeInsets.all(5.0),
+        padding: EdgeInsets.all(0.0),
         child: ChangeNotifierProvider<ItemViewModel>(
           create: (_) => viewModel,
           child: Column(
@@ -109,7 +109,10 @@ class _StoreFragmentState extends State<StoreFragment> {
                               //return Center(child: CircularProgressIndicator());
                             }
                             final item = viewModel.items[index];
-                            return _buildCard(item);
+                            return Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: _buildCard(item),
+                            );
                           },
                         ),
                       ),
@@ -139,11 +142,11 @@ class _StoreFragmentState extends State<StoreFragment> {
   Widget _buildCard(StoreEntity store) {
     return Card(
       color: AppColor.colorWhite,
-      margin: AppStyle().cardMargin,
+      margin: AppStyle().cardMargin.copyWith(left: 0,right: 0,top: 0,bottom: 0),
       elevation: AppStyle().cardEvevation,
       shape: AppStyle().cardShape,
       child: Padding(
-        padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 10.0, bottom: 10.0),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
