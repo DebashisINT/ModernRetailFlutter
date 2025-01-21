@@ -108,7 +108,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                             return true;
                           },
                           child: ListView.builder(
-                            padding: EdgeInsets.only(bottom: 150.0),
+                            padding: EdgeInsets.only(bottom: 100.0),
                             itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
                             itemBuilder: (context, index) {
                               if (index == viewModel.items.length) {
@@ -244,7 +244,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                   Expanded(
                     child: Text(
                       product.product_name,
-                      style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorBlue),
+                      style: AppStyle().orderHeaderStyle.copyWith(color: AppColor.colorDeepGreen),
                       overflow: TextOverflow.clip, // Ensures the text wraps properly
                       softWrap: true,
                     ),
@@ -292,10 +292,10 @@ class _OrderCartFragment extends State<OrderCartFragment> {
             Row(
               children: [
                 Container(
-                  width: 30, // Increase container width to accommodate padding
-                  height: 30, // Increase container height to accommodate padding
+                  width: 25, // Increase container width to accommodate padding
+                  height: 25, // Increase container height to accommodate padding
                   decoration: BoxDecoration(
-                    color: AppColor.colorGreyLight, // Background color
+                    color: AppColor.colorLightYellow, // Background color
                     borderRadius: BorderRadius.circular(200), // Rounded corners
                     boxShadow: [
                       AppStyle().boxShadow,
@@ -306,7 +306,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(200),
                       child: Image.asset(
-                        "assets/images/ic_mrp.png", // Replace with your image path
+                        "assets/images/ic_mrp_icon.png", // Replace with your image path
                         fit: BoxFit.fill, // Adjust image scaling
                       ),
                     ),
@@ -320,8 +320,8 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                     crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
                     mainAxisAlignment: MainAxisAlignment.start, // Ensure text starts from the top
                     children: [
-                      Text("MRP", style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey)),
-                      Text(product.product_mrp.toString(), style: AppStyle().textStyle.copyWith(color: AppColor.colorBlue)),
+                      Text("MRP", style: AppStyle().textStyle.copyWith(color: AppColor.colorBlack)),
+                      Text(product.product_mrp.toString(), style: AppStyle().textStyle.copyWith(color: AppColor.colorDeepGreen)),
                     ],
                   ),
                 ),
@@ -329,7 +329,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
             ),
             SizedBox(height: 5),
             Padding(
-                padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
+                padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 5.0, bottom: 0.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [_buildEntryDetails(product, _qtyControllers[index], _rateControllers[index], _qtyFocusNode[index], _rateFocusNode[index],index)],
@@ -349,7 +349,7 @@ class _OrderCartFragment extends State<OrderCartFragment> {
           SizedBox(
             width: 5,
           ),
-          Expanded(
+         /* Expanded(
             child: Column(
               children: [
                 Container(
@@ -381,11 +381,66 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                 ),
               ],
             ),
+          ),*/
+          Expanded(
+            child: SizedBox(
+              height: 50,
+              child: TextField(
+                controller: qtyController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  InputFormatter(decimalRange: 2, beforeDecimal: 5), // Custom formatter for decimals
+                ],
+                decoration: InputDecoration(
+                  labelText: "QTY",
+                  hintText: "QTY",
+                  labelStyle: AppStyle().labelStyle,
+                  hintStyle: AppStyle().hintStyle,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(15.0), // Optional: to add padding around the image
+                    child: Image.asset(
+                      'assets/images/ic_qty_icon.png', // Your custom icon image
+                      width: 12, // You can set width and height to fit
+                      height: 12,
+                      fit: BoxFit.fill,
+                      color: AppColor.colorBlack,
+                    ),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 16.0, // Increase vertical padding
+                    horizontal: 12.0, // Adjust horizontal padding if needed
+                  ),
+                ),
+                style: AppStyle().textStyle, // Optional: Custom text style
+                textAlignVertical: TextAlignVertical.center,
+                scrollPhysics: const BouncingScrollPhysics(), // Enables smooth scrolling
+                scrollPadding: const EdgeInsets.all(8.0),
+
+                  onChanged: (text) {
+                    // Handle text changes here
+                    setState(() {
+                      _visibilityControllers[index] = true;
+                    });
+                  },
+
+              ),
+            ),
           ),
           SizedBox(
             width: 15,
           ),
-          Expanded(
+          /*Expanded(
             child: Column(
               children: [
                 Container(
@@ -416,6 +471,61 @@ class _OrderCartFragment extends State<OrderCartFragment> {
                   ),
                 ),
               ],
+            ),
+          ),*/
+          Expanded(
+            child: SizedBox(
+              height: 50,
+              child: TextField(
+                controller: rateController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  InputFormatter(decimalRange: 2, beforeDecimal: 5), // Custom formatter for decimals
+                ],
+                decoration: InputDecoration(
+                  labelText: "Rate",
+                  hintText: "Rate",
+                  labelStyle: AppStyle().labelStyle,
+                  hintStyle: AppStyle().hintStyle,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(15.0), // Optional: to add padding around the image
+                    child: Image.asset(
+                      'assets/images/ic_rate_icon.png', // Your custom icon image
+                      width: 12, // You can set width and height to fit
+                      height: 12,
+                      fit: BoxFit.fill,
+                      color: AppColor.colorBlack,
+                    ),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 16.0, // Increase vertical padding
+                    horizontal: 12.0, // Adjust horizontal padding if needed
+                  ),
+                ),
+                style: AppStyle().textStyle, // Optional: Custom text style
+                textAlignVertical: TextAlignVertical.center,
+                scrollPhysics: const BouncingScrollPhysics(), // Enables smooth scrolling
+                scrollPadding: const EdgeInsets.all(8.0),
+
+                onChanged: (text) {
+                  // Handle text changes here
+                  setState(() {
+                    _visibilityControllers[index] = true;
+                  });
+                },
+
+              ),
             ),
           ),
           SizedBox(
