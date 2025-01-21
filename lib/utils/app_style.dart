@@ -28,8 +28,8 @@ class AppStyle {
   );
 
   TextStyle orderHeaderStyle = TextStyle(
-    fontSize: 16,
-    color: AppColor.colorBlack,
+    fontSize: 15,
+    color: AppColor.colorDeepGreen,
   );
 
   TextStyle labelStyle = TextStyle(
