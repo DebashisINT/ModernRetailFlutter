@@ -414,7 +414,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
             child: SizedBox(
               height: 50,
               child: TextField(
-                controller: qtyController,
+                controller: rateController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   InputFormatter(decimalRange: 2, beforeDecimal: 5), // Custom formatter for decimals
