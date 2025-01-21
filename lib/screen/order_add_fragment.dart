@@ -6,9 +6,12 @@ import 'package:modern_retail/screen/order_cart_fragment.dart';
 import 'package:modern_retail/utils/app_style.dart';
 import 'package:provider/provider.dart';
 
+import '../api/response/order_delete_request.dart';
 import '../main.dart';
 import '../utils/app_color.dart';
+import '../utils/app_utils.dart';
 import '../utils/input_formatter.dart';
+import '../utils/loader_utils.dart';
 import '../utils/snackbar_utils.dart';
 
 class OrderAddFragment extends StatefulWidget {
@@ -318,8 +321,10 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
                     mainAxisAlignment: MainAxisAlignment.start, // Ensure text starts from the top
                     children: [
-                      Text("MRP", style: AppStyle().textStyle.copyWith(color: AppColor.colorBlack)),
-                      Text("₹ "+product.product_mrp.toString(), style: AppStyle().textStyle.copyWith(color: AppColor.colorDeepGreen)),
+                      Text(
+                        "MRP : ₹ ${product.product_mrp.toString()}",
+                        style: AppStyle().textStyle.copyWith(color: AppColor.colorBlack),
+                      ),
                     ],
                   ),
                 ),
@@ -505,6 +510,8 @@ class _OrderAddFragment extends State<OrderAddFragment> {
     );
   }
 
+
+
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       title: Center(
@@ -516,11 +523,30 @@ class _OrderAddFragment extends State<OrderAddFragment> {
       backgroundColor: AppColor.colorToolbar,
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: Colors.white),
-        // Back button on the left
-        onPressed: () {
-          Navigator.pop(context); // Navigate back
+
+        onPressed: () async {
+
+          // Check conditions before showing the popup
+          List<OrderProductEntity> updatedProducts = await appDatabase.orderProductDao.getAllAdded();
+
+          if (_qtyControllers.any((controller) => controller.text.isNotEmpty && controller.text != "0") &&
+              _rateControllers.any((controller) => controller.text.isNotEmpty && controller.text != "0") &&
+              updatedProducts.isNotEmpty) {
+            // Show confirmation dialog
+
+            AppUtils().showCustomDialogOkCancel(context, "Hi ${pref.getString('user_name') ?? ""}!",
+                "Click Ok to clear the cart and back to the list to start again.", () {
+              Navigator.pop(context); // Close the dialog
+              Navigator.pop(context); // Navigate back to the list
+            });
+
+          } else {
+            // Navigate back without showing the popup
+            Navigator.pop(context);
+          }
         },
       ),
+
       actions: [
         IconButton(
           icon: Icon(Icons.home, color: Colors.white), // Home icon on the right
@@ -531,7 +557,9 @@ class _OrderAddFragment extends State<OrderAddFragment> {
       ],
     );
   }
+
 }
+
 
 enum LoadingState { idle, loading, error }
 
