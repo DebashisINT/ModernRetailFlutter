@@ -960,7 +960,7 @@ class _StockAddFragment extends State<StockAddFragment> {
           Row(
             children: [
               SizedBox(
-                width: 10,
+                width: 5,
               ),
               Expanded(
                 child: SizedBox(
@@ -1036,7 +1036,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                 ),
               ),
               SizedBox(
-                width: 10,
+                width: 5,
               ),
             ],
           ),
@@ -1046,7 +1046,7 @@ class _StockAddFragment extends State<StockAddFragment> {
           Row(
             children: [
               SizedBox(
-                width: 10,
+                width: 5,
               ),
               Expanded(
                 child: SizedBox(
@@ -1155,7 +1155,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                 ),
               ),
               SizedBox(
-                width: 10,
+                width: 5,
               ),
             ],
           ),

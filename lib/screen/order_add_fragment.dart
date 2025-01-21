@@ -235,61 +235,49 @@ class _OrderAddFragment extends State<OrderAddFragment> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      chipTheme: ChipThemeData(
-                        side: BorderSide.none, // Remove borders globally for this Chip
-                      ),
-                    ),
-                    child: Chip(
-                      label: Text(product.brand_name),
-                      backgroundColor: AppColor.color1,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18), // Adjust radius as needed
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      chipTheme: ChipThemeData(
-                        side: BorderSide.none, // Remove borders globally for this Chip
-                      ),
-                    ),
-                    child: Chip(
-                      label: Text(product.category_name),
-                      backgroundColor: AppColor.color2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18), // Adjust radius as needed
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      chipTheme: ChipThemeData(
-                        side: BorderSide.none, // Remove borders globally for this Chip
-                      ),
-                    ),
-                    child: Chip(
-                      label: Text(product.watt_name),
-                      backgroundColor: AppColor.color3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18), // Adjust radius as needed
-                      ),
-                    ),
-                  ),
-                ],
+          SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              Chip(
+                label: Text(
+                  product.brand_name,
+                  style: AppStyle().textStyle,
+                ),
+                backgroundColor: AppColor.color1,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18), // Adjust radius as needed
+                ),
               ),
-            ),
+              SizedBox(
+                width: 10,
+              ),
+              Chip(
+                label: Text(
+                  product.category_name,
+                  style: AppStyle().textStyle,
+                ),
+                backgroundColor: AppColor.color2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18), // Adjust radius as needed
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Chip(
+                label: Text(
+                  product.watt_name,
+                  style: AppStyle().textStyle,
+                ),
+                backgroundColor: AppColor.color3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18), // Adjust radius as needed
+                ),
+              ),
+            ],
+          ),
+        ),
             SizedBox(height: 5),
             Padding(
               padding: const EdgeInsets.only(left: 5.0), // Add 16 pixels of left margin
@@ -298,7 +286,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                 style: AppStyle().orderHeaderStyle.copyWith(color: AppColor.colorDeepGreen),
               ),
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 10),
             Row(
               children: [
                 Container(
@@ -337,7 +325,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                 ),
               ],
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 15),
             Padding(
                 padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
                 child: Row(
