@@ -67,9 +67,15 @@ class AppStyle {
 
   BoxShadow boxShadow = BoxShadow(
   color: AppColor.colorGrey, // Shadow color
-  blurRadius: 1, // Blur radius
+  blurRadius: 2, // Blur radius
   spreadRadius: 1, // Spread radius
   offset: Offset(0, 1), // Shadow offset
   );
 
+  BoxShadow boxShadowLargeView = BoxShadow(
+    color: AppColor.colorGrey, // Shadow color
+    blurRadius: 4, // Blur radius
+    spreadRadius: 1, // Spread radius
+    offset: Offset(0, 1), // Shadow offset
+  );
 }

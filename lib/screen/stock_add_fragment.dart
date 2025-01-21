@@ -534,7 +534,7 @@ class _StockAddFragment extends State<StockAddFragment> {
             ),
             SizedBox(height: 10),
             Padding(
-                padding: const EdgeInsets.only(left: 1.0, right: 1.0, top: 0.0, bottom: 0.0),
+                padding: const EdgeInsets.only(left: 10.0, right: 1.0, top: 0.0, bottom: 0.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [_buildDetails(_qtyControllers[product.sl_no], _uomControllers[product.sl_no], _mfgDatecontrollers[product.sl_no], _expDatecontrollers[product.sl_no])],
