@@ -10,19 +10,19 @@ class AppStyle {
   AppStyle._internal();
 
   TextStyle toolbarTextStyle = TextStyle(
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: FontWeight.normal,
     color: AppColor.colorWhite,
   );
 
   TextStyle textStyle = TextStyle(
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: FontWeight.normal,
     color: AppColor.colorBlack,
   );
 
   TextStyle textHeaderStyle = TextStyle(
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: FontWeight.bold,
     color: AppColor.colorBlack,
   );
@@ -34,13 +34,13 @@ class AppStyle {
 
   TextStyle labelStyle = TextStyle(
     color: AppColor.colorGrey, // Color for the label text
-    fontSize: 12, // Optional: adjust font size
+    fontSize: 14, // Optional: adjust font size
     fontWeight: FontWeight.normal, // Optional: adjust font weight
   );
 
   TextStyle hintStyle = TextStyle(
     color: AppColor.colorGrey, // Color for the label text
-    fontSize: 12, // Optional: adjust font size
+    fontSize: 14, // Optional: adjust font size
     fontWeight: FontWeight.normal, // Optional: adjust font weight
   );
 

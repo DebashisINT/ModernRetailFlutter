@@ -89,24 +89,29 @@ class _OrderAddFragment extends State<OrderAddFragment> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: TextField(
-                  decoration: InputDecoration(
+                padding: EdgeInsets.only(left: 15,right: 15,top: 5,bottom: 1),
+                child: SizedBox(
+                  height: 50, // Fixed height for the TextField
+                  child: TextField(
+                    decoration: InputDecoration(
                       hintText: "Search Product",
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                       filled: true,
                       // Enable filling the background color
                       fillColor: AppColor.colorWhite,
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: blue border when focused
-                      )),
-                  onChanged: (query) {
-                    viewModel.loadItems(refresh: true, query: query);
-                  },
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: green border when focused
+                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 12.0), // Adjust vertical padding if needed
+                    ),
+                    onChanged: (query) {
+                      viewModel.loadItems(refresh: true, query: query);
+                    },
+                  ),
                 ),
               ),
               Expanded(
@@ -400,10 +405,10 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     horizontal: 12.0, // Adjust horizontal padding if needed
                   ),
                 ),
-                style: TextStyle(
-                  fontSize: 16.0, // Adjust font size to your design
-                  height: 1.5, // Line height to ensure proper spacing
-                ),
+                style: AppStyle().textStyle, // Optional: Custom text style
+                textAlignVertical: TextAlignVertical.center,
+                scrollPhysics: const BouncingScrollPhysics(), // Enables smooth scrolling
+                scrollPadding: const EdgeInsets.all(8.0),
               ),
             ),
           ),
@@ -414,7 +419,7 @@ class _OrderAddFragment extends State<OrderAddFragment> {
             child: SizedBox(
               height: 50,
               child: TextField(
-                controller: qtyController,
+                controller: rateController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   InputFormatter(decimalRange: 2, beforeDecimal: 5), // Custom formatter for decimals
@@ -450,10 +455,10 @@ class _OrderAddFragment extends State<OrderAddFragment> {
                     horizontal: 12.0, // Adjust horizontal padding if needed
                   ),
                 ),
-                style: TextStyle(
-                  fontSize: 16.0, // Adjust font size to your design
-                  height: 1.5, // Line height to ensure proper spacing
-                ),
+                style: AppStyle().textStyle, // Optional: Custom text style
+                textAlignVertical: TextAlignVertical.center,
+                scrollPhysics: const BouncingScrollPhysics(), // Enables smooth scrolling
+                scrollPadding: const EdgeInsets.all(8.0),
               ),
             ),
           ),
