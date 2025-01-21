@@ -29,13 +29,13 @@ class AppStyle {
 
   TextStyle labelStyle = TextStyle(
     color: AppColor.colorGrey, // Color for the label text
-    fontSize: 15, // Optional: adjust font size
+    fontSize: 12, // Optional: adjust font size
     fontWeight: FontWeight.normal, // Optional: adjust font weight
   );
 
   TextStyle hintStyle = TextStyle(
     color: AppColor.colorGrey, // Color for the label text
-    fontSize: 15, // Optional: adjust font size
+    fontSize: 12, // Optional: adjust font size
     fontWeight: FontWeight.normal, // Optional: adjust font weight
   );
 

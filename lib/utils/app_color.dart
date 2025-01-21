@@ -10,9 +10,9 @@ class AppColor{
   static const Color colorTransparent = Color(0x00000000);
   static const Color colorTransparent75 = Color(0xBF000000);
 
-  static const Color color1= Color(0xFF95B9C7);
-  static const Color color2= Color(0xFF98D1EC);
-  static const Color color3= Color(0xFFB0C8DE);
+  static const Color color1= Color(0xFFEDF5FF);
+  static const Color color2= Color(0xFFFFEDED);
+  static const Color color3= Color(0xFFFEFCE5);
 
   static const Color colorTealLight= Color(0xFFB2DFDB);
   static const Color colorSmokeWhite= Color(0xFFE6E5E5);
