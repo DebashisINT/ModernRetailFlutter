@@ -53,6 +53,8 @@ class _StockAddFragment extends State<StockAddFragment> {
 
   final apiService = ApiService(Dio());
 
+  bool _visibilityController = false;
+
   @override
   void initState() {
     super.initState();
@@ -126,7 +128,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                   ],
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  padding: const EdgeInsets.all(15),
                   child: DropdownButton<StoreEntity>(
                     isExpanded: true,
                     underline: SizedBox(),
@@ -134,7 +136,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                     // Default value
                     hint: Text(
                       selectedStore.store_name.isEmpty ? "Select Store" : selectedStore.store_name,
-                      style: TextStyle(color: AppColor.colorBlueSteel),
+                      style: AppStyle().textStyle.copyWith(color: AppColor.colorBlue),
                     ),
                     items: dropdownStores,
                     onChanged: (value) {
@@ -142,115 +144,131 @@ class _StockAddFragment extends State<StockAddFragment> {
                         try {
                           // Update your selectedStore here
                           selectedStore = value!;
+                          _visibilityController = true;
                         } catch (e) {
                           print(e);
                         }
                       });
                     },
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorBlue),
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                    hintText: "Search Product",
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    filled: true,
-                    // Enable filling the background color
-                    fillColor: AppColor.colorWhite,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                      borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: blue border when focused
-                    )),
-                onChanged: (query) {
-                  viewModel.loadItems(refresh: true, query: query);
-                },
-              ),
-            ),
-            Expanded(
-              child: Consumer<ItemViewModel>(
-                builder: (context, viewModel, child) {
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      await viewModel.loadItems(refresh: true);
-                    },
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
-                          return false;
-                        }
-                        if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
-                          viewModel.loadItems();
-                        }
-                        return true;
-                      },
-                      child: ListView.builder(
-                        padding: EdgeInsets.only(bottom: 150.0),
-                        itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (index == viewModel.items.length) {
-                            if (viewModel.loadingState == LoadingState.error) {
-                              return Center(
-                                child: ElevatedButton(
-                                  onPressed: () => viewModel.loadItems(),
-                                  child: Text('Retry'),
-                                ),
-                              );
-                            } else if (viewModel.loadingState == LoadingState.loading) {
-                              return Center(child: CircularProgressIndicator()); // Show loader while loading
-                            } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
-                              // When idle and no items, show a message
-                              //return Center(child: Text("No items available"));
-                              return SizedBox.shrink();
-                            } else if (viewModel.loadingState == LoadingState.idle) {
-                              // Idle state but items are loaded, just return an empty container or nothing
-                              return SizedBox.shrink(); // No loader, no retry button
-                            }
-                            //return Center(child: CircularProgressIndicator());
-                          }
-
-                          final item = viewModel.items[index];
-                          return _buildProductCard(item, index);
-                        },
+            Visibility(
+              visible: _visibilityController,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: SizedBox(
+                  height: 50, // Fixed height for the TextField
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search Product",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
+                      filled: true,
+                      // Enable filling the background color
+                      fillColor: AppColor.colorWhite,
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(color: AppColor.colorGreenMoss), // Example: green border when focused
+                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 12.0), // Adjust vertical padding if needed
                     ),
-                  );
-                },
+                    onChanged: (query) {
+                      viewModel.loadItems(refresh: true, query: query);
+                    },
+                  ),
+                ),
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  elevation: 5,
-                  shadowColor: Colors.black,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  side: const BorderSide(color: Colors.black26, width: 0),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
-                  backgroundColor: AppColor.colorButton,
+            Visibility(
+              visible: _visibilityController,
+              child: Expanded(
+                child: Consumer<ItemViewModel>(
+                  builder: (context, viewModel, child) {
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        await viewModel.loadItems(refresh: true);
+                      },
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (!viewModel.hasMoreData || viewModel.loadingState == LoadingState.loading) {
+                            return false;
+                          }
+                          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent) {
+                            viewModel.loadItems();
+                          }
+                          return true;
+                        },
+                        child: ListView.builder(
+                          padding: EdgeInsets.only(bottom: 150.0),
+                          itemCount: viewModel.items.length + (viewModel.hasMoreData ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == viewModel.items.length) {
+                              if (viewModel.loadingState == LoadingState.error) {
+                                return Center(
+                                  child: ElevatedButton(
+                                    onPressed: () => viewModel.loadItems(),
+                                    child: Text('Retry'),
+                                  ),
+                                );
+                              } else if (viewModel.loadingState == LoadingState.loading) {
+                                return Center(child: CircularProgressIndicator()); // Show loader while loading
+                              } else if (viewModel.loadingState == LoadingState.idle && viewModel.items.isEmpty) {
+                                // When idle and no items, show a message
+                                //return Center(child: Text("No items available"));
+                                return SizedBox.shrink();
+                              } else if (viewModel.loadingState == LoadingState.idle) {
+                                // Idle state but items are loaded, just return an empty container or nothing
+                                return SizedBox.shrink(); // No loader, no retry button
+                              }
+                              //return Center(child: CircularProgressIndicator());
+                            }
+
+                            final item = viewModel.items[index];
+                            return _buildProductCard(item, index);
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                onPressed: () async {
-                  if (selectedStore.store_id == "") {
-                    SnackBarUtils().showSnackBar(context, 'Select Store');
-                  } else {
-                    final qtyList = getNonEmptyControllersWithIndices(_qtyControllers);
-                    //final uomList =getNonEmptyControllersWithIndices(_uomControllers);
-                    //final mfgList =getNonEmptyControllersWithIndices(_mfgDatecontrollers);
-                    //final expList =getNonEmptyControllersWithIndices(_expDatecontrollers);
-                    if (qtyList.isEmpty) {
-                      SnackBarUtils().showSnackBar(context, 'Select a product');
+              ),
+            ),
+            Visibility(
+              visible: _visibilityController,
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    elevation: 5,
+                    shadowColor: Colors.black,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    side: const BorderSide(color: Colors.black26, width: 0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0)),
+                    backgroundColor: AppColor.colorButton,
+                  ),
+                  onPressed: () async {
+                    if (selectedStore.store_id == "") {
+                      SnackBarUtils().showSnackBar(context, 'Select Store');
                     } else {
-                      _showInputDialog();
+                      final qtyList = getNonEmptyControllersWithIndices(_qtyControllers);
+                      //final uomList =getNonEmptyControllersWithIndices(_uomControllers);
+                      //final mfgList =getNonEmptyControllersWithIndices(_mfgDatecontrollers);
+                      //final expList =getNonEmptyControllersWithIndices(_expDatecontrollers);
+                      if (qtyList.isEmpty) {
+                        SnackBarUtils().showSnackBar(context, 'Select a product');
+                      } else {
+                        _showInputDialog();
+                      }
                     }
-                  }
-                },
-                child: const Text('Submit', style: TextStyle(fontSize: 18, color: AppColor.colorWhite)),
+                  },
+                  child: const Text('Submit', style: TextStyle(fontSize: 18, color: AppColor.colorWhite)),
+                ),
               ),
             ),
           ],
@@ -283,7 +301,7 @@ class _StockAddFragment extends State<StockAddFragment> {
     } catch (e) {
       print(e);
       Navigator.of(context).pop();
-      SnackBarUtils().showSnackBar(context,'Something went wrong.');
+      SnackBarUtils().showSnackBar(context, 'Something went wrong.');
     }
   }
 
@@ -316,8 +334,8 @@ class _StockAddFragment extends State<StockAddFragment> {
         String mfgOutputDate = '${mfgDate.year}-${mfgDate.month.toString().padLeft(2, '0')}-${mfgDate.day.toString().padLeft(2, '0')}';
         String expOutputDate = '${expDate.year}-${expDate.month.toString().padLeft(2, '0')}-${expDate.day.toString().padLeft(2, '0')}';
 
-        final selected_mfg_date = mfgOutputDate;//_mfgDatecontrollers[qtyList[i].key].text.toString();
-        final selected_expire_date = expOutputDate;//_expDatecontrollers[qtyList[i].key].text.toString();
+        final selected_mfg_date = mfgOutputDate; //_mfgDatecontrollers[qtyList[i].key].text.toString();
+        final selected_expire_date = expOutputDate; //_expDatecontrollers[qtyList[i].key].text.toString();
         final obj = StockSaveDtlsEntity(stock_id: stockID, product_id: int.parse(selected_product_id), product_dtls_id: i + 1, qty: double.parse(selected_qty), uom_id: int.parse(selected_UOMID), uom: selected_UOM, mfg_date: selected_mfg_date, expire_date: selected_expire_date);
         stockL.add(obj);
       }
@@ -407,7 +425,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                             });
                           }
                         },
-                        child: Text('Attach',style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
+                        child: Text('Attach', style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
                       ),
                     ],
                   ),
@@ -420,7 +438,7 @@ class _StockAddFragment extends State<StockAddFragment> {
                     Navigator.of(context).pop(); // Close the dialog
                     //submitData();
                   },
-                  child: Text('Cancel',style: AppStyle().textStyle),
+                  child: Text('Cancel', style: AppStyle().textStyle),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -433,13 +451,13 @@ class _StockAddFragment extends State<StockAddFragment> {
                   ),
                   onPressed: () {
                     remarks = textController.text;
-                    if(selectedFilePath != null){
+                    if (selectedFilePath != null) {
                       filePath = selectedFilePath!;
                     }
                     Navigator.of(context).pop(); // Close the dialog
                     submitData();
                   },
-                  child: Text('Submit',style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
+                  child: Text('Submit', style: AppStyle().textStyle.copyWith(color: AppColor.colorWhite)),
                 ),
               ],
             );
@@ -452,7 +470,7 @@ class _StockAddFragment extends State<StockAddFragment> {
   Widget _buildProductCard(StockProductEntity product, int index) {
     return Card(
       color: AppColor.colorWhite,
-      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+      margin: const EdgeInsets.only(left: 10,right: 10,top: 5, bottom: 5,),
       elevation: 5.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -467,67 +485,51 @@ class _StockAddFragment extends State<StockAddFragment> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      chipTheme: ChipThemeData(
-                        side: BorderSide.none, // Remove borders globally for this Chip
-                      ),
+                  Chip(
+                    label: Text(
+                      product.brand_name,
+                      style: AppStyle().textStyle,
                     ),
-                    child: Chip(
-                      label: Text(product.brand_name),
-                      backgroundColor: AppColor.color1,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18), // Adjust radius as needed
-                      ),
+                    backgroundColor: AppColor.color1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18), // Adjust radius as needed
                     ),
                   ),
                   SizedBox(
                     width: 10,
                   ),
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      chipTheme: ChipThemeData(
-                        side: BorderSide.none, // Remove borders globally for this Chip
-                      ),
+                  Chip(
+                    label: Text(
+                      product.category_name,
+                      style: AppStyle().textStyle,
                     ),
-                    child: Chip(
-                      label: Text(product.category_name),
-                      backgroundColor: AppColor.color2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18), // Adjust radius as needed
-                      ),
+                    backgroundColor: AppColor.color2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18), // Adjust radius as needed
                     ),
                   ),
                   SizedBox(
                     width: 10,
                   ),
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      chipTheme: ChipThemeData(
-                        side: BorderSide.none, // Remove borders globally for this Chip
-                      ),
+                  Chip(
+                    label: Text(
+                      product.watt_name,
+                      style: AppStyle().textStyle,
                     ),
-                    child: Chip(
-                      label: Text(product.watt_name),
-                      backgroundColor: AppColor.color3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18), // Adjust radius as needed
-                      ),
+                    backgroundColor: AppColor.color3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18), // Adjust radius as needed
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             Padding(
               padding: const EdgeInsets.only(left: 5.0), // Add 16 pixels of left margin
               child: Text(
                 product.product_name,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColor.colorButton,
-                ),
+                style: AppStyle().textHeaderStyle.copyWith(color: AppColor.colorBlue),
               ),
             ),
             SizedBox(height: 10),
@@ -544,7 +546,7 @@ class _StockAddFragment extends State<StockAddFragment> {
     );
   }
 
-  Widget _buildDetails(TextEditingController qtyController, TextEditingController uomController, TextEditingController mfgDateController, TextEditingController expDateController) {
+  /*Widget _buildDetails(TextEditingController qtyController, TextEditingController uomController, TextEditingController mfgDateController, TextEditingController expDateController) {
     return Flexible(
       child: Column(
         children: [
@@ -711,7 +713,435 @@ class _StockAddFragment extends State<StockAddFragment> {
                         );
 
                         // Open date picker when the field is tapped
-                       /* DateTime? selectedDate = await showDatePicker(
+                       */ /* DateTime? selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );*/ /*
+                        if (selectedDate != null) {
+                          String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
+                          expDateController.text = formattedDate;
+                        }
+                      }),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+*/
+/*
+  Widget _buildDetails(TextEditingController qtyController, TextEditingController uomController, TextEditingController mfgDateController, TextEditingController expDateController) {
+    return Flexible(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 25,
+              ),
+              Expanded(
+                child: Container(
+                  //height: 40, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Quantity',
+                    textAlign: TextAlign.center,
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              Expanded(
+                child: Container(
+                  //height: 40, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: Text(
+                    'UOM',
+                    textAlign: TextAlign.center,
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 25,
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              SizedBox(
+                width: 25,
+              ),
+              Expanded(
+                child: Container(
+                  height: 30, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: TextFormField(
+                    controller: qtyController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: '',
+                      border: UnderlineInputBorder(),
+                    ),
+                    textAlign: TextAlign.center,
+                    style: AppStyle().textStyle,
+                    inputFormatters: [
+                      InputFormatter(
+                        decimalRange: 0,
+                        beforeDecimal: 5,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              Expanded(
+                child: Container(
+                  height: 30, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: TextFormField(
+                    readOnly: true,
+                    controller: uomController,
+                    decoration: InputDecoration(
+                      hintText: uomController.text,
+                      border: InputBorder.none,
+                    ),
+                    style: AppStyle().textStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 25,
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Row(
+            children: [
+              SizedBox(
+                width: 25,
+              ),
+              Expanded(
+                child: Container(
+                  //height: 40, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Mfg. Date',
+                    textAlign: TextAlign.center,
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              Expanded(
+                child: Container(
+                  //height: 40, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Exp. Date',
+                    textAlign: TextAlign.center,
+                    style: AppStyle().textStyle.copyWith(color: AppColor.colorGrey),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 25,
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              SizedBox(
+                width: 25,
+              ),
+              Expanded(
+                child: Container(
+                  height: 30, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: TextFormField(
+                      readOnly: true,
+                      controller: mfgDateController,
+                      decoration: InputDecoration(
+                        hintText: 'DD-MM-YYYY',
+                        hintStyle: AppStyle().hintStyle,
+                        border: UnderlineInputBorder(),
+                      ),
+                      textAlign: TextAlign.center,
+                      style: AppStyle().textStyle,
+                      onTap: () async {
+                        // Open date picker when the field is tapped
+                        DateTime? selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (selectedDate != null) {
+                          String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
+                          mfgDateController.text = formattedDate;
+                        }
+                      }),
+                ),
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              Expanded(
+                child: Container(
+                  height: 30, // Fixed height for text box
+                  alignment: Alignment.center,
+                  child: TextFormField(
+                      readOnly: true,
+                      controller: expDateController,
+                      decoration: InputDecoration(
+                        hintText: 'DD-MM-YYYY',
+                        hintStyle: AppStyle().hintStyle,
+                        border: UnderlineInputBorder(),
+                      ),
+                      textAlign: TextAlign.center,
+                      style: AppStyle().textStyle,
+                      onTap: () async {
+                        if (mfgDateController.text == "") {
+                          SnackBarUtils().showSnackBar(context, 'Select Mfg. Date');
+                          return;
+                        }
+                        DateTime mfgDate = DateFormat('dd-MM-yyyy').parse(mfgDateController.text);
+                        DateTime? selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: mfgDate.add(const Duration(days: 1)),
+                          firstDate: mfgDate.add(const Duration(days: 1)),
+                          lastDate: DateTime(2100),
+                        );
+
+                        // Open date picker when the field is tapped
+                        */
+/* DateTime? selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );*//*
+
+                        if (selectedDate != null) {
+                          String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
+                          expDateController.text = formattedDate;
+                        }
+                      }),
+                ),
+              ),
+              SizedBox(
+                width: 25,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+*/
+
+  Widget _buildDetails(TextEditingController qtyController, TextEditingController uomController, TextEditingController mfgDateController, TextEditingController expDateController) {
+    return Flexible(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 45,
+                  child: TextField(
+                    controller: qtyController,
+                    keyboardType: TextInputType.number,
+                    maxLines: 1,
+                    decoration: InputDecoration(
+                      labelText: "Quantity",
+                      hintText: "Quantity",
+                      labelStyle: AppStyle().labelStyle,
+                      hintStyle: AppStyle().hintStyle,
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
+                        child: Image.asset(
+                          'assets/images/ic_qty_icon.png', // Your custom icon image
+                          width: 12, // You can set width and height to fit
+                          height: 12,
+                          fit: BoxFit.fill,
+                          color: AppColor.colorBlack,
+                        ),
+                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    style: AppStyle().textStyle, // Optional: Custom text style
+                    textAlignVertical: TextAlignVertical.center,
+                    scrollPhysics: const BouncingScrollPhysics(), // Enables smooth scrolling
+                    scrollPadding: const EdgeInsets.all(8.0), // Adds padding during scroll
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 45,
+                  child: TextField(
+                    controller: uomController,
+                    decoration: InputDecoration(
+                      labelText: "UOM",
+                      hintText: "UOM",
+                      labelStyle: AppStyle().labelStyle,
+                      hintStyle: AppStyle().hintStyle,
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Image.asset(
+                          'assets/images/ic_arrow_down.png', // Your custom icon image
+                          width: 12, // You can set width and height to fit
+                          height: 12,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
+                          borderRadius: BorderRadius.circular(10),
+                        )
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Row(
+            children: [
+              SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 45,
+                  child: TextField(
+                    controller: mfgDateController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: "Mfg. Date",
+                      hintText: "Mfg. Date",
+                      labelStyle: AppStyle().labelStyle,
+                      hintStyle: AppStyle().hintStyle,
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
+                        child: Image.asset(
+                          'assets/images/ic_calender.png', // Your custom icon image
+                          width: 12, // You can set width and height to fit
+                          height: 12,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                      onTap: () async {
+                        DateTime? selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (selectedDate != null) {
+                          String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
+                          mfgDateController.text = formattedDate;
+                        }
+                      }
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 45,
+                  child: TextField(
+                    controller: expDateController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: "Exp. Date",
+                      hintText: "Exp. Date",
+                      labelStyle: AppStyle().labelStyle,
+                      hintStyle: AppStyle().hintStyle,
+                      prefixIcon: Padding(
+                        padding: const EdgeInsets.all(12.0), // Optional: to add padding around the image
+                        child: Image.asset(
+                          'assets/images/ic_calender.png', // Your custom icon image
+                          width: 12, // You can set width and height to fit
+                          height: 12,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppColor.colorBlueSteel, width: 1.5),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppColor.colorGrey, width: 1.5), // Inactive (unfocused) color
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                      onTap: () async {
+                        if (mfgDateController.text == "") {
+                          SnackBarUtils().showSnackBar(context, 'Select Mfg. Date');
+                          return;
+                        }
+                        DateTime mfgDate = DateFormat('dd-MM-yyyy').parse(mfgDateController.text);
+                        DateTime? selectedDate = await showDatePicker(
+                          context: context,
+                          initialDate: mfgDate.add(const Duration(days: 1)),
+                          firstDate: mfgDate.add(const Duration(days: 1)),
+                          lastDate: DateTime(2100),
+                        );
+
+                        // Open date picker when the field is tapped
+                        /* DateTime? selectedDate = await showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
                           firstDate: DateTime(2000),
@@ -721,8 +1151,12 @@ class _StockAddFragment extends State<StockAddFragment> {
                           String formattedDate = DateFormat('dd-MM-yyyy').format(selectedDate);
                           expDateController.text = formattedDate;
                         }
-                      }),
+                      }
+                  ),
                 ),
+              ),
+              SizedBox(
+                width: 10,
               ),
             ],
           ),
