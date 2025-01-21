@@ -10,19 +10,19 @@ class AppStyle {
   AppStyle._internal();
 
   TextStyle toolbarTextStyle = TextStyle(
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: FontWeight.normal,
     color: AppColor.colorWhite,
   );
 
   TextStyle textStyle = TextStyle(
-    fontSize: 15,
+    fontSize: 12,
     fontWeight: FontWeight.normal,
     color: AppColor.colorBlack,
   );
 
   TextStyle textHeaderStyle = TextStyle(
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: FontWeight.bold,
     color: AppColor.colorBlack,
   );
